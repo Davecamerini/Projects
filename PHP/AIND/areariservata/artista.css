@@ -1,0 +1,65 @@
+html {
+    height: 99%;
+}
+
+body {
+    width: 98%;
+    height: 100%;
+    background-color: red;
+    color: white;
+    position: relative;
+}
+
+.header {
+    margin: auto;
+    width: 100%;
+    height: 10vw;
+    text-align: center;
+    margin-bottom: 0;
+    padding-bottom: 2vw;
+}
+
+.sottotitolo {
+    font-size: 4vw;
+    font-weight: 700;
+    line-height: 0;
+    color: black;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.username {
+    margin: auto;
+    margin-top: -10vw;
+    width: 100%;
+    text-align: center;
+    /*font-size: 3vw;*/
+    font-family: sans-serif;
+    font-weight: 800;
+    position: absolute;
+    top: 50%;
+    padding-bottom: 4vw;
+}
+
+.bottone {
+    text-decoration: none;
+    color: black;
+    background-color: white;
+    padding: 20px 25px;
+    border-radius: 100px;
+    border: none;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.victory {
+    margin: auto;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding-top: 2vw;
+}
+
+#victory {
+    width: 100px;
+}

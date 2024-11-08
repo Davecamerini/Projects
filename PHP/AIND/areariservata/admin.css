@@ -1,0 +1,164 @@
+/* Root variables for consistent theming */
+:root {
+    --primary-color: red;
+    --text-color: white;
+    --border-color: white;
+    --base-spacing: 1rem;
+    --border-radius: 100px;
+}
+
+/* Base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    min-height: 100vh;
+    width: 100%;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    font-family: sans-serif;
+}
+
+/* Layout */
+.header {
+    width: 100%;
+    text-align: center;
+    padding: var(--base-spacing) 0;
+    margin-bottom: 2rem;
+}
+
+.header img {
+    max-width: 150px;
+    height: auto;
+}
+
+.map {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--base-spacing);
+    text-align: center;
+    font-weight: 800;
+}
+
+/* Tables */
+.tabella {
+    width: 100%;
+    margin: 2rem auto;
+    border-collapse: collapse;
+}
+
+.cella_head,
+.tabella_id,
+.tabella_user,
+.tabella_data {
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.cella {
+    padding: 1rem;
+    width: 50%;
+}
+
+/* Forms */
+.campo_user {
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.user_input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.8rem 1rem;
+    border-radius: var(--border-radius);
+    margin: 1rem 0;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    border: none;
+}
+
+.form_bottone {
+    padding: 0.8rem 1.5rem;
+    background-color: white;
+    color: black;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.form_bottone:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+/* Footer */
+.victory {
+    width: 100%;
+    text-align: center;
+    padding: 2rem 0;
+}
+
+#victory {
+    width: 100px;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Media Queries */
+@media screen and (max-width: 768px) {
+    .tabella {
+        width: 100%;
+    }
+    
+    .cella {
+        display: block;
+        width: 100%;
+        padding: 1rem 0.5rem;
+    }
+    
+    .user_input {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    :root {
+        --base-spacing: 0.5rem;
+    }
+    
+    .header img {
+        max-width: 120px;
+    }
+    
+    .form_bottone {
+        width: 90%;
+        margin: 0 auto;
+    }
+    
+    #victory {
+        width: 80px;
+    }
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .form_bottone,
+    .victory {
+        display: none;
+    }
+}
