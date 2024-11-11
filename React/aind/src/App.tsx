@@ -1,13 +1,17 @@
-import logo from './logo.svg';
+import { ReactComponent as Logo } from './logo.svg';
+import { Helmet } from 'react-helmet';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
+      <Helmet>
+        <title>AIND</title>
+      </Helmet>
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <Logo className="App-logo" />
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          Edit <code>src/App.tsx</code> and save to fuck your mom.
         </p>
         <a
           className="App-link"
