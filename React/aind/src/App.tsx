@@ -24,7 +24,11 @@ function App() {
           Learn React
         </a>
       </header>
+      <body className='mainContent'>
+        <h1>Welcome to AIND</h1>
+      </body>
     </div>
+    
   );
 }
 
