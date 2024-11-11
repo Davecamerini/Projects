@@ -1,4 +1,6 @@
-import { ReactComponent as Logo } from './logo.svg';
+import React from 'react';
+//import logo from './logo.svg';
+import logo from './images/shuriken-logo.png';
 import { Helmet } from 'react-helmet';
 import './App.css';
 
