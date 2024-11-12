@@ -22,23 +22,24 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <h1>Welcome to AIND</h1>
       </header>
-      <body className='mainContent'>
-        {/* <Calendar /> */}
-        <Calendar
-          renderCell={(date) => (
-            <div>
-              <div>{date.getDate()}</div>
-              {events[formatDate(date)] && (
-                <div style={{ color: 'blue' }}>
-                  {events[formatDate(date)]}
-                </div>
-              )}
-            </div>
-          )}
-        />
+      <body>
+        <div className='calendarContainer'>
+          {/* <Calendar /> */}
+          <Calendar
+            renderCell={(date) => (
+              <div>
+                <div>{date.getDate()}</div>
+                {events[formatDate(date)] && (
+                  <div style={{ color: 'blue' }}>
+                    {events[formatDate(date)]}
+                  </div>
+                )}
+              </div>
+            )}
+          />
+        </div>
       </body>
     </div>
-    
   );
 }
 
