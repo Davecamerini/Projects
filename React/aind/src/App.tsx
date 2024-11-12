@@ -12,7 +12,7 @@ function App() {
       </Helmet>
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
+        {/* <p>
           Edit <code>src/App.tsx</code> and save to fuck your mom.
         </p>
         <a
@@ -22,12 +22,11 @@ function App() {
           rel="noopener noreferrer"
         >
           Learn React
-        </a>
+        </a> */}
+        <h1>Welcome to AIND</h1>
       </header>
       <body className='mainContent'>
-        <div className='mainHeader'>
-          <h1>Welcome to AIND</h1>
-        </div>
+        
       </body>
     </div>
     
