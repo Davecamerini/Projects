@@ -22,7 +22,7 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <h1>Welcome to AIND</h1>
       </header>
-      <body className='mainHeade'>
+      <body className='mainContent'>
         {/* <Calendar /> */}
         <Calendar
           renderCell={(date) => (

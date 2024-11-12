@@ -37,6 +37,11 @@
   color: white;
 }
 
+.mainContent {
+  background-color: #f20000;
+  padding-bottom: 100px;
+}
+
 .App-link {
   color: #61dafb;
 }
