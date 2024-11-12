@@ -19,19 +19,19 @@
   }
   
   .calendar-weekday {
-    background-color: #f5f5f5;
+    background-color: lightblue;
     padding: 0.5rem;
     text-align: center;
     font-weight: bold;
   }
   
   .calendar-cell {
-    background-color: white;
+    background-color: lightblue;
     padding: 1rem;
     min-height: 80px;
     text-align: center;
   }
   
   .calendar-cell.empty {
-    background-color: #f9f9f9;
+    background-color: lightblue;
   }
