@@ -6,6 +6,13 @@ import Calendar from './component/calendar/Calendar.tsx';
 import './App.css';
 
 function App() {
+  const events = {
+    '2024-11-12': 'Meeting',
+    '2024-11-20': 'Birthday',
+  };
+  const formatDate = (date: Date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
   return (
     <div className="App">
       <Helmet>
@@ -15,8 +22,20 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <h1>Welcome to AIND</h1>
       </header>
-      <body className='mainContent'>
-        <Calendar />
+      <body className='mainHeade'>
+        {/* <Calendar /> */}
+        <Calendar
+          renderCell={(date) => (
+            <div>
+              <div>{date.getDate()}</div>
+              {events[formatDate(date)] && (
+                <div style={{ color: 'blue' }}>
+                  {events[formatDate(date)]}
+                </div>
+              )}
+            </div>
+          )}
+        />
       </body>
     </div>
     
