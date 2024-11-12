@@ -25,7 +25,9 @@ function App() {
         </a>
       </header>
       <body className='mainContent'>
-        <h1>Welcome to AIND</h1>
+        <div className='mainHeader'>
+          <h1>Welcome to AIND</h1>
+        </div>
       </body>
     </div>
     
