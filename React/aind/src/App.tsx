@@ -2,6 +2,7 @@ import React from 'react';
 //import logo from './logo.svg';
 import logo from './images/shuriken-logo.png';
 import { Helmet } from 'react-helmet';
+import Calendar from './component/calendar/Calendar.tsx';
 import './App.css';
 
 function App() {
@@ -15,7 +16,7 @@ function App() {
         <h1>Welcome to AIND</h1>
       </header>
       <body className='mainContent'>
-        
+        <Calendar />
       </body>
     </div>
     
