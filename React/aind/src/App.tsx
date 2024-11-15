@@ -15,14 +15,14 @@ function App() {
   };
   return (
     <div className="App">
-      {/* <Helmet>
+      <Helmet>
         <title>AIND - Art Is Not Dead</title>
       </Helmet>
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1>Welcome to AIND</h1>
       </header>
-      <body> */}
+      <body>
         <div className='calendarContainer'>
           {/* <Calendar /> */}
           <Calendar
@@ -38,7 +38,7 @@ function App() {
             )}
           />
         </div>
-      {/* </body> */}
+      </body>
     </div>
   );
 }

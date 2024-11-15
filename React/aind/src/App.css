@@ -1,6 +1,6 @@
 .App {
   text-align: center;
-  /* background-color: #f20000; */
+  background-color: #f20000;
   min-height: 100vh;
 }
 
@@ -37,10 +37,10 @@
   color: white;
 } */
 
-/* .calendarContainer {
+.calendarContainer {
   background-color: #f20000;
   padding-bottom: 100px;
-} */
+}
 
 .App-link {
   color: #61dafb;
