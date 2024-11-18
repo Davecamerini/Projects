@@ -26,7 +26,7 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch('/wp-json/wp-react-calendar/v1/events');
+      const response = await fetch('https://svverniciatureindustriali.com/new_site/wp-json/wp-react-calendar/v1/events');
       const data = await response.json();
 
       console.log('Fetched events:', data);
