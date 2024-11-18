@@ -1,22 +1,22 @@
 // eslint-disable-next-line
 import logo from './logo.svg';
 import './App.css';
-import { infinity } from 'ldrs';
+import { trefoil } from 'ldrs';
 
 function App() {
-  infinity.register();
+  trefoil.register();
   return (
     <div className="App">
       <header className="App-header">
         {/* <img src={logo} className="App-logo" alt="logo" /> */}
-        <l-infinity
+        <l-trefoil
           size="250"
           stroke="15"
           stroke-length="0.1"
           bg-opacity="0.1"
-          speed="1.5"
+          speed="2"
           color="white" 
-        ></l-infinity>
+        ></l-trefoil>
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
