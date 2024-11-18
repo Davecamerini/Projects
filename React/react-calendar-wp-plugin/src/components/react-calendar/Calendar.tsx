@@ -79,7 +79,7 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
           <div className="day-number">{day}</div>
           {dayEvents.map(event => (
             <div key={event.id} className="event-pill">
-              <a href={event.link} target="_blank" rel="noopener noreferrer">
+              <a href={event.link} rel="noopener noreferrer">
                 {event.name}
               </a>
             </div>
