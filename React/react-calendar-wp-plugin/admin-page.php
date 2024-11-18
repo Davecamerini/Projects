@@ -25,6 +25,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             array('%d')
         );
     }
+
+    if (isset($_POST['edit_event'])) {
+        $wpdb->update(
+            $table_name,
+            array(
+                'name' => sanitize_text_field($_POST['event_name']),
+                'date' => sanitize_text_field($_POST['event_date']),
+                'link' => esc_url_raw($_POST['event_link'])
+            ),
+            array('id' => intval($_POST['event_id'])),
+            array('%s', '%s', '%s'),
+            array('%d')
+        );
+    }
 }
 
 // Get all events
@@ -34,25 +48,26 @@ $events = $wpdb->get_results("SELECT * FROM $table_name ORDER BY date ASC");
 <div class="wrap">
     <h1>Calendar Events</h1>
 
-    <!-- Add Event Form -->
-    <h2>Add New Event</h2>
+    <!-- Add/Edit Event Form -->
+    <h2><?php echo isset($_GET['edit_id']) ? 'Edit Event' : 'Add New Event'; ?></h2>
     <form method="post" action="">
+        <input type="hidden" name="event_id" value="<?php echo isset($_GET['edit_id']) ? intval($_GET['edit_id']) : ''; ?>">
         <table class="form-table">
             <tr>
                 <th><label for="event_name">Event Name</label></th>
-                <td><input type="text" name="event_name" id="event_name" class="regular-text" required></td>
+                <td><input type="text" name="event_name" id="event_name" class="regular-text" value="<?php echo isset($event) ? esc_attr($event->name) : ''; ?>" required></td>
             </tr>
             <tr>
                 <th><label for="event_date">Date</label></th>
-                <td><input type="datetime-local" name="event_date" id="event_date" required></td>
+                <td><input type="datetime-local" name="event_date" id="event_date" value="<?php echo isset($event) ? esc_attr($event->date) : ''; ?>" required></td>
             </tr>
             <tr>
                 <th><label for="event_link">Link</label></th>
-                <td><input type="url" name="event_link" id="event_link" class="regular-text" required></td>
+                <td><input type="url" name="event_link" id="event_link" class="regular-text" value="<?php echo isset($event) ? esc_url($event->link) : ''; ?>" required></td>
             </tr>
         </table>
         <p class="submit">
-            <input type="submit" name="add_event" class="button button-primary" value="Add Event">
+            <input type="submit" name="<?php echo isset($_GET['edit_id']) ? 'edit_event' : 'add_event'; ?>" class="button button-primary" value="<?php echo isset($_GET['edit_id']) ? 'Update Event' : 'Add Event'; ?>">
         </p>
     </form>
 
@@ -74,6 +89,10 @@ $events = $wpdb->get_results("SELECT * FROM $table_name ORDER BY date ASC");
                 <td><?php echo esc_html($event->date); ?></td>
                 <td><a href="<?php echo esc_url($event->link); ?>" target="_blank">View</a></td>
                 <td>
+                    <form method="get" style="display:inline;">
+                        <input type="hidden" name="edit_id" value="<?php echo esc_attr($event->id); ?>">
+                        <input type="submit" class="button button-small" value="Edit">
+                    </form>
                     <form method="post" style="display:inline;">
                         <input type="hidden" name="event_id" value="<?php echo esc_attr($event->id); ?>">
                         <input type="submit" name="delete_event" class="button button-small" value="Delete" 
