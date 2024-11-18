@@ -21,12 +21,12 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
   const [eventsState, setEventsState] = useState<Event[]>(events || []);
 
   useEffect(() => {
-    fetchEvents();
+    fetchEvents('/wp-json/wp-react-calendar/v1/events');
   }, []);
 
-  const fetchEvents = async () => {
+  const fetchEvents = async (url: string) => {
     try {
-      const response = await fetch('https://svverniciatureindustriali.com/new_site/wp-json/wp-react-calendar/v1/events');
+      const response = await fetch(url);
       const data = await response.json();
 
       console.log('Fetched events:', data);
@@ -60,7 +60,7 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
     const firstDayOfMonth = new Date(currentDateState.getFullYear(), currentDateState.getMonth(), 1);
     const startingDay = firstDayOfMonth.getDay();
 
-    const days = [];
+    const days: JSX.Element[] = [];
     
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDay; i++) {
