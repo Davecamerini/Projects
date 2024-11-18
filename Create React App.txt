@@ -1,0 +1,31 @@
+- download node js
+- enter the folder
+- npm install -g create-react-app
+- create-react-app my-app
+- npm install --save typescript @types/node @types/react @types/react-dom @types/jest
+- npm install tailwindcss
+- npx tailwindcss init
+- npm install @craco/craco
+- edit package.json
+    "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject"
+    }
+- create craco.config.js
+    module.exports = {
+        style: {
+            postcss: {
+                plugins: [require('tailwindcss'), require('autoprefixer')],
+            },
+        },
+    };
+- npm install react-router-dom
+- create src/components
+- create src/containers
+- create src/assets
+- create src/styles
+- rename every .js to .tsx EVERYWHERE
+- cd my-app
+- npm start
