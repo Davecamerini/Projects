@@ -8,9 +8,17 @@ interface Event {
   link: string;
 }
 
-const Calendar: React.FC = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState<Event[]>([]);
+interface CalendarProps {
+  currentDate: Date;
+  onNavigate: (date: Date) => void;
+  events?: Event[];
+  onEventAdd: (event: Event) => void;
+  onEventEdit: (event: Event) => void;
+}
+
+const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, onEventAdd, onEventEdit }) => {
+  const [currentDateState, setCurrentDateState] = useState(currentDate);
+  const [eventsState, setEventsState] = useState<Event[]>(events || []);
 
   useEffect(() => {
     fetchEvents();
@@ -24,14 +32,14 @@ const Calendar: React.FC = () => {
       console.log('Fetched events:', data);
 
       if (Array.isArray(data)) {
-        setEvents(data);
+        setEventsState(data);
       } else {
         console.error('Fetched data is not an array:', data);
-        setEvents([]);
+        setEventsState([]);
       }
     } catch (error) {
       console.error('Error fetching events:', error);
-      setEvents([]);
+      setEventsState([]);
     }
   };
 
@@ -40,16 +48,16 @@ const Calendar: React.FC = () => {
   };
 
   const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
+    setCurrentDateState(new Date(currentDateState.setMonth(currentDateState.getMonth() - 1)));
   };
 
   const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
+    setCurrentDateState(new Date(currentDateState.setMonth(currentDateState.getMonth() + 1)));
   };
 
   const renderCalendarGrid = () => {
-    const daysInMonth = getDaysInMonth(currentDate);
-    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const daysInMonth = getDaysInMonth(currentDateState);
+    const firstDayOfMonth = new Date(currentDateState.getFullYear(), currentDateState.getMonth(), 1);
     const startingDay = firstDayOfMonth.getDay();
 
     const days = [];
@@ -61,8 +69,8 @@ const Calendar: React.FC = () => {
 
     // Add cells for each day of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-      const dayEvents = events.filter(event => 
+      const date = new Date(currentDateState.getFullYear(), currentDateState.getMonth(), day);
+      const dayEvents: Event[] = eventsState.filter(event => 
         new Date(event.date).toDateString() === date.toDateString()
       );
 
@@ -87,7 +95,7 @@ const Calendar: React.FC = () => {
     <div className="calendar">
       <div className="calendar-header">
         <button onClick={handlePrevMonth}>&lt;</button>
-        <h2>{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
+        <h2>{currentDateState.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
         <button onClick={handleNextMonth}>&gt;</button>
       </div>
       <div className="calendar-weekdays">
