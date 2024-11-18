@@ -1,34 +1,31 @@
-// eslint-disable-next-line
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
-import { trefoil } from 'ldrs';
+import Calendar from './components/react-calendar/Calendar.tsx';
 
 function App() {
-  trefoil.register();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [events, setEvents] = useState<Event[]>();
+
+  interface Event {
+    id: string;
+    name: string;
+    date: Date;
+    link: string;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        {/* <img src={logo} className="App-logo" alt="logo" /> */}
-        <l-trefoil
-          size="250"
-          stroke="15"
-          stroke-length="0.1"
-          bg-opacity="0.1"
-          speed="2"
-          color="white" 
-        ></l-trefoil>
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="wp-react-calendar">
+      <Calendar 
+        currentDate={currentDate}
+        onNavigate={(date: Date) => setCurrentDate(date)}
+        events={events}
+        onEventAdd={(event: Event) => setEvents(prev => [...(prev || []), event])}
+        onEventEdit={(event: Event) => {
+          setEvents(prev => 
+            prev?.map(e => e.id === event.id ? event : e)
+          );
+        }}
+      />
     </div>
   );
 }
