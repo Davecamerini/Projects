@@ -20,9 +20,16 @@ const Calendar: React.FC = () => {
     try {
       const response = await fetch('/wp-json/wp-react-calendar/v1/events');
       const data = await response.json();
-      setEvents(data);
+
+      if (Array.isArray(data)) {
+        setEvents(data);
+      } else {
+        console.error('Fetched data is not an array:', data);
+        setEvents([]);
+      }
     } catch (error) {
       console.error('Error fetching events:', error);
+      setEvents([]);
     }
   };
 

@@ -72,7 +72,7 @@ class WP_React_Calendar {
     public function enqueue_scripts() {
         wp_enqueue_script(
             'wp-react-calendar',
-            plugins_url('build/static/js/main.js', __FILE__),
+            plugins_url('build/static/js/main.e8956cc2.js', __FILE__),
             array(),
             '1.0.0',
             true
@@ -80,7 +80,7 @@ class WP_React_Calendar {
 
         wp_enqueue_style(
             'wp-react-calendar',
-            plugins_url('build/static/css/main.css', __FILE__),
+            plugins_url('build/static/css/main.1269b2bb.css', __FILE__),
             array(),
             '1.0.0'
         );
