@@ -21,6 +21,8 @@ const Calendar: React.FC = () => {
       const response = await fetch('/wp-json/wp-react-calendar/v1/events');
       const data = await response.json();
 
+      console.log('Fetched events:', data);
+
       if (Array.isArray(data)) {
         setEvents(data);
       } else {
