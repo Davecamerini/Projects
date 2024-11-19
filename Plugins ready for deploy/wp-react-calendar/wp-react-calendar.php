@@ -3,7 +3,7 @@
  * Plugin Name: WP React Calendar
  * Description: A React-based calendar plugin with event management
  * Version: 1.0
- * Author: Your Name
+ * Author: <a href="https://www.davecamerini.com">Davecamerini</a>
  */
 
 if (!defined('ABSPATH')) exit;
