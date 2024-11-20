@@ -1,7 +1,6 @@
 - download node js
 - enter the folder
-- npm install -g create-react-app
-- create-react-app my-app
+- npx create-react-app@latest my-app
 - npm install --save typescript @types/node @types/react @types/react-dom @types/jest
 - npm install tailwindcss
 - npx tailwindcss init
