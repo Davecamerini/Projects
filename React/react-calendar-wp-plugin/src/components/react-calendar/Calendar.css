@@ -28,7 +28,7 @@
 }
 
 .button:hover {
-  background-color: darkcyan; /* Darker shade for hover effect */
+  background-color: #00adcf; /* Darker shade for hover effect */
 } 
 
 .calendar-weekdays {
@@ -90,4 +90,29 @@
 .event-pill a {
   color: white;
   text-decoration: none;
+}
+
+@media only screen and (max-width: 799px) {
+  /* .calendar {
+    max-width: 90%;
+    padding: 0;
+    margin: 0 auto;
+  }
+
+  .calendar-weekdays,
+  .calendar-grid {
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+  } */
+
+  .calendar-cell {
+    min-height: 60px;
+    width: 100%;
+    aspect-ratio: unset;
+  }
+
+  /* .button {
+    width: 100%;
+    padding: 8px;
+  } */
 }
