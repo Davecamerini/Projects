@@ -1,7 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 if (!defined('ABSPATH')) exit;
 
 global $wpdb;
@@ -46,19 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Get all events
 $events = $wpdb->get_results("SELECT * FROM $table_name ORDER BY date ASC");
-
-// Fetch event data for editing
-$event = null;
-if (isset($_GET['edit_id'])) {
-    $event_id = intval($_GET['edit_id']);
-    if ($event_id <= 0) {
-        die('Invalid event ID.');
-    }
-    $event = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $event_id));
-    if (!$event) {
-        die('Event not found.');
-    }
-}
 ?>
 
 <div class="wrap">
@@ -67,7 +51,7 @@ if (isset($_GET['edit_id'])) {
     <!-- Add/Edit Event Form -->
     <h2><?php echo isset($_GET['edit_id']) ? 'Edit Event' : 'Add New Event'; ?></h2>
     <form method="post" action="">
-        <input type="hidden" name="event_id" value="<?php echo isset($event) ? intval($event->id) : ''; ?>">
+        <input type="hidden" name="event_id" value="<?php echo isset($_GET['edit_id']) ? intval($_GET['edit_id']) : ''; ?>">
         <table class="form-table">
             <tr>
                 <th><label for="event_name">Event Name</label></th>
@@ -83,7 +67,7 @@ if (isset($_GET['edit_id'])) {
             </tr>
         </table>
         <p class="submit">
-            <input type="submit" name="<?php echo isset($event) ? 'edit_event' : 'add_event'; ?>" class="button button-primary" value="<?php echo isset($event) ? 'Update Event' : 'Add Event'; ?>">
+            <input type="submit" name="<?php echo isset($_GET['edit_id']) ? 'edit_event' : 'add_event'; ?>" class="button button-primary" value="<?php echo isset($_GET['edit_id']) ? 'Update Event' : 'Add Event'; ?>">
         </p>
     </form>
 
