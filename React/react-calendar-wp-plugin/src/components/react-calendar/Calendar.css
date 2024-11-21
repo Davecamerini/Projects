@@ -2,7 +2,7 @@
   max-width: 800px;
   margin: 0 auto;
   background-color: #F20000;
-  padding: 5px;
+  /* padding: 5px; */
   -webkit-box-shadow: 0px 0px 25px 5px rgba(0,0,0,0.5);
   box-shadow: 0px 0px 25px 5px rgba(0,0,0,0.5);
 }
@@ -12,12 +12,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  color: #00D4FF;
+  color: white;
   text-transform: capitalize;
 }
 
 .button {
-  background-color: darkred; /* Bootstrap primary color */
+  background-color: darkred;
   color: white;
   border: none;
   border-radius: 5px;
@@ -28,7 +28,7 @@
 }
 
 .button:hover {
-  background-color: #00adcf; /* Darker shade for hover effect */
+  background-color: #00adcf;
 } 
 
 .calendar-weekdays {
@@ -93,26 +93,9 @@
 }
 
 @media only screen and (max-width: 799px) {
-  /* .calendar {
-    max-width: 90%;
-    padding: 0;
-    margin: 0 auto;
-  }
-
-  .calendar-weekdays,
-  .calendar-grid {
-    grid-template-columns: repeat(3, 1fr);
-    width: 100%;
-  } */
-
   .calendar-cell {
     min-height: 60px;
-    width: 100%;
+    width: auto;
     aspect-ratio: unset;
   }
-
-  /* .button {
-    width: 100%;
-    padding: 8px;
-  } */
 }
