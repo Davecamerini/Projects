@@ -94,9 +94,9 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
   return (
     <div className="calendar">
       <div className="calendar-header">
-        <button onClick={handlePrevMonth}>&lt;</button>
+        <button className="button" onClick={handlePrevMonth}>&lt;</button>
         <h2>{currentDateState.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
-        <button onClick={handleNextMonth}>&gt;</button>
+        <button className="button" onClick={handleNextMonth}>&gt;</button>
       </div>
       <div className="calendar-weekdays">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (

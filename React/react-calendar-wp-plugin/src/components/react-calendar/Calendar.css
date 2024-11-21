@@ -3,7 +3,8 @@
   margin: 0 auto;
   background-color: red;
   padding: 25px;
-  box-shadow: 15px 5px rgba(0, 0, 0, 0.233);
+  -webkit-box-shadow: 0px 0px 25px 5px rgba(0,0,0,0.5);
+  box-shadow: 0px 0px 25px 5px rgba(0,0,0,0.5);
 }
 
 .calendar-header {
@@ -12,7 +13,23 @@
   align-items: center;
   padding: 1rem;
   color: white;
+  text-transform: capitalize;
 }
+
+.button {
+  background-color: darkred; /* Bootstrap primary color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: darkcyan; /* Darker shade for hover effect */
+} 
 
 .calendar-weekdays {
   display: grid;
@@ -72,4 +89,4 @@
 .event-pill a {
   color: white;
   text-decoration: none;
-} 
+}
