@@ -76,9 +76,14 @@ function db_backup_page() {
     </div>
     <?php
 
-    // Handle the backup action
-    if (isset($_POST['db_backup_action']) && $_POST['db_backup_action'] === 'backup_db') {
-        error_log('Backup action triggered'); // Debug statement
-        db_backup_download();
+    // Debugging: Check if the form is submitted
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        error_log('Form submitted'); // Log form submission
+        if (isset($_POST['db_backup_action']) && $_POST['db_backup_action'] === 'backup_db') {
+            error_log('Backup action triggered'); // Log backup action
+            db_backup_download();
+        } else {
+            error_log('Backup action not set'); // Log if action is not set
+        }
     }
 }
