@@ -19,7 +19,6 @@ class WP_React_Calendar {
     public function init() {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('rest_api_init', array($this, 'register_rest_routes'));
-        add_action('rest_api_init', array($this, 'calendar_register_styles_endpoint'));
     }
 
     public function create_events_table() {
@@ -73,7 +72,7 @@ class WP_React_Calendar {
     public function enqueue_scripts() {
         wp_enqueue_script(
             'wp-react-calendar',
-            plugins_url('build/static/js/main.b98213ee.js', __FILE__),
+            plugins_url('build/static/js/main.09b38780.js', __FILE__),
             array(),
             '1.0.0',
             true
@@ -81,7 +80,7 @@ class WP_React_Calendar {
 
         wp_enqueue_style(
             'wp-react-calendar',
-            plugins_url('build/static/css/main.ccca85d9.css', __FILE__),
+            plugins_url('build/static/css/main.eb7dc0a6.css', __FILE__),
             array(),
             '1.0.0'
         );
@@ -90,65 +89,6 @@ class WP_React_Calendar {
     public function render_calendar() {
         return '<div id="wp-react-calendar"></div>';
     }
-
-    public function calendar_register_styles_endpoint() {
-        register_rest_route('wp-react-calendar/v1', '/styles', array(
-            'methods' => 'GET',
-            'callback' => array($this, 'calendar_get_styles'),
-        ));
-    }
-
-    public function calendar_get_styles() {
-        return [
-            'calendar_bg_color' => get_option('calendar_bg_color', '#F20000'),
-            'button_bg_color' => get_option('button_bg_color', 'darkred'),
-        ];
-    }
 }
 
 new WP_React_Calendar();
-
-// Add a menu item for the settings page
-function calendar_settings_menu() {
-    add_menu_page(
-        'Calendar Settings',
-        'Calendar Settings',
-        'manage_options',
-        'calendar-settings',
-        'calendar_settings_page'
-    );
-}
-add_action('admin_menu', 'calendar_settings_menu');
-
-// Display the settings page
-function calendar_settings_page() {
-    ?>
-    <div class="wrap">
-        <h1>Calendar Settings</h1>
-        <form method="post" action="options.php">
-            <?php
-            settings_fields('calendar_options_group');
-            do_settings_sections('calendar-settings');
-            ?>
-            <table class="form-table">
-                <tr valign="top">
-                    <th scope="row">Calendar Background Color</th>
-                    <td><input type="text" name="calendar_bg_color" value="<?php echo esc_attr(get_option('calendar_bg_color', '#F20000')); ?>" /></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Button Background Color</th>
-                    <td><input type="text" name="button_bg_color" value="<?php echo esc_attr(get_option('button_bg_color', 'darkred')); ?>" /></td>
-                </tr>
-            </table>
-            <?php submit_button(); ?>
-        </form>
-    </div>
-    <?php
-}
-
-// Register settings
-function calendar_register_settings() {
-    register_setting('calendar_options_group', 'calendar_bg_color');
-    register_setting('calendar_options_group', 'button_bg_color');
-}
-add_action('admin_init', 'calendar_register_settings');

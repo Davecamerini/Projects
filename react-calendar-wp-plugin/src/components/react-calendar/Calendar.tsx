@@ -21,10 +21,24 @@ interface CalendarProps {
 const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, onEventAdd, onEventEdit }) => {
   const [currentDateState, setCurrentDateState] = useState(currentDate);
   const [eventsState, setEventsState] = useState<Event[]>(events || []);
+  const [bgColor, setBgColor] = useState<string>('#F20000'); // Default color
+  const [buttonBgColor, setButtonBgColor] = useState<string>('darkred'); // Default button color
 
   useEffect(() => {
     fetchEvents('/wp-json/wp-react-calendar/v1/events');
+    fetchStyles(); // Fetch styles from the server
   }, []);
+
+  const fetchStyles = async () => {
+    try {
+      const response = await fetch('/wp-json/wp-react-calendar/v1/styles');
+      const data = await response.json();
+      setBgColor(data.calendar_bg_color || '#F20000');
+      setButtonBgColor(data.button_bg_color || 'darkred');
+    } catch (error) {
+      console.error('Error fetching styles:', error);
+    }
+  };
 
   const fetchEvents = async (url: string) => {
     try {
@@ -94,13 +108,13 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
   };
 
   return (
-    <div className="calendar">
+    <div className="calendar" style={{ backgroundColor: bgColor }}>
       <div className="calendar-header">
-        <button className="button" onClick={handlePrevMonth}>
+        <button className="button" style={{ backgroundColor: buttonBgColor }} onClick={handlePrevMonth}>
           <FontAwesomeIcon icon={faArrowLeft} />
         </button>
         <h2>{currentDateState.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
-        <button className="button" onClick={handleNextMonth}>
+        <button className="button" style={{ backgroundColor: buttonBgColor }} onClick={handleNextMonth}>
           <FontAwesomeIcon icon={faArrowRight} />
         </button>
       </div>
