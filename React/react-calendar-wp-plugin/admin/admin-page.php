@@ -48,6 +48,40 @@ $events = $wpdb->get_results("SELECT * FROM $table_name ORDER BY date ASC");
 <div class="wrap">
     <h1>Calendar Events</h1>
 
+    <style>
+        /* Style for input fields */
+        .regular-text {
+            width: 100%; /* Full width */
+            padding: 8px; /* Padding for comfort */
+            border: 1px solid #ccc; /* Light border */
+            border-radius: 4px; /* Rounded corners */
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            font-size: 14px; /* Font size */
+            transition: border-color 0.2s; /* Smooth transition for border color */
+        }
+
+        .regular-text:focus {
+            border-color: #0073aa; /* Change border color on focus */
+            outline: none; /* Remove default outline */
+            box-shadow: 0 0 5px rgba(0, 115, 170, 0.5); /* Shadow on focus */
+        }
+
+        /* Style for buttons */
+        .button {
+            background-color: #0073aa; /* WordPress primary color */
+            color: white; /* Text color */
+            padding: 10px 15px; /* Padding */
+            border: none; /* No border */
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor */
+            transition: background-color 0.2s; /* Smooth transition */
+        }
+
+        .button:hover {
+            background-color: #005177; /* Darker shade on hover */
+        }
+    </style>
+
     <!-- Add/Edit Event Form -->
     <h2><?php echo isset($_GET['edit_id']) ? 'Edit Event' : 'Add New Event'; ?></h2>
     <form method="post" action="">
@@ -55,7 +89,7 @@ $events = $wpdb->get_results("SELECT * FROM $table_name ORDER BY date ASC");
         <table class="form-table">
             <tr>
                 <th><label for="event_name">Event Name</label></th>
-                <td><input type="text" name="event_name" id="event_name" class="regular-text" value="<?php echo isset($event) ? esc_attr($event->name) : ''; ?>" required></td>
+                <td><input type="text" name="event_name" id="event_name" value="<?php echo isset($event) ? esc_attr($event->name) : ''; ?>" required></td>
             </tr>
             <tr>
                 <th><label for="event_date">Date</label></th>
@@ -63,7 +97,7 @@ $events = $wpdb->get_results("SELECT * FROM $table_name ORDER BY date ASC");
             </tr>
             <tr>
                 <th><label for="event_link">Link</label></th>
-                <td><input type="url" name="event_link" id="event_link" class="regular-text" value="<?php echo isset($event) ? esc_url($event->link) : ''; ?>" required></td>
+                <td><input type="url" name="event_link" id="event_link" value="<?php echo isset($event) ? esc_url($event->link) : ''; ?>" required></td>
             </tr>
         </table>
         <p class="submit">
