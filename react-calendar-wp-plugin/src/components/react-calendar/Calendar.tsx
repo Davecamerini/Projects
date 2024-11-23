@@ -23,6 +23,9 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
   const [eventsState, setEventsState] = useState<Event[]>(events || []);
   const [bgColor, setBgColor] = useState<string>('#F20000'); // Default color
   const [buttonBgColor, setButtonBgColor] = useState<string>('darkred'); // Default button color
+  const [cellBgColor, setCellBgColor] = useState<string>('#FFFFFF'); // Default cell color
+  const [headerColor, setHeaderColor] = useState<string>('#0073aa'); // Default header color
+  const [eventPillBgColor, setEventPillBgColor] = useState<string>('#FFD700'); // Default event pill color
 
   useEffect(() => {
     fetchEvents('/wp-json/wp-react-calendar/v1/events');
@@ -35,6 +38,9 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
       const data = await response.json();
       setBgColor(data.calendar_bg_color || '#F20000');
       setButtonBgColor(data.button_bg_color || 'darkred');
+      setCellBgColor(data.calendar_cell_bg_color || '#FFFFFF'); // New cell background color
+      setHeaderColor(data.calendar_header_color || '#0073aa'); // New header color
+      setEventPillBgColor(data.event_pill_bg_color || '#FFD700'); // New event pill background color
     } catch (error) {
       console.error('Error fetching styles:', error);
     }
@@ -91,10 +97,10 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
       );
 
       days.push(
-        <div key={`day-${day}`} className="calendar-cell">
+        <div key={`day-${day}`} className="calendar-cell" style={{ backgroundColor: cellBgColor }}>
           <div className="day-number">{day}</div>
           {dayEvents.map(event => (
-            <div key={event.id} className="event-pill">
+            <div key={event.id} className="event-pill" style={{ backgroundColor: eventPillBgColor }}>
               <a href={event.link} rel="noopener noreferrer">
                 {event.name}
               </a>
@@ -109,7 +115,7 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
 
   return (
     <div className="calendar" style={{ backgroundColor: bgColor }}>
-      <div className="calendar-header">
+      <div className="calendar-header" style={{ backgroundColor: headerColor }}>
         <button className="button" style={{ backgroundColor: buttonBgColor }} onClick={handlePrevMonth}>
           <FontAwesomeIcon icon={faArrowLeft} />
         </button>

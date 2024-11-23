@@ -102,6 +102,9 @@ class WP_React_Calendar {
         return [
             'calendar_bg_color' => get_option('calendar_bg_color', '#F20000'),
             'button_bg_color' => get_option('button_bg_color', 'darkred'),
+            'calendar_cell_bg_color' => get_option('calendar_cell_bg_color', '#FFFFFF'),
+            'calendar_header_color' => get_option('calendar_header_color', '#0073aa'),
+            'event_pill_bg_color' => get_option('event_pill_bg_color', '#FFD700'),
         ];
     }
 }
@@ -139,6 +142,18 @@ function calendar_settings_page() {
                     <th scope="row">Button Background Color</th>
                     <td><input type="text" name="button_bg_color" value="<?php echo esc_attr(get_option('button_bg_color', 'darkred')); ?>" /></td>
                 </tr>
+                <tr valign="top">
+                    <th scope="row">Calendar Cell Background Color</th>
+                    <td><input type="text" name="calendar_cell_bg_color" value="<?php echo esc_attr(get_option('calendar_cell_bg_color', '#FFFFFF')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Calendar Header Color</th>
+                    <td><input type="text" name="calendar_header_color" value="<?php echo esc_attr(get_option('calendar_header_color', '#0073aa')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Event Pill Background Color</th>
+                    <td><input type="text" name="event_pill_bg_color" value="<?php echo esc_attr(get_option('event_pill_bg_color', '#FFD700')); ?>" /></td>
+                </tr>
             </table>
             <?php submit_button(); ?>
         </form>
@@ -150,5 +165,8 @@ function calendar_settings_page() {
 function calendar_register_settings() {
     register_setting('calendar_options_group', 'calendar_bg_color');
     register_setting('calendar_options_group', 'button_bg_color');
+    register_setting('calendar_options_group', 'calendar_cell_bg_color');
+    register_setting('calendar_options_group', 'calendar_header_color');
+    register_setting('calendar_options_group', 'event_pill_bg_color');
 }
 add_action('admin_init', 'calendar_register_settings');
