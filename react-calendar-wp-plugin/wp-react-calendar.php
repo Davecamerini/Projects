@@ -95,7 +95,7 @@ class WP_React_Calendar {
     public function enqueue_scripts() {
         wp_enqueue_script(
             'wp-react-calendar',
-            plugins_url('build/static/js/main.b98213ee.js', __FILE__),
+            plugins_url('build/static/js/main.92ea504d.js', __FILE__),
             array(),
             '1.0.0',
             true
@@ -158,7 +158,7 @@ function calendar_settings_page() {
                 </tr>
                 <tr valign="top">
                     <th scope="row">Calendar Header Color</th>
-                    <td><input type="text" name="calendar_header_color" value="<?php echo esc_attr(get_option('calendar_header_color', '#0073aa')); ?>" /></td>
+                    <td><input type="text" name="calendar_header_color" value="<?php echo esc_attr(get_option('calendar_header_color', '#FFFFFF')); ?>" /></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">Event Pill Background Color</th>
