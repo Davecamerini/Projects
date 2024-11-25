@@ -95,7 +95,7 @@ class WP_React_Calendar {
     public function enqueue_scripts() {
         wp_enqueue_script(
             'wp-react-calendar',
-            plugins_url('build/static/js/main.b98213ee.js', __FILE__),
+            plugins_url('build/static/js/main.5c8e998a.js', __FILE__),
             array(),
             '1.0.0',
             true
@@ -124,7 +124,9 @@ class WP_React_Calendar {
         return [
             'calendar_bg_color' => get_option('calendar_bg_color', '#F20000'),
             'button_bg_color' => get_option('button_bg_color', 'darkred'),
+            'button_hover_bg_color' => get_option('button_hover_bg_color', '#FF4500'),
             'calendar_cell_bg_color' => get_option('calendar_cell_bg_color', '#FFFFFF'),
+            'calendar_cell_hover_bg_color' => get_option('calendar_cell_hover_bg_color', '#F0F0F0'),
             'calendar_header_color' => get_option('calendar_header_color', '#0073aa'),
             'event_pill_bg_color' => get_option('event_pill_bg_color', '#FFD700'),
         ];
@@ -153,8 +155,16 @@ function calendar_settings_page() {
                     <td><input type="text" name="button_bg_color" value="<?php echo esc_attr(get_option('button_bg_color', 'darkred')); ?>" /></td>
                 </tr>
                 <tr valign="top">
+                    <th scope="row">Button Hover Background Color</th>
+                    <td><input type="text" name="button_hover_bg_color" value="<?php echo esc_attr(get_option('button_hover_bg_color', '#FF4500')); ?>" /></td>
+                </tr>
+                <tr valign="top">
                     <th scope="row">Calendar Cell Background Color</th>
                     <td><input type="text" name="calendar_cell_bg_color" value="<?php echo esc_attr(get_option('calendar_cell_bg_color', '#FFFFFF')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Calendar Cell Hover Background Color</th>
+                    <td><input type="text" name="calendar_cell_hover_bg_color" value="<?php echo esc_attr(get_option('calendar_cell_hover_bg_color', '#F0F0F0')); ?>" /></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">Calendar Header Color</th>
@@ -175,7 +185,9 @@ function calendar_settings_page() {
 function calendar_register_settings() {
     register_setting('calendar_options_group', 'calendar_bg_color');
     register_setting('calendar_options_group', 'button_bg_color');
+    register_setting('calendar_options_group', 'button_hover_bg_color');
     register_setting('calendar_options_group', 'calendar_cell_bg_color');
+    register_setting('calendar_options_group', 'calendar_cell_hover_bg_color');
     register_setting('calendar_options_group', 'calendar_header_color');
     register_setting('calendar_options_group', 'event_pill_bg_color');
 }
