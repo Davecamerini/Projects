@@ -41,17 +41,39 @@ class WP_React_Calendar {
     }
 
     public function add_admin_menu() {
+        // Create a parent menu item without a rendering function
         add_menu_page(
-            'Calendar Events',
-            'Calendar Events',
-            'manage_options',
-            'calendar-events',
-            array($this, 'render_admin_page'),
-            'dashicons-calendar'
+            'WP React Calendar', // Page title
+            'WP React Calendar', // Menu title
+            'manage_options', // Capability
+            'wp-react-calendar', // Menu slug
+            '', // No function for the parent menu
+            'dashicons-calendar' // Icon
+        );
+
+        // Add the Calendar Events submenu
+        add_submenu_page(
+            'wp-react-calendar', // Parent slug
+            'Events', // Page title
+            'Events', // Menu title
+            'manage_options', // Capability
+            'wp-react-calendar', // Menu slug
+            array($this, 'render_events_page') // Function to display the events page
+        );
+
+        // Add the Calendar Settings submenu
+        add_submenu_page(
+            'wp-react-calendar', // Parent slug
+            'Settings', // Page title
+            'Settings', // Menu title
+            'manage_options', // Capability
+            'calendar-settings', // Menu slug
+            'calendar_settings_page' // Function to display the settings page
         );
     }
 
-    public function render_admin_page() {
+    // Render the events page
+    public function render_events_page() {
         include plugin_dir_path(__FILE__) . 'admin/admin-page.php';
     }
 
@@ -73,7 +95,7 @@ class WP_React_Calendar {
     public function enqueue_scripts() {
         wp_enqueue_script(
             'wp-react-calendar',
-            plugins_url('build/static/js/main.92ea504d.js', __FILE__),
+            plugins_url('build/static/js/main.b98213ee.js', __FILE__),
             array(),
             '1.0.0',
             true
@@ -111,19 +133,7 @@ class WP_React_Calendar {
 
 new WP_React_Calendar();
 
-// Add a menu item for the settings page
-function calendar_settings_menu() {
-    add_menu_page(
-        'Calendar Settings',
-        'Calendar Settings',
-        'manage_options',
-        'calendar-settings',
-        'calendar_settings_page'
-    );
-}
-add_action('admin_menu', 'calendar_settings_menu');
-
-// Display the settings page
+// Add the settings page function outside the class
 function calendar_settings_page() {
     ?>
     <div class="wrap">
