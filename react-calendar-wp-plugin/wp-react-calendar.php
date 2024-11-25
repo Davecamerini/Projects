@@ -151,12 +151,8 @@ function calendar_settings_page() {
                     <td><input type="text" name="calendar_bg_color" value="<?php echo esc_attr(get_option('calendar_bg_color', '#F20000')); ?>" /></td>
                 </tr>
                 <tr valign="top">
-                    <th scope="row">Button Background Color</th>
-                    <td><input type="text" name="button_bg_color" value="<?php echo esc_attr(get_option('button_bg_color', 'darkred')); ?>" /></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Button Hover Background Color</th>
-                    <td><input type="text" name="button_hover_bg_color" value="<?php echo esc_attr(get_option('button_hover_bg_color', '#FF4500')); ?>" /></td>
+                    <th scope="row">Calendar Header Color</th>
+                    <td><input type="text" name="calendar_header_color" value="<?php echo esc_attr(get_option('calendar_header_color', '#0073aa')); ?>" /></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">Calendar Cell Background Color</th>
@@ -167,8 +163,12 @@ function calendar_settings_page() {
                     <td><input type="text" name="calendar_cell_hover_bg_color" value="<?php echo esc_attr(get_option('calendar_cell_hover_bg_color', '#F0F0F0')); ?>" /></td>
                 </tr>
                 <tr valign="top">
-                    <th scope="row">Calendar Header Color</th>
-                    <td><input type="text" name="calendar_header_color" value="<?php echo esc_attr(get_option('calendar_header_color', '#0073aa')); ?>" /></td>
+                    <th scope="row">Button Background Color</th>
+                    <td><input type="text" name="button_bg_color" value="<?php echo esc_attr(get_option('button_bg_color', 'darkred')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Button Hover Background Color</th>
+                    <td><input type="text" name="button_hover_bg_color" value="<?php echo esc_attr(get_option('button_hover_bg_color', '#FF4500')); ?>" /></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">Event Pill Background Color</th>
