@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WP React Calendar
- * Description: A React-based calendar plugin with event management
+ * Description: A React-based calendar plugin with simple event management
  * Version: 1.0
  * Author: <a href="https://www.davecamerini.com">Davecamerini</a>
  */
