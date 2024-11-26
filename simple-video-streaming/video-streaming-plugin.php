@@ -6,13 +6,13 @@ Version: 1.0
 Author: Your Name
 */
 
-// Define the upload directory
-define('VIDEO_UPLOAD_DIR', wp_upload_dir()['basedir'] . '/videos');
+// Define the base video directory
+define('BASE_VIDEO_DIR', ABSPATH . 'chamberofsecrets/repository/Stuff');
 
 // Create the upload directory on plugin activation
 function vsp_create_upload_dir() {
-    if (!file_exists(VIDEO_UPLOAD_DIR)) {
-        mkdir(VIDEO_UPLOAD_DIR, 0755, true);
+    if (!file_exists(BASE_VIDEO_DIR)) {
+        mkdir(BASE_VIDEO_DIR, 0755, true);
     }
 }
 register_activation_hook(__FILE__, 'vsp_create_upload_dir');
@@ -20,36 +20,51 @@ register_activation_hook(__FILE__, 'vsp_create_upload_dir');
 // Create a shortcode to display the video upload form and list
 function vsp_video_page() {
     ob_start();
-    ?>
-    <h2>Upload Video</h2>
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="video_file" accept="video/*" required>
-        <input type="submit" name="upload_video" value="Upload Video">
-    </form>
     
-    <?php
+    // Get the current directory from the query parameter, default to the base directory
+    $current_dir = isset($_GET['dir']) ? sanitize_text_field($_GET['dir']) : '';
+    $video_dir = rtrim(BASE_VIDEO_DIR . '/' . $current_dir, '/');
+
     // Handle video upload
     if (isset($_POST['upload_video'])) {
         if (!empty($_FILES['video_file']['name'])) {
             $uploaded_file = $_FILES['video_file'];
-            $upload_path = VIDEO_UPLOAD_DIR . '/' . basename($uploaded_file['name']);
+            $upload_path = $video_dir . '/' . basename($uploaded_file['name']);
             move_uploaded_file($uploaded_file['tmp_name'], $upload_path);
             echo '<p>Video uploaded successfully!</p>';
         }
     }
 
-    // List videos
-    $videos = glob(VIDEO_UPLOAD_DIR . '/*.{mp4,webm,ogg}', GLOB_BRACE);
-    if ($videos) {
-        echo '<h2>Available Videos</h2><ul>';
-        foreach ($videos as $video) {
-            $video_url = wp_upload_dir()['baseurl'] . '/videos/' . basename($video);
-            echo '<li><a href="' . esc_url($video_url) . '" target="_blank">' . esc_html(basename($video)) . '</a></li>';
+    // List folders and videos
+    $items = scandir($video_dir);
+    if ($items) {
+        echo '<h2>Available Videos and Folders</h2><ul>';
+        foreach ($items as $item) {
+            if ($item !== '.' && $item !== '..') {
+                $item_path = $video_dir . '/' . $item;
+                if (is_dir($item_path)) {
+                    // Create a link to navigate into the folder
+                    $folder_url = add_query_arg('dir', $current_dir . '/' . $item);
+                    echo '<li><a href="' . esc_url($folder_url) . '">' . esc_html($item) . '</a></li>';
+                } elseif (preg_match('/\.(mp4|webm|ogg)$/i', $item)) {
+                    // Construct the video URL without wp-content
+                    $video_url = site_url('chamberofsecrets/repository/Stuff/' . ($current_dir ? $current_dir . '/' : '') . $item);
+                    echo '<li><a href="' . esc_url($video_url) . '" target="_blank">' . esc_html($item) . '</a></li>';
+                }
+            }
         }
         echo '</ul>';
     } else {
-        echo '<p>No videos found.</p>';
+        echo '<p>No videos or folders found.</p>';
     }
+
+    // Upload form
+    echo '<h2>Upload Video</h2>';
+    echo '<form method="post" enctype="multipart/form-data">';
+    echo '<input type="file" name="video_file" accept="video/*" required>';
+    echo '<input type="submit" name="upload_video" value="Upload Video">';
+    echo '</form>';
+
     return ob_get_clean();
 }
 add_shortcode('video_streaming', 'vsp_video_page');
