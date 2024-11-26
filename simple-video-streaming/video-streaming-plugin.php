@@ -3,11 +3,11 @@
 Plugin Name: Video Streaming Plugin
 Description: Allows users to upload videos and stream them.
 Version: 1.0
-Author: <a href="https://www.davecamerini.com">Davecamerini</a>
+Author: Your Name
 */
 
-// Define the upload directory
-define('VIDEO_UPLOAD_DIR', wp_upload_dir()['basedir'] . '/videos');
+// Define the custom video directory
+define('VIDEO_UPLOAD_DIR', ABSPATH . 'wp-content/uploads/videos');
 
 // Create the upload directory on plugin activation
 function vsp_create_upload_dir() {
@@ -56,7 +56,7 @@ function vsp_video_page() {
                     echo '<li><a href="' . esc_url($folder_url) . '">' . esc_html($item) . '</a></li>';
                 } elseif (preg_match('/\.(mp4|webm|ogg)$/i', $item)) {
                     // Construct the video URL
-                    $video_url = wp_upload_dir()['baseurl'] . '/videos/' . ($current_dir ? $current_dir . '/' : '') . basename($item);
+                    $video_url = site_url('wp-content/uploads/videos/' . ($current_dir ? $current_dir . '/' : '') . basename($item));
                     echo '<li><a href="' . esc_url($video_url) . '" target="_blank">' . esc_html($item) . '</a></li>';
                 }
             }
@@ -77,14 +77,11 @@ function vsp_video_page() {
 }
 add_shortcode('video_streaming', 'vsp_video_page');
 
-// Enqueue video player script and custom styles
+// Enqueue video player script
 function vsp_enqueue_scripts() {
     if (is_page('video-streaming')) {
         wp_enqueue_script('videojs', 'https://vjs.zencdn.net/7.11.4/video.min.js', array(), null, true);
         wp_enqueue_style('videojs-css', 'https://vjs.zencdn.net/7.11.4/video-js.min.css');
-        
-        // Enqueue custom styles
-        wp_enqueue_style('vsp-custom-styles', plugin_dir_url(__FILE__) . 'css/custom-styles.css');
     }
 }
-add_action('wp_enqueue_scripts', 'vsp_enqueue_scripts');
+add_action('wp_enqueue_scripts', 'vsp_enqueue_scripts'); 
