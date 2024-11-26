@@ -3,16 +3,16 @@
 Plugin Name: Video Streaming Plugin
 Description: Allows users to upload videos and stream them.
 Version: 1.0
-Author: Your Name
+Author: <a href="https://www.davecamerini.com">Davecamerini</a>
 */
 
-// Define the base video directory
-define('BASE_VIDEO_DIR', ABSPATH . 'chamberofsecrets/repository/Stuff');
+// Define the upload directory
+define('VIDEO_UPLOAD_DIR', wp_upload_dir()['basedir'] . '/videos');
 
 // Create the upload directory on plugin activation
 function vsp_create_upload_dir() {
-    if (!file_exists(BASE_VIDEO_DIR)) {
-        mkdir(BASE_VIDEO_DIR, 0755, true);
+    if (!file_exists(VIDEO_UPLOAD_DIR)) {
+        mkdir(VIDEO_UPLOAD_DIR, 0755, true);
     }
 }
 register_activation_hook(__FILE__, 'vsp_create_upload_dir');
@@ -23,7 +23,7 @@ function vsp_video_page() {
     
     // Get the current directory from the query parameter, default to the base directory
     $current_dir = isset($_GET['dir']) ? sanitize_text_field($_GET['dir']) : '';
-    $video_dir = rtrim(BASE_VIDEO_DIR . '/' . $current_dir, '/');
+    $video_dir = rtrim(VIDEO_UPLOAD_DIR . '/' . $current_dir, '/');
 
     // Handle video upload
     if (isset($_POST['upload_video'])) {
@@ -39,6 +39,14 @@ function vsp_video_page() {
     $items = scandir($video_dir);
     if ($items) {
         echo '<h2>Available Videos and Folders</h2><ul>';
+        
+        // Link to go back to the parent directory
+        if ($current_dir) {
+            $parent_dir = dirname($current_dir);
+            $parent_url = add_query_arg('dir', $parent_dir);
+            echo '<li><a href="' . esc_url($parent_url) . '">.. (Go Up)</a></li>';
+        }
+
         foreach ($items as $item) {
             if ($item !== '.' && $item !== '..') {
                 $item_path = $video_dir . '/' . $item;
@@ -47,8 +55,8 @@ function vsp_video_page() {
                     $folder_url = add_query_arg('dir', $current_dir . '/' . $item);
                     echo '<li><a href="' . esc_url($folder_url) . '">' . esc_html($item) . '</a></li>';
                 } elseif (preg_match('/\.(mp4|webm|ogg)$/i', $item)) {
-                    // Construct the video URL without wp-content
-                    $video_url = site_url('chamberofsecrets/repository/Stuff/' . ($current_dir ? $current_dir . '/' : '') . $item);
+                    // Construct the video URL
+                    $video_url = wp_upload_dir()['baseurl'] . '/videos/' . ($current_dir ? $current_dir . '/' : '') . basename($item);
                     echo '<li><a href="' . esc_url($video_url) . '" target="_blank">' . esc_html($item) . '</a></li>';
                 }
             }
@@ -69,11 +77,14 @@ function vsp_video_page() {
 }
 add_shortcode('video_streaming', 'vsp_video_page');
 
-// Enqueue video player script
+// Enqueue video player script and custom styles
 function vsp_enqueue_scripts() {
     if (is_page('video-streaming')) {
         wp_enqueue_script('videojs', 'https://vjs.zencdn.net/7.11.4/video.min.js', array(), null, true);
         wp_enqueue_style('videojs-css', 'https://vjs.zencdn.net/7.11.4/video-js.min.css');
+        
+        // Enqueue custom styles
+        wp_enqueue_style('vsp-custom-styles', plugin_dir_url(__FILE__) . 'css/custom-styles.css');
     }
 }
 add_action('wp_enqueue_scripts', 'vsp_enqueue_scripts');
