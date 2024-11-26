@@ -1,0 +1,79 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* Title Styles */
+.vsp-title, .vsp-upload-title {
+    font-size: 24px;
+    margin: 20px 0;
+    color: #2c3e50;
+}
+
+/* List Styles */
+.vsp-item-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.vsp-item-list li {
+    margin: 10px 0;
+}
+
+/* Folder and Video Link Styles */
+.vsp-folder a, .vsp-video a {
+    text-decoration: none;
+    color: black !important;
+    transition: color 0.3s;
+}
+
+.vsp-folder a:hover, .vsp-video a:hover {
+    color: #3498db;
+}
+
+/* Parent Directory Link Styles */
+.vsp-parent-dir a {
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+/* Upload Form Styles */
+.vsp-upload-form {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.vsp-file-input {
+    margin-bottom: 10px;
+}
+
+.vsp-upload-button {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.vsp-upload-button:hover {
+    background-color: #3498db;
+}
+
+/* Success Message Styles */
+.vsp-upload-success {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+/* No Items Found Message */
+.vsp-no-items {
+    color: #e74c3c;
+    font-style: italic;
+}
