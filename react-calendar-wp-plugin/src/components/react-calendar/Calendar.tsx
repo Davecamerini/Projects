@@ -26,7 +26,7 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
   const [buttonHoverBgColor, setButtonHoverBgColor] = useState<string>('#FF4500'); // Default button hover color
   const [cellBgColor, setCellBgColor] = useState<string>('#FFFFFF'); // Default cell color
   const [cellHoverBgColor, setCellHoverBgColor] = useState<string>('#F0F0F0'); // Default cell hover color
-  const [headerColor, setHeaderColor] = useState<string>('#0073aa'); // Default header color
+  const [headerColor, setHeaderColor] = useState<string>('#F20000'); // Default header color
   const [eventPillBgColor, setEventPillBgColor] = useState<string>('#FFD700'); // Default event pill color
 
   useEffect(() => {
