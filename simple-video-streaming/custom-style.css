@@ -1,8 +1,23 @@
 /* General Styles */
-body {
+/* body {
     font-family: Arial, sans-serif;
     background-color: #f9f9f9;
     color: #333;
+}*/
+
+/* Container for columns */
+.vsp-container {
+    display: flex; /* Use flexbox for layout */
+    justify-content: space-between; /* Space between columns */
+}
+
+/* Column Styles */
+.vsp-column {
+    width: 48%; /* Set width for columns */
+    padding: 10px; /* Add some padding */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
+    background-color: #fff; /* Background color for columns */
+    border-radius: 5px; /* Rounded corners */
 }
 
 /* Title Styles */
@@ -22,15 +37,24 @@ body {
     margin: 10px 0;
 }
 
-/* Folder and Video Link Styles */
-.vsp-folder a, .vsp-video a {
+/* Folder Icon */
+.vsp-folder a {
     text-decoration: none;
-    color: black !important;
-    transition: color 0.3s;
+    color: #2980b9;
 }
 
-.vsp-folder a:hover, .vsp-video a:hover {
-    color: #3498db;
+.vsp-folder a i {
+    margin-right: 5px; /* Space between icon and text */
+}
+
+/* Video Icon */
+.vsp-video a {
+    text-decoration: none;
+    color: #2980b9;
+}
+
+.vsp-video a i {
+    margin-right: 5px; /* Space between icon and text */
 }
 
 /* Parent Directory Link Styles */
