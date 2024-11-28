@@ -1,4 +1,6 @@
 <?php
+ob_start(); // Start output buffering
+
 /**
  * Plugin Name: Database Backup Plugin
  * Description: A simple plugin to back up and download the entire database.
@@ -13,35 +15,55 @@ if (!defined('ABSPATH')) {
 
 // Function to handle the database backup and download
 function db_backup_download() {
-    error_log('Backup download function called'); // Debug statement
     global $wpdb;
 
     // Set the filename for the backup
     $backup_file = 'db-backup-' . date('Y-m-d_H-i-s') . '.sql';
+    $backup_path = ABSPATH . $backup_file;
 
-    // Command to create a backup
-    $command = "mysqldump --user={$wpdb->dbuser} --password={$wpdb->dbpassword} --host={$wpdb->dbhost} {$wpdb->dbname} > " . ABSPATH . $backup_file;
+    // Get all tables in the database
+    $tables = $wpdb->get_col('SHOW TABLES');
 
-    // Execute the command
-    $output = null;
-    $return_var = null;
-    exec($command, $output, $return_var);
+    // Open a file for writing
+    $handle = fopen($backup_path, 'w');
 
-    if ($return_var !== 0) {
-        error_log('Backup failed: ' . implode("\n", $output)); // Log the error
+    // Loop through each table and write its structure and data
+    foreach ($tables as $table) {
+        // Get the table structure
+        $create_table = $wpdb->get_row("SHOW CREATE TABLE `$table`", ARRAY_N);
+        fwrite($handle, $create_table[1] . ";\n\n");
+
+        // Get the table data
+        $rows = $wpdb->get_results("SELECT * FROM `$table`", ARRAY_A);
+        foreach ($rows as $row) {
+            $values = array_map([$wpdb, 'prepare'], array_values($row));
+            $values = implode(", ", $values);
+            fwrite($handle, "INSERT INTO `$table` VALUES ($values);\n");
+        }
+        fwrite($handle, "\n\n");
     }
 
+    fclose($handle);
+
     // Check if the file exists and download it
-    if (file_exists(ABSPATH . $backup_file)) {
+    if (file_exists($backup_path)) {
+        // Set headers for download
         header('Content-Description: File Transfer');
         header('Content-Type: application/sql');
         header('Content-Disposition: attachment; filename=' . basename($backup_file));
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
-        header('Content-Length: ' . filesize(ABSPATH . $backup_file));
-        readfile(ABSPATH . $backup_file);
+        header('Content-Length: ' . filesize($backup_path));
+
+        // Clear the output buffer
+        ob_end_clean(); // Clean the output buffer and turn off output buffering
+
+        // Read the file and send it to the output
+        readfile($backup_path);
         exit;
+    } else {
+        error_log('Backup file does not exist: ' . $backup_path); // Log file absence
     }
 }
 
@@ -87,3 +109,6 @@ function db_backup_page() {
         }
     }
 }
+
+// At the end of your plugin, you can flush the buffer if needed
+ob_end_flush();
