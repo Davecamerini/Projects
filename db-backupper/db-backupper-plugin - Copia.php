@@ -15,38 +15,56 @@ if (!defined('ABSPATH')) {
 
 // Function to handle the database backup and download
 function db_backup_download() {
-    // Start output buffering
-    ob_start();
     global $wpdb;
 
     // Set the filename for the backup
     $backup_file = 'db-backup-' . date('Y-m-d_H-i-s') . '.sql';
     $backup_path = ABSPATH . $backup_file;
 
-    // Check if the backup file exists
-    if (!file_exists($backup_path)) {
+    // Get all tables in the database
+    $tables = $wpdb->get_col('SHOW TABLES');
+
+    // Open a file for writing
+    $handle = fopen($backup_path, 'w');
+
+    // Loop through each table and write its structure and data
+    foreach ($tables as $table) {
+        // Get the table structure
+        $create_table = $wpdb->get_row("SHOW CREATE TABLE `$table`", ARRAY_N);
+        fwrite($handle, $create_table[1] . ";\n\n");
+
+        // Get the table data
+        $rows = $wpdb->get_results("SELECT * FROM `$table`", ARRAY_A);
+        foreach ($rows as $row) {
+            $values = array_map([$wpdb, 'prepare'], array_values($row));
+            $values = implode(", ", $values);
+            fwrite($handle, "INSERT INTO `$table` VALUES ($values);\n");
+        }
+        fwrite($handle, "\n\n");
+    }
+
+    fclose($handle);
+
+    // Check if the file exists and download it
+    if (file_exists($backup_path)) {
+        // Set headers for download
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/sql');
+        header('Content-Disposition: attachment; filename=' . basename($backup_file));
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($backup_path));
+
+        // Clear the output buffer
+        ob_end_clean(); // Clean the output buffer and turn off output buffering
+
+        // Read the file and send it to the output
+        readfile($backup_path);
+        exit;
+    } else {
         error_log('Backup file does not exist: ' . $backup_path); // Log file absence
-        return; // Exit if the file does not exist
     }
-
-    // Clear the output buffer
-    ob_end_clean(); // Clean the output buffer
-
-    // Set headers for download
-    header('Content-Description: File Transfer');
-    header('Content-Type: application/sql');
-    header('Content-Disposition: attachment; filename=' . basename($backup_file));
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate');
-    header('Pragma: public');
-    header('Content-Length: ' . filesize($backup_path));
-
-    // Read the file and send it to the output
-    if (readfile($backup_path) === false) {
-        error_log('Failed to read the backup file: ' . $backup_path); // Log read failure
-    }
-
-    exit; // Terminate the script after sending the file
 }
 
 // Function to create the admin menu
