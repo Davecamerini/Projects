@@ -23,6 +23,9 @@ if (!file_exists(DB_BACKUP_DIR)) {
 function db_create_backup() {
     global $wpdb;
 
+    // Start output buffering to prevent any output
+    ob_start();
+
     // Set the filename for the backup
     $backup_file = 'db-backup-' . date('Y-m-d_H-i-s') . '.sql';
     $backup_path = DB_BACKUP_DIR . $backup_file;
@@ -42,7 +45,10 @@ function db_create_backup() {
         // Get the table data
         $rows = $wpdb->get_results("SELECT * FROM `$table`", ARRAY_A);
         foreach ($rows as $row) {
-            $values = array_map([$wpdb, 'prepare'], array_values($row));
+            // Prepare values for SQL insert
+            $values = array_map(function($value) use ($wpdb) {
+                return "'" . esc_sql($value) . "'"; // Escape values for SQL
+            }, array_values($row));
             $values = implode(", ", $values);
             fwrite($handle, "INSERT INTO `$table` VALUES ($values);\n");
         }
@@ -54,14 +60,34 @@ function db_create_backup() {
     // Create gzipped version of the backup
     $gz_file = "{$backup_path}.gz";
     if (function_exists('gzencode') && function_exists('file_get_contents')) {
+        // Read the contents of the SQL file
         $contents = file_get_contents($backup_path);
+        if ($contents === false) {
+            error_log("Failed to read the backup file: $backup_path");
+            return false; // Handle error
+        }
+
+        // Compress the contents
         $gzipped = gzencode($contents, 9);
-        file_put_contents($gz_file, $gzipped);
+        if ($gzipped === false) {
+            error_log("Failed to gzip the backup file: $backup_path");
+            return false; // Handle error
+        }
+
+        // Write the gzipped contents to the new file
+        if (file_put_contents($gz_file, $gzipped) === false) {
+            error_log("Failed to write gzipped file: $gz_file");
+            return false; // Handle error
+        }
+
         unlink($backup_path); // Optionally delete the original file
     }
 
     // Store the most recent backup file in an option
     update_option('db_recent_backup', basename($gz_file)); // Store only the filename
+
+    // End output buffering and clean
+    ob_end_clean();
 
     return $gz_file; // Return the name of the gzipped backup file
 }
@@ -86,11 +112,18 @@ function db_backup_page() {
     }
 
     $download_link = ''; // Initialize download link variable
+    $message = ''; // Initialize message variable
 
     // Handle form submissions
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['db_backup_action']) && $_POST['db_backup_action'] === 'create_backup') {
-            db_create_backup(); // Create a backup
+            $gz_file = db_create_backup(); // Create a backup
+            if ($gz_file) {
+                $download_link = esc_url(plugin_dir_url(__FILE__) . 'backups/' . basename($gz_file)); // Set the download link
+                $message = '<div class="updated"><p>Backup created successfully!</p></div>'; // Success message without link
+            } else {
+                $message = '<div class="error"><p>Backup creation failed. Please try again.</p></div>';
+            }
         }
     }
 
@@ -103,6 +136,9 @@ function db_backup_page() {
     ?>
     <div class="wrap">
         <h1>Database Backup</h1>
+        <?php if ($message): ?>
+            <?php echo $message; // Display the message ?>
+        <?php endif; ?>
         <form method="post" action="">
             <input type="hidden" name="db_backup_action" value="create_backup">
             <p>
