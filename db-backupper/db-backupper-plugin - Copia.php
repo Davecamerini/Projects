@@ -50,39 +50,76 @@ function db_create_backup() {
     }
 
     fclose($handle);
-    return $backup_file; // Return the name of the backup file
+
+    // Create gzipped version of the backup
+    $gz_file = "{$backup_path}.gz";
+    if (function_exists('gzencode') && function_exists('file_get_contents')) {
+        $contents = file_get_contents($backup_path);
+        $gzipped = gzencode($contents, 9);
+        file_put_contents($gz_file, $gzipped);
+        unlink($backup_path); // Optionally delete the original file
+    }
+
+    return $gz_file; // Return the name of the gzipped backup file
 }
 
-// Function to download the most recent backup
-function db_download_backup() {
-    $files = glob(DB_BACKUP_DIR . '*.sql'); // Get all SQL files in the backup directory
-    if ($files) {
-        // Sort files by modification time, newest first
-        usort($files, function($a, $b) {
-            return filemtime($b) - filemtime($a);
-        });
-        $latest_file = $files[0]; // Get the most recent file
+// Function to handle backup download
+function handle_backup_download() {
+    // Set the backup directory to the "backups" folder within the plugin's directory
+    $backup_dir = plugin_dir_path(__FILE__) . 'backups/'; // Adjust the path as needed
 
-        // Clear any previous output
-        if (ob_get_length()) {
-            ob_end_clean(); // Clean the output buffer
-        }
+    // Get all SQL backup files in the directory
+    $backup_files = glob($backup_dir . '*.sql');
 
-        // Set headers for download
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/sql');
-        header('Content-Disposition: attachment; filename=' . basename($latest_file));
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($latest_file));
-
-        // Read the file and send it to the output
-        readfile($latest_file);
-        exit; // Terminate the script after sending the file
-    } else {
-        error_log('No backup files found in the backups directory.'); // Log if no files found
+    // Check if there are any backup files
+    if (empty($backup_files)) {
+        error_log("No backup files found in the directory.");
+        return false; // No backup files found
     }
+
+    // Sort files by modification time, newest first
+    usort($backup_files, function($a, $b) {
+        return filemtime($b) - filemtime($a);
+    });
+
+    // Get the most recent backup file
+    $most_recent_backup = $backup_files[0];
+    $gz_diskfile = "{$most_recent_backup}.gz";
+
+    // Check if the gzipped file exists, if not, create it
+    if (file_exists($most_recent_backup) && !file_exists($gz_diskfile)) {
+        if (function_exists('gzencode') && function_exists('file_get_contents')) {
+            $contents = file_get_contents($most_recent_backup);
+            $gzipped = gzencode($contents, 9);
+            file_put_contents($gz_diskfile, $gzipped);
+            unlink($most_recent_backup); // Optionally delete the original file
+        }
+    }
+
+    // Determine which file to deliver
+    $file_to_deliver = file_exists($gz_diskfile) ? $gz_diskfile : $most_recent_backup;
+
+    // Check if the file exists for download
+    if (!file_exists($file_to_deliver)) {
+        error_log("File not found: $file_to_deliver");
+        return false; // File not found
+    }
+
+    // Clear any previous output
+    ob_clean(); // Clear the output buffer
+    flush(); // Flush the system output buffer
+
+    // Set headers for download
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header('Content-Length: ' . filesize($file_to_deliver));
+    header("Content-Disposition: attachment; filename=" . basename($file_to_deliver));
+    header('Pragma: public');
+    header('Expires: 0');
+
+    // Read the file and send it to the output
+    readfile($file_to_deliver);
+    exit; // Terminate the script after sending the file
 }
 
 // Function to create the admin menu
@@ -104,13 +141,16 @@ function db_backup_page() {
         wp_die('You do not have sufficient permissions to access this page.');
     }
 
+    $download_link = ''; // Initialize download link variable
+
     // Handle form submissions
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['db_backup_action']) && $_POST['db_backup_action'] === 'create_backup') {
-            db_create_backup(); // Create a backup
-            echo '<div class="updated"><p>Backup created successfully!</p></div>';
-        } elseif (isset($_POST['db_backup_action']) && $_POST['db_backup_action'] === 'download_backup') {
-            db_download_backup(); // Download the most recent backup
+            $gz_file = db_create_backup(); // Create a backup
+            if ($gz_file) {
+                $download_link = esc_url(plugin_dir_url(__FILE__) . 'backups/' . basename($gz_file)); // Set the download link
+                echo '<div class="updated"><p>Backup created successfully! <a href="' . $download_link . '" download class="button button-secondary">Download Backup</a></p></div>';
+            }
         }
     }
 
@@ -123,12 +163,11 @@ function db_backup_page() {
                 <input type="submit" class="button button-primary" value="Create Database Backup">
             </p>
         </form>
-        <form method="post" action="">
-            <input type="hidden" name="db_backup_action" value="download_backup">
+        <?php if ($download_link): ?>
             <p>
-                <input type="submit" class="button button-secondary" value="Download Most Recent Backup">
+                <a href="<?php echo $download_link; ?>" download class="button button-secondary">Download Most Recent Backup</a>
             </p>
-        </form>
+        <?php endif; ?>
     </div>
     <?php
 }
