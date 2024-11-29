@@ -1,6 +1,4 @@
 <?php
-ob_start(); // Start output buffering
-
 /**
  * Plugin Name: Database Backup Plugin
  * Description: A simple plugin to back up and download the entire database.
@@ -13,13 +11,21 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Function to handle the database backup and download
-function db_backup_download() {
+// Define the backup directory
+define('DB_BACKUP_DIR', plugin_dir_path(__FILE__) . 'backups/');
+
+// Create the backup directory if it doesn't exist
+if (!file_exists(DB_BACKUP_DIR)) {
+    mkdir(DB_BACKUP_DIR, 0755, true);
+}
+
+// Function to handle the database backup
+function db_create_backup() {
     global $wpdb;
 
     // Set the filename for the backup
     $backup_file = 'db-backup-' . date('Y-m-d_H-i-s') . '.sql';
-    $backup_path = ABSPATH . $backup_file;
+    $backup_path = DB_BACKUP_DIR . $backup_file;
 
     // Get all tables in the database
     $tables = $wpdb->get_col('SHOW TABLES');
@@ -44,26 +50,38 @@ function db_backup_download() {
     }
 
     fclose($handle);
+    return $backup_file; // Return the name of the backup file
+}
 
-    // Check if the file exists and download it
-    if (file_exists($backup_path)) {
+// Function to download the most recent backup
+function db_download_backup() {
+    $files = glob(DB_BACKUP_DIR . '*.sql'); // Get all SQL files in the backup directory
+    if ($files) {
+        // Sort files by modification time, newest first
+        usort($files, function($a, $b) {
+            return filemtime($b) - filemtime($a);
+        });
+        $latest_file = $files[0]; // Get the most recent file
+
+        // Clear any previous output
+        if (ob_get_length()) {
+            ob_end_clean(); // Clean the output buffer
+        }
+
         // Set headers for download
         header('Content-Description: File Transfer');
         header('Content-Type: application/sql');
-        header('Content-Disposition: attachment; filename=' . basename($backup_file));
+        header('Content-Disposition: attachment; filename=' . basename($latest_file));
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
-        header('Content-Length: ' . filesize($backup_path));
-
-        // Clear the output buffer
-        ob_end_clean(); // Clean the output buffer and turn off output buffering
+        header('Content-Length: ' . filesize($latest_file));
 
         // Read the file and send it to the output
-        readfile($backup_path);
-        exit;
+        readfile($latest_file);
+        exit; // Terminate the script after sending the file
     } else {
-        error_log('Backup file does not exist: ' . $backup_path); // Log file absence
+        error_log('No backup files found in the backups directory.'); // Log if no files found
     }
 }
 
@@ -86,29 +104,31 @@ function db_backup_page() {
         wp_die('You do not have sufficient permissions to access this page.');
     }
 
+    // Handle form submissions
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['db_backup_action']) && $_POST['db_backup_action'] === 'create_backup') {
+            db_create_backup(); // Create a backup
+            echo '<div class="updated"><p>Backup created successfully!</p></div>';
+        } elseif (isset($_POST['db_backup_action']) && $_POST['db_backup_action'] === 'download_backup') {
+            db_download_backup(); // Download the most recent backup
+        }
+    }
+
     ?>
     <div class="wrap">
         <h1>Database Backup</h1>
         <form method="post" action="">
-            <input type="hidden" name="db_backup_action" value="backup_db">
+            <input type="hidden" name="db_backup_action" value="create_backup">
             <p>
-                <input type="submit" class="button button-primary" value="Download Database Backup">
+                <input type="submit" class="button button-primary" value="Create Database Backup">
+            </p>
+        </form>
+        <form method="post" action="">
+            <input type="hidden" name="db_backup_action" value="download_backup">
+            <p>
+                <input type="submit" class="button button-secondary" value="Download Most Recent Backup">
             </p>
         </form>
     </div>
     <?php
-
-    // Debugging: Check if the form is submitted
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        error_log('Form submitted'); // Log form submission
-        if (isset($_POST['db_backup_action']) && $_POST['db_backup_action'] === 'backup_db') {
-            error_log('Backup action triggered'); // Log backup action
-            db_backup_download();
-        } else {
-            error_log('Backup action not set'); // Log if action is not set
-        }
-    }
 }
-
-// At the end of your plugin, you can flush the buffer if needed
-ob_end_flush();
