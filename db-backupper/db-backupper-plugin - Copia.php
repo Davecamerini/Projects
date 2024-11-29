@@ -23,8 +23,11 @@ if (!file_exists(DB_BACKUP_DIR)) {
 function db_create_backup() {
     global $wpdb;
 
+    // Disable zlib.output_compression
+    ini_set('zlib.output_compression', 'Off');
+
     // Start output buffering to prevent any output
-    ob_start('ob_gzhandler');
+    ob_start();
 
     // Set the filename for the backup
     $backup_file = 'db-backup-' . date('Y-m-d_H-i-s') . '.sql';
@@ -56,6 +59,12 @@ function db_create_backup() {
     }
 
     fclose($handle);
+
+    // Check if the SQL file was created successfully
+    if (!file_exists($backup_path)) {
+        error_log("Backup file was not created: $backup_path");
+        return false; // Handle error
+    }
 
     // Create gzipped version of the backup
     $gz_file = "{$backup_path}.gz";

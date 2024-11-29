@@ -23,6 +23,9 @@ if (!file_exists(DB_BACKUP_DIR)) {
 function db_create_backup() {
     global $wpdb;
 
+    // Disable zlib.output_compression
+    ini_set('zlib.output_compression', 'Off');
+
     // Start output buffering to prevent any output
     ob_start();
 
@@ -57,39 +60,19 @@ function db_create_backup() {
 
     fclose($handle);
 
-    // Create gzipped version of the backup
-    $gz_file = "{$backup_path}.gz";
-    if (function_exists('gzencode') && function_exists('file_get_contents')) {
-        // Read the contents of the SQL file
-        $contents = file_get_contents($backup_path);
-        if ($contents === false) {
-            error_log("Failed to read the backup file: $backup_path");
-            return false; // Handle error
-        }
-
-        // Compress the contents
-        $gzipped = gzencode($contents, 9);
-        if ($gzipped === false) {
-            error_log("Failed to gzip the backup file: $backup_path");
-            return false; // Handle error
-        }
-
-        // Write the gzipped contents to the new file
-        if (file_put_contents($gz_file, $gzipped) === false) {
-            error_log("Failed to write gzipped file: $gz_file");
-            return false; // Handle error
-        }
-
-        unlink($backup_path); // Optionally delete the original file
+    // Check if the SQL file was created successfully
+    if (!file_exists($backup_path)) {
+        error_log("Backup file was not created: $backup_path");
+        return false; // Handle error
     }
 
     // Store the most recent backup file in an option
-    update_option('db_recent_backup', basename($gz_file)); // Store only the filename
+    update_option('db_recent_backup', basename($backup_path)); // Store only the filename
 
     // End output buffering and clean
     ob_end_clean();
 
-    return $gz_file; // Return the name of the gzipped backup file
+    return $backup_path; // Return the name of the SQL backup file
 }
 
 // Function to create the admin menu
