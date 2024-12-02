@@ -160,12 +160,28 @@ function calendar_settings_page() {
                     <td><input type="text" name="calendar_header_color" value="<?php echo esc_attr(get_option('calendar_header_color', '#0073aa')); ?>" /></td>
                 </tr>
                 <tr valign="top">
+                    <th scope="row">Header Text Color</th>
+                    <td><input type="text" name="header_text_color" value="<?php echo esc_attr(get_option('header_text_color', '#FFFFFF')); ?>" /></td>
+                </tr>
+                <tr valign="top">
                     <th scope="row">Calendar Cell Background Color</th>
                     <td><input type="text" name="calendar_cell_bg_color" value="<?php echo esc_attr(get_option('calendar_cell_bg_color', '#FFFFFF')); ?>" /></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">Calendar Cell Hover Background Color</th>
                     <td><input type="text" name="calendar_cell_hover_bg_color" value="<?php echo esc_attr(get_option('calendar_cell_hover_bg_color', '#F0F0F0')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Calendar Cell Text Color</th>
+                    <td><input type="text" name="cell_text_color" value="<?php echo esc_attr(get_option('cell_text_color', '#000000')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Weekday Cell Background Color</th>
+                    <td><input type="text" name="weekday_cell_bg_color" value="<?php echo esc_attr(get_option('weekday_cell_bg_color', '#F0F0F0')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Weekday Text Color</th>
+                    <td><input type="text" name="weekday_text_color" value="<?php echo esc_attr(get_option('weekday_text_color', '#FFFFFF')); ?>" /></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">Button Background Color</th>
@@ -178,22 +194,6 @@ function calendar_settings_page() {
                 <tr valign="top">
                     <th scope="row">Event Pill Background Color</th>
                     <td><input type="text" name="event_pill_bg_color" value="<?php echo esc_attr(get_option('event_pill_bg_color', '#FFD700')); ?>" /></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Weekday Cell Background Color</th>
-                    <td><input type="text" name="weekday_cell_bg_color" value="<?php echo esc_attr(get_option('weekday_cell_bg_color', '#F0F0F0')); ?>" /></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Weekday Text Color</th>
-                    <td><input type="text" name="weekday_text_color" value="<?php echo esc_attr(get_option('weekday_text_color', '#FFFFFF')); ?>" /></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Header Text Color</th>
-                    <td><input type="text" name="header_text_color" value="<?php echo esc_attr(get_option('header_text_color', '#FFFFFF')); ?>" /></td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Cell Text Color</th>
-                    <td><input type="text" name="cell_text_color" value="<?php echo esc_attr(get_option('cell_text_color', '#000000')); ?>" /></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">Event Pill Text Color</th>
