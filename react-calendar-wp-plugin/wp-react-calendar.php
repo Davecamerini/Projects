@@ -95,7 +95,7 @@ class WP_React_Calendar {
     public function enqueue_scripts() {
         wp_enqueue_script(
             'wp-react-calendar',
-            plugins_url('build/static/js/main.5c8e998a.js', __FILE__),
+            plugins_url('build/static/js/main.481a4da0.js', __FILE__),
             array(),
             '1.0.0',
             true
@@ -129,6 +129,11 @@ class WP_React_Calendar {
             'calendar_cell_hover_bg_color' => get_option('calendar_cell_hover_bg_color', '#F0F0F0'),
             'calendar_header_color' => get_option('calendar_header_color', '#0073aa'),
             'event_pill_bg_color' => get_option('event_pill_bg_color', '#FFD700'),
+            'weekday_cell_bg_color' => get_option('weekday_cell_bg_color', '#F0F0F0'),
+            'weekday_text_color' => get_option('weekday_text_color', '#FFFFFF'),
+            'header_text_color' => get_option('header_text_color', '#FFFFFF'),
+            'cell_text_color' => get_option('cell_text_color', '#000000'),
+            'event_pill_text_color' => get_option('event_pill_text_color', '#FFFFFF'),
         ];
     }
 }
@@ -174,6 +179,26 @@ function calendar_settings_page() {
                     <th scope="row">Event Pill Background Color</th>
                     <td><input type="text" name="event_pill_bg_color" value="<?php echo esc_attr(get_option('event_pill_bg_color', '#FFD700')); ?>" /></td>
                 </tr>
+                <tr valign="top">
+                    <th scope="row">Weekday Cell Background Color</th>
+                    <td><input type="text" name="weekday_cell_bg_color" value="<?php echo esc_attr(get_option('weekday_cell_bg_color', '#F0F0F0')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Weekday Text Color</th>
+                    <td><input type="text" name="weekday_text_color" value="<?php echo esc_attr(get_option('weekday_text_color', '#FFFFFF')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Header Text Color</th>
+                    <td><input type="text" name="header_text_color" value="<?php echo esc_attr(get_option('header_text_color', '#FFFFFF')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Cell Text Color</th>
+                    <td><input type="text" name="cell_text_color" value="<?php echo esc_attr(get_option('cell_text_color', '#000000')); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Event Pill Text Color</th>
+                    <td><input type="text" name="event_pill_text_color" value="<?php echo esc_attr(get_option('event_pill_text_color', '#FFFFFF')); ?>" /></td>
+                </tr>
             </table>
             <?php submit_button(); ?>
         </form>
@@ -190,5 +215,10 @@ function calendar_register_settings() {
     register_setting('calendar_options_group', 'calendar_cell_hover_bg_color');
     register_setting('calendar_options_group', 'calendar_header_color');
     register_setting('calendar_options_group', 'event_pill_bg_color');
+    register_setting('calendar_options_group', 'weekday_cell_bg_color');
+    register_setting('calendar_options_group', 'weekday_text_color');
+    register_setting('calendar_options_group', 'header_text_color');
+    register_setting('calendar_options_group', 'cell_text_color');
+    register_setting('calendar_options_group', 'event_pill_text_color');
 }
 add_action('admin_init', 'calendar_register_settings');
