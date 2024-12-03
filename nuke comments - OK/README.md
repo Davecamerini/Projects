@@ -1,8 +1,8 @@
-# Commentalypse Plugin for WordPress
+# Nuke Comments Plugin for WordPress
 
 ## Description
 
-The Commentalypse plugin for WordPress is a simple and effective tool that allows you to empty the `wp_comments` table in your WordPress database. This plugin is useful for developers and site administrators who need to clear out comments quickly without manually accessing the database.
+The Nuke Comments plugin for WordPress is a simple and effective tool that allows you to empty the `wp_comments` table in your WordPress database. This plugin is useful for developers and site administrators who need to clear out comments quickly without manually accessing the database.
 
 ## Features
 
@@ -24,8 +24,8 @@ The Commentalypse plugin for WordPress is a simple and effective tool that allow
 
 ## Usage
 
-1. Navigate to **Empty Comments** in the WordPress admin menu.
-2. You will see a button labeled **Empty Comments**.
+1. Navigate to **Nuke Comments** in the WordPress admin menu.
+2. You will see a button labeled **Nuke Comments**.
 3. Click the button, and a confirmation prompt will appear asking if you are sure you want to delete all comments.
 4. Confirm your action, and all comments will be deleted from the `wp_comments` table.
 
