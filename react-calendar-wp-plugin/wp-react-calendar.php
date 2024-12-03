@@ -95,7 +95,7 @@ class WP_React_Calendar {
     public function enqueue_scripts() {
         wp_enqueue_script(
             'wp-react-calendar',
-            plugins_url('build/static/js/main.481a4da0.js', __FILE__),
+            plugins_url('build/static/js/main.54d60b5f.js', __FILE__),
             array(),
             '1.0.0',
             true
@@ -215,10 +215,9 @@ function calendar_register_settings() {
     register_setting('calendar_options_group', 'calendar_cell_hover_bg_color');
     register_setting('calendar_options_group', 'calendar_header_color');
     register_setting('calendar_options_group', 'event_pill_bg_color');
+    register_setting('calendar_options_group', 'event_pill_text_color');
     register_setting('calendar_options_group', 'weekday_cell_bg_color');
     register_setting('calendar_options_group', 'weekday_text_color');
     register_setting('calendar_options_group', 'header_text_color');
-    register_setting('calendar_options_group', 'cell_text_color');
-    register_setting('calendar_options_group', 'event_pill_text_color');
 }
 add_action('admin_init', 'calendar_register_settings');

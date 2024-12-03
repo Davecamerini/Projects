@@ -28,11 +28,10 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
   const [cellHoverBgColor, setCellHoverBgColor] = useState<string>('#F0F0F0'); // Default cell hover color
   const [headerColor, setHeaderColor] = useState<string>('#F20000'); // Default header color
   const [eventPillBgColor, setEventPillBgColor] = useState<string>('#FFD700'); // Default event pill color
+  const [eventPillTextColor, setEventPillTextColor] = useState<string>('#000000'); // Default event pill text color
   const [weekdayBgColor, setWeekdayBgColor] = useState<string>('#FFFFFF'); // Default weekday color
   const [weekdayTextColor, setWeekdayTextColor] = useState<string>('#FFFFFF'); // Default weekday text color
   const [headerTextColor, setHeaderTextColor] = useState<string>('#FFFFFF'); // Default header text color
-  const [cellTextColor, setCellTextColor] = useState<string>('#000000'); // Default cell text color
-  const [eventPillTextColor, setEventPillTextColor] = useState<string>('#FFFFFF'); // Default event pill text color
 
   useEffect(() => {
     fetchEvents('/wp-json/wp-react-calendar/v1/events');
@@ -50,11 +49,10 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
       setCellHoverBgColor(data.calendar_cell_hover_bg_color || '#F0F0F0'); // New cell hover color
       setHeaderColor(data.calendar_header_color || '#0073aa'); // New header color
       setEventPillBgColor(data.event_pill_bg_color || '#FFD700'); // New event pill background color
+      setEventPillTextColor(data.event_pill_text_color || '#000000'); // New event pill text color
       setWeekdayBgColor(data.weekday_cell_bg_color || '#F0F0F0'); // New weekday background color
       setWeekdayTextColor(data.weekday_text_color || '#FFFFFF'); // New weekday text color
       setHeaderTextColor(data.header_text_color || '#FFFFFF'); // New header text color
-      setCellTextColor(data.cell_text_color || '#000000'); // New cell text color
-      setEventPillTextColor(data.event_pill_text_color || '#FFFFFF'); // New event pill text color
     } catch (error) {
       console.error('Error fetching styles:', error);
     }
@@ -120,8 +118,8 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
         >
           <div className="day-number">{day}</div>
           {dayEvents.map(event => (
-            <div key={event.id} className="event-pill" style={{ backgroundColor: eventPillBgColor }}>
-              <a href={event.link} rel="noopener noreferrer">
+            <div key={event.id} className="event-pill" style={{ backgroundColor: eventPillBgColor, color: eventPillTextColor }}>
+              <a href={event.link} rel="noopener noreferrer" style={{ color: eventPillTextColor }}>
                 {event.name}
               </a>
             </div>
