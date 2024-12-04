@@ -36,7 +36,7 @@ function vsp_video_page() {
             $item_path = $video_dir . '/' . $item;
             if (is_dir($item_path)) {
                 $folders[] = ucfirst($item); // Capitalize the first letter and add to folders array
-            } elseif (preg_match('/\.(mp4|webm|ogg)$/i', $item)) {
+            } elseif (preg_match('/\.(mp4|m4v|webm|ogg)$/i', $item)) {
                 $videos[] = ucfirst($item); // Capitalize the first letter and add to videos array
             }
         }
@@ -90,10 +90,10 @@ add_shortcode('video_streaming', 'vsp_video_page');
 
 // Enqueue video player script and Font Awesome
 function vsp_enqueue_scripts() {
-    if (is_page('video-streaming')) {
+    if (is_page('stream')) {
         wp_enqueue_script('videojs', 'https://vjs.zencdn.net/7.11.4/video.min.js', array(), null, true);
         wp_enqueue_style('videojs-css', 'https://vjs.zencdn.net/7.11.4/video-js.min.css');
-        wp_enqueue_style('custom-style', get_stylesheet_directory_uri() . 'custom-style.css');
+        wp_enqueue_style('custom-style', plugin_dir_url(__FILE__) . 'custom-style.css');
         wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
     }
 }
