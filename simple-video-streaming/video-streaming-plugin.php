@@ -90,11 +90,11 @@ add_shortcode('video_streaming', 'vsp_video_page');
 
 // Enqueue video player script and Font Awesome
 function vsp_enqueue_scripts() {
-    if (is_page('stream')) {
+    /* if (is_page('stream')) { */
         wp_enqueue_script('videojs', 'https://vjs.zencdn.net/7.11.4/video.min.js', array(), null, true);
         wp_enqueue_style('videojs-css', 'https://vjs.zencdn.net/7.11.4/video-js.min.css');
         wp_enqueue_style('custom-style', plugin_dir_url(__FILE__) . 'custom-style.css');
         wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
-    }
+    /* } */
 }
 add_action('wp_enqueue_scripts', 'vsp_enqueue_scripts');
