@@ -40,9 +40,9 @@
 }
 
 .vsp-item-list {
-    list-style-type: none; /* Remove default list styling (bullets) */
-    padding: 0; /* Remove padding */
-    margin: 0; /* Remove margin */
+    list-style-type: none !important; /* Remove default list styling (bullets) */
+    padding: 0 !important; /* Remove padding */
+    margin: 0 !important; /* Remove margin */
 }
 
 .vsp-video {
