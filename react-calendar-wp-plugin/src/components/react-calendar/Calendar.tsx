@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import './Calendar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { ReactComponent as VETTORIAIND } from './AIND.svg';
+
+const AIND = ({size = 16, color = '#000'}) => {
+  return (
+    <div>
+      <VETTORIAIND width={size} height={size} fill={color} />
+    </div>
+  )
+}
 
 interface Event {
   id: number;
@@ -120,7 +129,7 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
           {dayEvents.map(event => (
             <div key={event.id} className="event-pill" style={{ backgroundColor: eventPillBgColor, color: eventPillTextColor }}>
               <a href={event.link} rel="noopener noreferrer" style={{ color: eventPillTextColor }}>
-                {event.name}
+                <AIND size={16} color={'#000000'} />
               </a>
             </div>
           ))}
