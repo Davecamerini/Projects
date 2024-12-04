@@ -1,0 +1,70 @@
+.vsp-container {
+    max-width: 800px; /* Set a maximum width for the container */
+    margin: 0 auto; /* Center the container */
+    padding: 20px; /* Add padding around the container */
+    background-color: #f9f9f9; /* Light background color */
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.vsp-parent-dir {
+    margin-bottom: 15px; /* Space below the parent link */
+}
+
+.vsp-parent-dir a {
+    color: #000000; /* Color for the parent link */
+}
+
+.vsp-folder-dropdown {
+    margin-bottom: 20px; /* Space below the dropdown */
+}
+
+.vsp-folder-dropdown label {
+    display: block; /* Make label block-level for better spacing */
+    margin-bottom: 5px; /* Space below the label */
+    font-weight: bold; /* Bold text for the label */
+}
+
+#folder-select {
+    width: 100%; /* Full width for the dropdown */
+    padding: 10px; /* Padding inside the dropdown */
+    border: 1px solid #ccc; /* Border for the dropdown */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+}
+
+.vsp-title {
+    font-size: 20px; /* Title font size */
+    margin-bottom: 10px; /* Space below the title */
+}
+
+.vsp-item-list {
+    list-style-type: none; /* Remove default list styling (bullets) */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margin */
+}
+
+.vsp-video {
+    margin-bottom: 10px; /* Space between video items */
+}
+
+.vsp-video a {
+    text-decoration: none; /* Remove underline from links */
+    color: #000000; /* Default link color */
+    display: flex; /* Flexbox for alignment */
+    align-items: center; /* Center items vertically */
+}
+
+.vsp-video a i {
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.vsp-video a:hover {
+    color: #666666; /* Darker color on hover */
+}
+
+.vsp-no-items {
+    color: #999; /* Color for no items message */
+    font-style: italic; /* Italic style */
+}
