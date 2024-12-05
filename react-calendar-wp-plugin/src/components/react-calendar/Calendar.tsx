@@ -6,7 +6,7 @@ import { ReactComponent as VETTORIAIND } from './AIND.svg';
 
 const AIND = ({size = 16, color = '#000'}) => {
   return (
-    <div>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', margin: '5px 0 5px 0' }}>
       <VETTORIAIND width={size} height={size} fill={color} />
     </div>
   )
@@ -129,7 +129,7 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
           {dayEvents.map(event => (
             <div key={event.id} className="event-pill" style={{ backgroundColor: eventPillBgColor, color: eventPillTextColor }}>
               <a href={event.link} rel="noopener noreferrer" style={{ color: eventPillTextColor }}>
-                <AIND size={16} color={'#000000'} />
+                <AIND size={50} color={'#000000'} />
               </a>
             </div>
           ))}
