@@ -74,7 +74,11 @@ function vsp_video_page() {
         echo '<ul class="vsp-item-list">';
         foreach ($videos as $video) {
             $video_url = site_url('wp-content/uploads/videos/' . ($current_dir ? $current_dir . '/' : '') . basename($video));
-            echo '<li class="vsp-video"><a href="' . esc_url($video_url) . '" target="_blank"><i class="fas fa-video"></i> ' . esc_html($video) . '</a></li>';
+            echo '<li class="vsp-video">
+                    <a href="' . esc_url($video_url) . '" target="_blank"><i class="fas fa-video"></i> ' . esc_html($video) . '</a>
+                    <button class="vsp-delete-video" data-video-name="' . esc_attr($video) . '">Delete</button>
+                    <button class="vsp-rename-video" data-video-name="' . esc_attr($video) . '">Rename</button>
+                  </li>';
         }
         echo '</ul>';
     } else {
@@ -88,13 +92,53 @@ function vsp_video_page() {
 }
 add_shortcode('video_streaming', 'vsp_video_page');
 
-// Enqueue video player script and Font Awesome
+// Add a function to handle video deletion
+function vsp_delete_video() {
+    if (isset($_POST['video_name'])) {
+        $video_name = sanitize_text_field($_POST['video_name']);
+        $video_path = VIDEO_UPLOAD_DIR . '/' . $video_name;
+
+        if (file_exists($video_path)) {
+            unlink($video_path); // Delete the video file
+            wp_send_json_success('Video deleted successfully.');
+        } else {
+            wp_send_json_error('Video not found.');
+        }
+    }
+    wp_die(); // Required to terminate immediately and return a proper response
+}
+add_action('wp_ajax_delete_video', 'vsp_delete_video');
+
+// Add a function to handle video renaming
+function vsp_rename_video() {
+    if (isset($_POST['old_name']) && isset($_POST['new_name'])) {
+        $old_name = sanitize_text_field($_POST['old_name']);
+        $new_name = sanitize_text_field($_POST['new_name']);
+        $old_path = VIDEO_UPLOAD_DIR . '/' . $old_name;
+        $new_path = VIDEO_UPLOAD_DIR . '/' . $new_name;
+
+        if (file_exists($old_path)) {
+            rename($old_path, $new_path); // Rename the video file
+            wp_send_json_success('Video renamed successfully.');
+        } else {
+            wp_send_json_error('Video not found.');
+        }
+    }
+    wp_die(); // Required to terminate immediately and return a proper response
+}
+add_action('wp_ajax_rename_video', 'vsp_rename_video');
+
+// Enqueue JavaScript for handling delete and rename actions
 function vsp_enqueue_scripts() {
-    /* if (is_page('stream')) { */
-        wp_enqueue_script('videojs', 'https://vjs.zencdn.net/7.11.4/video.min.js', array(), null, true);
-        wp_enqueue_style('videojs-css', 'https://vjs.zencdn.net/7.11.4/video-js.min.css');
-        wp_enqueue_style('custom-style', plugin_dir_url(__FILE__) . 'custom-style.css');
-        wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
-    /* } */
+    wp_enqueue_script('videojs', 'https://vjs.zencdn.net/7.11.4/video.min.js', array(), null, true);
+    wp_enqueue_style('videojs-css', 'https://vjs.zencdn.net/7.11.4/video-js.min.css');
+    wp_enqueue_style('custom-style', plugin_dir_url(__FILE__) . 'custom-style.css');
+    wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+    // Enqueue custom script for handling delete and rename
+    wp_enqueue_script('vsp-custom-script', plugin_dir_url(__FILE__) . 'custom-script.js', array('jquery'), null, true);
+    
+    // Localize script to make ajaxurl available
+    wp_localize_script('vsp-custom-script', 'ajaxurl', admin_url('admin-ajax.php'));
 }
 add_action('wp_enqueue_scripts', 'vsp_enqueue_scripts');
