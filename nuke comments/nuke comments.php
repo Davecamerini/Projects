@@ -22,7 +22,7 @@ function nuke_comments_page() {
     ?>
     <div class="wrap">
         <h1>Nuke Comments</h1>
-        <form method="post">
+        <form method="post" style="margin-top: 20px;">
             <input type="submit" name="nuke_comments" class="button button-primary" value="Nuke Comments" onclick="return confirm('Are you sure you want to delete all comments?');" />
         </form>
     </div>
