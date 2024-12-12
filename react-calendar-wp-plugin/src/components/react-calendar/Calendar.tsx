@@ -129,7 +129,7 @@ const Calendar: React.FC<CalendarProps> = ({ currentDate, onNavigate, events, on
           {dayEvents.map(event => (
             <div key={event.id} className="event-pill" style={{ backgroundColor: eventPillBgColor, color: eventPillTextColor }}>
               <a href={event.link} rel="noopener noreferrer" style={{ color: eventPillTextColor }}>
-                <AIND size={50} color={'#000000'} />
+                <AIND size={35} color={'#000000'} />
               </a>
             </div>
           ))}

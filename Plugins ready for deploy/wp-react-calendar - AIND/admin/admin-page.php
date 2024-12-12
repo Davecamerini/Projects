@@ -4,18 +4,39 @@ if (!defined('ABSPATH')) exit;
 global $wpdb;
 $table_name = $wpdb->prefix . 'calendar_events';
 
+// Define a base URL
+define('BASE_URL', 'https://artisnotdead.it/'); // Change this to your desired base URL
+
+// Initialize an error message variable
+$error_message = '';
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['add_event'])) {
-        $wpdb->insert(
-            $table_name,
-            array(
-                'name' => sanitize_text_field($_POST['event_name']),
-                'date' => sanitize_text_field($_POST['event_date']),
-                'link' => esc_url_raw($_POST['event_link'])
-            ),
-            array('%s', '%s', '%s')
-        );
+        $link = sanitize_text_field($_POST['event_link']);
+        
+        // Ensure the link is an anchor link
+        if (preg_match('/^#/', $link)) {
+            // Store the link directly as it is an anchor link
+            $link = ltrim($link, '/'); // Optional: Remove leading slash if present
+        } else {
+            // Set an error message if the link is not an anchor link
+            $error_message = 'Please enter a valid anchor link (e.g., #section).';
+            $link = ''; // Optionally reset the link
+        }
+
+        // Only insert if there is no error
+        if (empty($error_message)) {
+            $wpdb->insert(
+                $table_name,
+                array(
+                    'name' => sanitize_text_field($_POST['event_name']),
+                    'date' => sanitize_text_field($_POST['event_date']),
+                    'link' => esc_url_raw($link) // Store the anchor link directly
+                ),
+                array('%s', '%s', '%s')
+            );
+        }
     }
 
     if (isset($_POST['delete_event'])) {
@@ -47,6 +68,12 @@ $events = $wpdb->get_results("SELECT * FROM $table_name ORDER BY date ASC");
 
 <div class="wrap">
     <h1>Calendar Events</h1>
+
+    <?php if (!empty($error_message)): ?>
+        <div class="notice notice-error">
+            <p><?php echo esc_html($error_message); ?></p>
+        </div>
+    <?php endif; ?>
 
     <style>
         /* Style for input fields */
@@ -96,8 +123,11 @@ $events = $wpdb->get_results("SELECT * FROM $table_name ORDER BY date ASC");
                 <td><input type="datetime-local" name="event_date" id="event_date" value="<?php echo isset($event) ? esc_attr($event->date) : ''; ?>" required></td>
             </tr>
             <tr>
-                <th><label for="event_link">Link</label></th>
-                <td><input type="url" name="event_link" id="event_link" value="<?php echo isset($event) ? esc_url($event->link) : ''; ?>" required></td>
+                <th><label for="event_link">Link (Anchor Link Only)</label></th>
+                <td>
+                    <input type="text" name="event_link" id="event_link" value="<?php echo isset($event) ? esc_url($event->link) : ''; ?>" required>
+                    <p class="description">Please enter an anchor link (e.g., #section). The base URL will not be added.</p>
+                </td>
             </tr>
         </table>
         <p class="submit">
@@ -121,7 +151,9 @@ $events = $wpdb->get_results("SELECT * FROM $table_name ORDER BY date ASC");
             <tr id="event-<?php echo esc_attr($event->id); ?>">
                 <td class="event-name"><?php echo esc_html($event->name); ?></td>
                 <td class="event-date"><?php echo esc_html($event->date); ?></td>
-                <td class="event-link"><a href="<?php echo esc_url($event->link); ?>" target="_blank">View</a></td>
+                <td class="event-link">
+                    <a href="<?php echo esc_url(home_url($event->link)); ?>">View</a>
+                </td>
                 <td>
                     <button class="button button-small edit-button" data-id="<?php echo esc_attr($event->id); ?>">Edit</button>
                     <form method="post" style="display:inline;">
@@ -157,7 +189,7 @@ document.querySelectorAll('.edit-button').forEach(button => {
         
         const linkInput = document.createElement('input');
         linkInput.type = 'url';
-        linkInput.value = linkCell.querySelector('a').href;
+        linkInput.value = linkCell.querySelector('a').href.replace(BASE_URL, ''); // Remove base URL for editing
         linkInput.className = 'regular-text';
 
         // Replace cells with input fields
@@ -180,8 +212,8 @@ document.querySelectorAll('.edit-button').forEach(button => {
             formData.append('event_id', eventId);
             formData.append('event_name', nameInput.value);
             formData.append('event_date', dateInput.value);
-            formData.append('event_link', linkInput.value);
-
+            formData.append('event_link', linkInput.value.startsWith('#') ? linkInput.value : BASE_URL + linkInput.value); // Ensure it starts with #
+            
             fetch('', {
                 method: 'POST',
                 body: formData

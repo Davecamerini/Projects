@@ -95,7 +95,7 @@ class WP_React_Calendar {
     public function enqueue_scripts() {
         wp_enqueue_script(
             'wp-react-calendar',
-            plugins_url('build/static/js/main.c15cce57.js', __FILE__),
+            plugins_url('build/static/js/main.dbb292d4.js', __FILE__),
             array(),
             '1.0.0',
             true
