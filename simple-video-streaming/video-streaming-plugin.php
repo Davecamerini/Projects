@@ -46,6 +46,19 @@ function vsp_video_page() {
     sort($folders);
     sort($videos);
 
+    // Sort videos naturally
+    natsort($videos); // Sorts the array in natural order
+
+    // Array to hold videos with their sizes
+    $video_sizes = [];
+    
+    // Get sizes for each video
+    foreach ($videos as $video) {
+        $video_path = $video_dir . '/' . basename($video); // Get the full path to the video
+        $file_size = filesize($video_path); // Get the file size
+        $video_sizes[$video] = $file_size; // Store video name and size
+    }
+
     // Start the layout
     echo '<div class="vsp-container">';
 
@@ -70,13 +83,10 @@ function vsp_video_page() {
 
     // Video list
     echo '<h2 class="vsp-title">Available Videos</h2>';
-    if ($videos) {
+    if ($video_sizes) {
         echo '<ul class="vsp-item-list">';
-        foreach ($videos as $video) {
-            $video_path = $video_dir . '/' . basename($video); // Get the full path to the video
-            $file_size = filesize($video_path); // Get the file size
+        foreach ($video_sizes as $video => $file_size) {
             $file_size_human_readable = size_format($file_size); // Convert to human-readable format
-
             $video_url = site_url('wp-content/uploads/videos/' . ($current_dir ? $current_dir . '/' : '') . basename($video));
             echo '<li class="vsp-video">
                     <a href="' . esc_url($video_url) . '" target="_blank"><i class="fas fa-video"></i> ' . esc_html($video) . ' (' . esc_html($file_size_human_readable) . ')</a>
