@@ -73,9 +73,13 @@ function vsp_video_page() {
     if ($videos) {
         echo '<ul class="vsp-item-list">';
         foreach ($videos as $video) {
+            $video_path = $video_dir . '/' . basename($video); // Get the full path to the video
+            $file_size = filesize($video_path); // Get the file size
+            $file_size_human_readable = size_format($file_size); // Convert to human-readable format
+
             $video_url = site_url('wp-content/uploads/videos/' . ($current_dir ? $current_dir . '/' : '') . basename($video));
             echo '<li class="vsp-video">
-                    <a href="' . esc_url($video_url) . '" target="_blank"><i class="fas fa-video"></i> ' . esc_html($video) . '</a>
+                    <a href="' . esc_url($video_url) . '" target="_blank"><i class="fas fa-video"></i> ' . esc_html($video) . ' (' . esc_html($file_size_human_readable) . ')</a>
                     <button class="vsp-delete-video" data-video-name="' . esc_attr($video) . '">Delete</button>
                     <button class="vsp-rename-video" data-video-name="' . esc_attr($video) . '">Rename</button>
                   </li>';
