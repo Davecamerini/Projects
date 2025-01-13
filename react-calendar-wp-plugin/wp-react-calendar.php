@@ -38,6 +38,13 @@ class WP_React_Calendar {
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+
+        // Clear browser cache by sending appropriate headers
+        if (defined('DOING_AJAX') && DOING_AJAX) {
+            header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+            header("Cache-Control: post-check=0, pre-check=0", false);
+            header("Pragma: no-cache");
+        }
     }
 
     public function add_admin_menu() {
