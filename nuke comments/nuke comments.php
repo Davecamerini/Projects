@@ -10,7 +10,8 @@
 add_action('admin_menu', 'empty_comments_menu');
 
 function empty_comments_menu() {
-    add_menu_page('Nuke Comments', 'Nuke Comments', 'manage_options', 'nuke-comments', 'nuke_comments_page');
+    $icon_url = plugins_url('lotus.png', __FILE__);
+    add_menu_page('Nuke Comments', 'Nuke Comments', 'manage_options', 'nuke-comments', 'nuke_comments_page', $icon_url);
 }
 
 function nuke_comments_page() {
