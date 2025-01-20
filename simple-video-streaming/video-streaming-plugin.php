@@ -36,7 +36,7 @@ function vsp_video_page() {
             $item_path = $video_dir . '/' . $item;
             if (is_dir($item_path)) {
                 $folders[] = ucfirst($item); // Capitalize the first letter and add to folders array
-            } elseif (preg_match('/\.(mp4|m4v|webm|ogg)$/i', $item)) {
+            } elseif (preg_match('/\.(mp4|m4v|webm|ogg|flv)$/i', $item)) {
                 $videos[] = ucfirst($item); // Capitalize the first letter and add to videos array
             }
         }
