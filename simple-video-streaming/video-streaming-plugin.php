@@ -21,8 +21,9 @@ register_activation_hook(__FILE__, 'vsp_create_upload_dir');
 function vsp_video_page() {
     ob_start();
     
-    // Get the current directory from the query parameter, default to the base directory
-    $current_dir = isset($_GET['dir']) ? sanitize_text_field($_GET['dir']) : '';
+    // Get the current folder from the URL
+    $current_dir = isset($_GET['folder']) ? sanitize_text_field($_GET['folder']) : '';
+    $parent_dir = dirname($current_dir); // Get the parent directory
     $video_dir = rtrim(VIDEO_UPLOAD_DIR . '/' . $current_dir, '/');
 
     // List folders and videos
@@ -59,44 +60,55 @@ function vsp_video_page() {
         $video_sizes[$video] = $file_size; // Store video name and size
     }
 
-    // Start the layout
-    echo '<div class="vsp-container">';
-
-    // Display "Go Up" link if in a subfolder
-    if ($current_dir && $current_dir !== '/') {
-        $parent_dir = dirname($current_dir);
-        $parent_url = add_query_arg('dir', $parent_dir);
-        echo '<div class="vsp-parent-dir"><a href="' . esc_url($parent_url) . '"><i class="fas fa-arrow-left"></i> Go Up</a></div>';
-    }
-
-    // Dropdown for folders
-    echo '<div class="vsp-folder-dropdown">';
-    echo '<label for="folder-select">Select Folder:</label>';
-    echo '<select id="folder-select" onchange="location = this.value;">';
-    echo '<option value="">-- Select a folder --</option>';
+    // Start the layout with a larger container
+    echo '<div class="vsp-container" style="width: 100%;">'; // Increased width to 90%
+    
+    // Folder navigation as a dropdown
+    echo '<div class="vsp-folder-navigation" style="margin-bottom: 20px;">';
+    echo '<h3>Folders:</h3>';
+    echo '<select onchange="if (this.value) { window.location.href = this.value; }" style="padding: 5px; font-size: 16px; margin-right: 10px;">'; // Styled dropdown
+    echo '<option value="">Select a folder</option>'; // Default option
     foreach ($folders as $folder) {
-        $folder_url = add_query_arg('dir', $current_dir . '/' . $folder);
-        echo '<option value="' . esc_url($folder_url) . '">' . esc_html($folder) . '</option>';
+        echo '<option value="?folder=' . esc_attr($folder) . '">' . esc_html($folder) . '</option>';
     }
     echo '</select>';
+
+    // Back navigation link
+    if ($parent_dir) {
+        echo '<a href="?folder=' . esc_attr($parent_dir) . '" class="vsp-back-button" style="padding: 8px 12px; background-color: #0073aa; color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">Back</a>'; // Styled back button
+    }
     echo '</div>';
 
+    // Add table headers for sorting
+    echo '<table class="vsp-video-table">';
+    echo '<thead>';
+    echo '<tr>';
+    echo '<th onclick="sortTable(0)">Video</th>'; // Video column
+    echo '<th onclick="sortTable(1)">Size</th>'; // Size column
+    echo '<th>Rename</th>'; // Rename column
+    echo '<th>Delete</th>'; // Delete column
+    echo '</tr>';
+    echo '</thead>';
+    echo '<tbody>';
+
     // Video list
-    echo '<h2 class="vsp-title">Available Videos</h2>';
     if ($video_sizes) {
-        echo '<ul class="vsp-item-list">';
         foreach ($video_sizes as $video => $file_size) {
             $file_size_human_readable = size_format($file_size); // Convert to human-readable format
             $video_url = site_url('wp-content/uploads/videos/' . ($current_dir ? $current_dir . '/' : '') . basename($video));
-            echo '<li class="vsp-video">
-                    <a href="' . esc_url($video_url) . '" target="_blank"><i class="fas fa-video"></i> ' . esc_html($video) . ' (' . esc_html($file_size_human_readable) . ')</a>
-                    <button class="vsp-delete-video" data-video-name="' . esc_attr($video) . '">Delete</button>
-                    <button class="vsp-rename-video" data-video-name="' . esc_attr($video) . '">Rename</button>
-                  </li>';
+            echo '<tr class="vsp-video">
+                    <td><a href="' . esc_url($video_url) . '" target="_blank"><i class="fas fa-video"></i> ' . esc_html($video) . '</a></td>
+                    <td>' . esc_html($file_size_human_readable) . '</td>
+                    <td><button class="vsp-rename-video" data-video-name="' . esc_attr($video) . '">Rename</button></td>
+                    <td><button class="vsp-delete-video" data-video-name="' . esc_attr($video) . '">Delete</button></td>
+                  </tr>';
         }
-        echo '</ul>';
+        echo '</tbody>';
+        echo '</table>';
     } else {
-        echo '<p class="vsp-no-items">No videos found.</p>';
+        // Ensure the "No videos found" message is clearly separated
+        echo '</tbody></table>'; // Close the table before the message
+        echo '<p class="vsp-no-items">No videos found.</p>'; // Display message
     }
 
     // End the layout
@@ -156,3 +168,54 @@ function vsp_enqueue_scripts() {
     wp_localize_script('vsp-custom-script', 'ajaxurl', admin_url('admin-ajax.php'));
 }
 add_action('wp_enqueue_scripts', 'vsp_enqueue_scripts');
+
+// Add JavaScript for sorting functionality
+function vsp_sorting_script() {
+    ?>
+    <script>
+        function convertToBytes(size) {
+            const units = {
+                'B': 1,
+                'KB': 1024,
+                'MB': 1024 * 1024,
+                'GB': 1024 * 1024 * 1024,
+                'TB': 1024 * 1024 * 1024 * 1024
+            };
+            const match = size.match(/(\d+(\.\d+)?)\s*(B|KB|MB|GB|TB)/i);
+            if (match) {
+                const value = parseFloat(match[1]);
+                const unit = match[3].toUpperCase();
+                return value * units[unit];
+            }
+            return 0; // Default to 0 if no match
+        }
+
+        function sortTable(columnIndex) {
+            const table = document.querySelector('.vsp-video-table tbody');
+            const rows = Array.from(table.rows);
+            const isAscending = table.dataset.sortOrder === 'asc';
+            const direction = isAscending ? 1 : -1;
+
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].innerText;
+                const bText = b.cells[columnIndex].innerText;
+
+                if (columnIndex === 1) { // Size column
+                    const aSizeInBytes = convertToBytes(aText);
+                    const bSizeInBytes = convertToBytes(bText);
+                    return (aSizeInBytes - bSizeInBytes) * direction;
+                }
+                return aText.localeCompare(bText) * direction;
+            });
+
+            // Clear the table and append sorted rows
+            table.innerHTML = '';
+            rows.forEach(row => table.appendChild(row));
+
+            // Toggle sort order
+            table.dataset.sortOrder = isAscending ? 'desc' : 'asc';
+        }
+    </script>
+    <?php
+}
+add_action('wp_footer', 'vsp_sorting_script');

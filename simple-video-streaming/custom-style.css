@@ -1,5 +1,5 @@
 .vsp-container {
-    max-width: 800px; /* Set a maximum width for the container */
+    max-width: 100%; /* Set a maximum width for the container */
     margin: 0 auto; /* Center the container */
     padding: 20px; /* Add padding around the container */
     background-color: #f9f9f9; /* Light background color */
@@ -67,4 +67,62 @@
 .vsp-no-items {
     color: #999; /* Color for no items message */
     font-style: italic; /* Italic style */
+}
+
+/* Custom styles for mobile responsiveness */
+@media (max-width: 768px) {
+    .vsp-container {
+        padding: 10px; /* Reduce padding on smaller screens */
+    }
+
+    .vsp-folder-dropdown {
+        margin-bottom: 15px; /* Adjust margin for dropdown */
+    }
+
+    #folder-select {
+        font-size: 14px; /* Smaller font size for dropdown */
+    }
+
+    .vsp-back-button {
+        display: inline-block; /* Ensure the back button is inline */
+        margin-top: 10px; /* Space above the button */
+        padding: 8px 10px; /* Adjust padding for smaller screens */
+        font-size: 14px; /* Smaller font size for the button */
+    }
+
+    .vsp-video-table {
+        width: 100%; /* Ensure the table takes full width */
+        display: block; /* Make the table block for better responsiveness */
+        overflow-x: auto; /* Allow horizontal scrolling */
+    }
+
+    .vsp-video-table th, .vsp-video-table td {
+        padding: 8px; /* Adjust padding for table cells */
+        font-size: 14px; /* Smaller font size for table text */
+    }
+
+    .vsp-video {
+        display: flex; /* Use flexbox for video items */
+        flex-direction: column; /* Stack items vertically */
+    }
+
+    .vsp-video a {
+        font-size: 16px; /* Adjust font size for video links */
+    }
+}
+
+.vsp-video-table {
+    width: 100%; /* Full width for the table */
+    border-collapse: collapse; /* Collapse borders for a cleaner look */
+}
+
+.vsp-video-table th, .vsp-video-table td {
+    border: 1px solid #ddd; /* Light border for table cells */
+    padding: 10px; /* Padding for table cells */
+    text-align: left; /* Align text to the left */
+}
+
+.vsp-video-table th {
+    background-color: #f2f2f2; /* Light background for header */
+    font-weight: bold; /* Bold text for header */
 }
