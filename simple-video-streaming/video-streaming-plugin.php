@@ -200,7 +200,10 @@ function vsp_sorting_script() {
                 const aText = a.cells[columnIndex].innerText;
                 const bText = b.cells[columnIndex].innerText;
 
-                if (columnIndex === 1) { // Size column
+                if (columnIndex === 0) { // Video column
+                    // Custom comparison for video names
+                    return aText.localeCompare(bText, undefined, { numeric: true, sensitivity: 'base' }) * direction;
+                } else if (columnIndex === 1) { // Size column
                     const aSizeInBytes = convertToBytes(aText);
                     const bSizeInBytes = convertToBytes(bText);
                     return (aSizeInBytes - bSizeInBytes) * direction;
