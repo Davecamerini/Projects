@@ -36,7 +36,7 @@
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 if (snake.some(segment => segment.x === x && segment.y === y)) {
-                    output += '-'; // Snake segment changed to hyphen
+                    output += 'o'; // Snake segment changed to hyphen
                 } else if (food.x === x && food.y === y) {
                     output += '*'; // Food
                 } else {
