@@ -36,18 +36,15 @@ function vsp_video_page() {
         if ($item !== '.' && $item !== '..') {
             $item_path = $video_dir . '/' . $item;
             if (is_dir($item_path)) {
-                $folders[] = ucfirst($item); // Capitalize the first letter and add to folders array
+                $folders[] = $item; // Store original folder name
             } elseif (preg_match('/\.(mp4|m4v|webm|ogg|flv)$/i', $item)) {
-                $videos[] = ucfirst($item); // Capitalize the first letter and add to videos array
+                $videos[] = $item; // Store original video name
             }
         }
     }
 
     // Sort folders and videos alphabetically
     sort($folders);
-    sort($videos);
-
-    // Sort videos naturally
     natsort($videos); // Sorts the array in natural order
 
     // Array to hold videos with their sizes
@@ -92,12 +89,13 @@ function vsp_video_page() {
     echo '<tbody>';
 
     // Video list
-    if ($video_sizes) {
-        foreach ($video_sizes as $video => $file_size) {
+    if ($videos) {
+        foreach ($videos as $video) {
+            $file_size = filesize($video_dir . '/' . $video); // Get the file size
             $file_size_human_readable = size_format($file_size); // Convert to human-readable format
             $video_url = site_url('wp-content/uploads/videos/' . ($current_dir ? $current_dir . '/' : '') . basename($video));
             echo '<tr class="vsp-video">
-                    <td><a href="' . esc_url($video_url) . '" target="_blank"><i class="fas fa-video"></i> ' . esc_html($video) . '</a></td>
+                    <td><a href="' . esc_url($video_url) . '" target="_blank"><i class="fas fa-video"></i> ' . esc_html(ucfirst($video)) . '</a></td>
                     <td>' . esc_html($file_size_human_readable) . '</td>
                     <td><button class="vsp-rename-video" data-video-name="' . esc_attr($video) . '">Rename</button></td>
                     <td><button class="vsp-delete-video" data-video-name="' . esc_attr($video) . '">Delete</button></td>
