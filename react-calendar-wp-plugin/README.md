@@ -1,70 +1,79 @@
-# Getting Started with Create React App
+# React Calendar WP Plugin
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+The React Calendar WP Plugin is a WordPress plugin that integrates a calendar feature into your WordPress site. It allows users to add, edit, and manage events easily. Built with React, this plugin leverages modern web technologies to provide a seamless user experience.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **Event Management**: Add, edit, and delete events with ease.
+- **Responsive Design**: The calendar is fully responsive and works on all devices.
+- **Customizable**: Easily customize the appearance and functionality to fit your needs.
+- **Integration with WordPress**: Seamlessly integrates with WordPress, utilizing its built-in features and functionalities.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Installation
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. **Download the Plugin**: Clone or download the repository.
+   ```bash
+   git clone https://github.com/yourusername/react-calendar-wp-plugin.git
+   ```
 
-### `npm test`
+2. **Upload to WordPress**: Upload the plugin folder to the `/wp-content/plugins/` directory.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. **Activate the Plugin**: Go to the WordPress admin panel, navigate to the "Plugins" section, and activate the "React Calendar WP Plugin".
 
-### `npm run build`
+4. **Configure Settings**: After activation, configure the plugin settings as needed.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Usage
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Adding Events**: Navigate to the calendar section in the WordPress admin panel and use the provided form to add new events.
+- **Editing Events**: Click on an event to edit its details.
+- **Deleting Events**: Use the delete option to remove events from the calendar.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Development
 
-### `npm run eject`
+### Prerequisites
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Node.js
+- npm (Node Package Manager)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Setup
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. **Install Dependencies**: Navigate to the plugin directory and install the required dependencies.
+   ```bash
+   npm install
+   ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. **Run the Development Server**: Start the development server to see changes in real-time.
+   ```bash
+   npm start
+   ```
 
-## Learn More
+### Build
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+To create a production build of the plugin, run:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm run build
+```
 
-### Code Splitting
+## File Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- `admin/`: Contains the admin page and related functionalities.
+- `build/`: Contains the production build files.
+- `public/`: Contains public assets like HTML, manifest, and robots.txt.
+- `src/`: Contains the source code for the React components.
+- `package.json`: Lists the dependencies and scripts for the project.
+- `craco.config.js`: Configuration for Create React App customization.
 
-### Analyzing the Bundle Size
+## Contributing
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Contributions are welcome! If you have suggestions for improvements or new features, please open an issue or submit a pull request.
 
-### Making a Progressive Web App
+## License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-### Advanced Configuration
+## Contact
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+For any inquiries or support, please contact [your-email@example.com](mailto:your-email@example.com).

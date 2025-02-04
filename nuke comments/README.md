@@ -6,9 +6,9 @@ The Nuke Comments plugin for WordPress is a simple and effective tool that allow
 
 ## Features
 
-- Easily empty the `wp_comments` table from the WordPress admin dashboard.
-- Simple and user-friendly interface.
-- Confirmation prompt to prevent accidental deletion of comments.
+- **Empty Comments Table**: Easily empty the `wp_comments` table from the WordPress admin dashboard.
+- **User-Friendly Interface**: A straightforward interface integrated into the WordPress admin menu.
+- **Confirmation Prompt**: A confirmation dialog appears to prevent accidental deletion of comments.
 
 ## Installation
 
@@ -20,7 +20,7 @@ The Nuke Comments plugin for WordPress is a simple and effective tool that allow
    - Click on **Upload Plugin** and select the downloaded ZIP file.
    - Click **Install Now** and then **Activate** the plugin.
 
-3. **Access the Plugin**: After activation, you will find the "Empty Comments" option in the WordPress admin menu.
+3. **Access the Plugin**: After activation, you will find the "Nuke Comments" option in the WordPress admin menu.
 
 ## Usage
 

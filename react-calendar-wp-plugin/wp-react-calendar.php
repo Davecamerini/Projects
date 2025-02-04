@@ -48,6 +48,7 @@ class WP_React_Calendar {
     }
 
     public function add_admin_menu() {
+        $icon_url = plugins_url('Mon white trasp.png', __FILE__);
         // Create a parent menu item without a rendering function
         add_menu_page(
             'WP React Calendar', // Page title
@@ -55,7 +56,8 @@ class WP_React_Calendar {
             'manage_options', // Capability
             'wp-react-calendar', // Menu slug
             '', // No function for the parent menu
-            'dashicons-calendar' // Icon
+            // 'dashicons-calendar' // Icon
+            $icon_url
         );
 
         // Add the Calendar Events submenu

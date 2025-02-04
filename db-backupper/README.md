@@ -2,14 +2,15 @@
 
 ## Description
 
-The Database Backup Plugin for WordPress is a simple and effective tool that allows you to create backups of your WordPress database. This plugin enables you to download the backup as a plain SQL file, ensuring that you can easily restore your database if needed. The plugin also automatically deletes the backup file from the server after it has been successfully downloaded.
+The Database Backup Plugin for WordPress is a simple and effective tool that allows you to create backups of your WordPress database. This plugin enables you to download the backup as a plain SQL file, ensuring that you can easily restore your database if needed. The plugin also provides a user-friendly interface in the WordPress admin dashboard for managing backups.
 
 ## Features
 
-- Create a backup of your WordPress database.
-- Download the backup as a plain SQL file.
-- Automatically delete the backup file from the server after it has been downloaded.
-- Simple and user-friendly interface in the WordPress admin dashboard.
+- **Create Database Backup**: Easily create a backup of your entire WordPress database with a single click.
+- **Download Backup**: Download the backup as a plain SQL file for safe storage.
+- **Recent Backup Access**: Quickly access the most recent backup file for download.
+- **User-Friendly Interface**: Simple and intuitive interface integrated into the WordPress admin dashboard.
+- **Automatic Backup Directory Creation**: The plugin automatically creates a `backups` directory in the plugin folder if it does not already exist.
 
 ## Installation
 
@@ -21,14 +22,14 @@ The Database Backup Plugin for WordPress is a simple and effective tool that all
    - Click on **Upload Plugin** and select the downloaded ZIP file.
    - Click **Install Now** and then **Activate** the plugin.
 
-3. **Create Backup Directory**: The plugin will automatically create a `backups` directory in the plugin folder if it does not already exist.
+3. **Backup Directory**: The plugin will automatically create a `backups` directory in the plugin folder if it does not already exist.
 
 ## Usage
 
 1. After activating the plugin, navigate to **Database Backup** in the WordPress admin menu.
 2. Click the **Create Database Backup** button to generate a backup of your database.
 3. Once the backup is created, a download link will appear. Click the link to download the backup as a SQL file.
-4. The SQL file will be deleted from the server after it has been successfully downloaded.
+4. The SQL file will be stored in the `backups` directory within the plugin folder.
 
 ## Requirements
 

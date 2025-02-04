@@ -2,15 +2,18 @@
 
 ## Description
 
-The Video Streaming Plugin for WordPress allows users to upload videos and stream them directly from their WordPress site. This plugin provides a user-friendly interface for managing video uploads and organizing them into folders, making it easy to create a video library.
+The Video Streaming Plugin for WordPress allows users to upload, manage, and stream videos directly from their WordPress site. This plugin provides a user-friendly interface for organizing video uploads into folders, making it easy to create a comprehensive video library.
 
 ## Features
 
-- Upload videos directly from the WordPress admin dashboard.
-- Organize videos into folders for better management.
-- Stream videos in various formats (MP4, WebM, OGG).
-- User-friendly interface with a shortcode for easy embedding.
-- "Go Up" navigation for folder structure.
+- **Upload Videos**: Easily upload videos directly from the WordPress admin dashboard.
+- **Organize Videos**: Manage videos by organizing them into folders for better structure and accessibility.
+- **Stream Videos**: Stream videos in various formats, including MP4, WebM, OGG, and FLV.
+- **User-Friendly Interface**: A simple and intuitive interface for managing video uploads and folder structures.
+- **Shortcode Support**: Use the shortcode `[video_streaming]` to embed the video upload form and list of videos on any page or post.
+- **Video Management**: Rename and delete videos directly from the interface.
+- **Responsive Design**: The plugin is designed to be mobile-friendly, ensuring a good user experience on all devices.
+- **AJAX Functionality**: Seamless video renaming and deletion without page reloads.
 
 ## Installation
 
@@ -28,7 +31,8 @@ The Video Streaming Plugin for WordPress allows users to upload videos and strea
 
 1. After activating the plugin, navigate to the page where you want to display the video upload form and video list.
 2. Use the shortcode `[video_streaming]` to embed the video upload form and list of videos on any page or post.
-3. Users can upload videos, and they will be organized into folders based on the directory structure.
+3. Users can upload videos, which will be organized into folders based on the directory structure.
+4. Videos can be renamed or deleted directly from the video list using the provided buttons.
 
 ## Requirements
 
