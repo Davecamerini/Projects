@@ -7,7 +7,7 @@ Author: <a href="https://www.davecamerini.it">Davecamerini</a>
 */
 
 function cache_folder_scanner_menu() {
-    $icon_url = plugins_url('lotus.png', __FILE__);
+    $icon_url = plugins_url('Mon white trasp.png', __FILE__);
     add_menu_page('Nuke Cache', 'Cache Nuker', 'manage_options', 'cache-folder-scanner', 'cache_folder_scanner_page', $icon_url);
 }
 add_action('admin_menu', 'cache_folder_scanner_menu');
