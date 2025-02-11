@@ -1,4 +1,4 @@
-# Nuke Cache Plugin for WordPress
+# Nuke Cache
 
 ## Description
 
@@ -48,4 +48,4 @@ This plugin is licensed under the MIT License. See the LICENSE file for more inf
 
 ## Author
 
-Developed by Davecamerini (https://www.davecamerini.it) - info@davecamerini.it (mailto:info@davecamerini.it) 
+Developed by [Davecamerini](https://www.davecamerini.it) - [info@davecamerini.it](mailto:info@davecamerini.it) 
