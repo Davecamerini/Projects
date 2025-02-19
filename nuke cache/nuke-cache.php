@@ -6,41 +6,58 @@ Version: 1.0
 Author: <a href="https://www.davecamerini.it">Davecamerini</a>
 */
 
+// Hook to add a menu item in the admin dashboard
+add_action('admin_menu', 'cache_folder_scanner_menu');
+
 function cache_folder_scanner_menu() {
     $icon_url = plugins_url('Mon white trasp.png', __FILE__);
     add_menu_page('Nuke Cache', 'Cache Nuker', 'manage_options', 'cache-folder-scanner', 'cache_folder_scanner_page', $icon_url, 95);
 }
-add_action('admin_menu', 'cache_folder_scanner_menu');
 
 function cache_folder_scanner_page() {
-    echo '<h1>Cache Nuker</h1>';
-
+    // Define cache directories
     $cache_dir = WP_CONTENT_DIR . '/cache';
     $et_cache_dir = WP_CONTENT_DIR . '/et-cache';
-    $cache_size = 0;
-    $et_cache_size = 0;
 
-    if (is_dir($cache_dir)) {
-        $cache_size = folder_size($cache_dir);
-        echo "<p>Cache folder found. Size: " . size_format($cache_size) . "</p>";
-        echo '<form method="post"><button name="empty_cache">Empty Cache Folder</button></form>';
-    }
-
-    if (is_dir($et_cache_dir)) {
-        $et_cache_size = folder_size($et_cache_dir);
-        echo "<p>Et-cache folder found. Size: " . size_format($et_cache_size) . "</p>";
-        echo '<form method="post"><button name="empty_et_cache">Empty Et-cache Folder</button></form>';
-    }
+    // Initialize cache sizes
+    $cache_size = is_dir($cache_dir) ? folder_size($cache_dir) : 0;
+    $et_cache_size = is_dir($et_cache_dir) ? folder_size($et_cache_dir) : 0;
 
     if (isset($_POST['empty_cache'])) {
         delete_folder($cache_dir);
-        echo "<p>Cache folder emptied.</p>";
+        echo '<div class="updated"><p>Cache folder emptied.</p></div>';
+        // Refresh the cache size after deletion
+        $cache_size = is_dir($cache_dir) ? folder_size($cache_dir) : 0; // Re-query the cache size
     }
 
     if (isset($_POST['empty_et_cache'])) {
         delete_folder($et_cache_dir);
-        echo "<p>Et-cache folder emptied.</p>";
+        echo '<div class="updated"><p>Et-cache folder emptied.</p></div>';
+        // Refresh the et-cache size after deletion
+        $et_cache_size = is_dir($et_cache_dir) ? folder_size($et_cache_dir) : 0; // Re-query the et-cache size
     }
+    ?>
+    <div class="wrap">
+        <h1>Cache Nuker</h1>
+        <?php if ($cache_size > 0): ?>
+            <p>Cache folder found. Size: <strong><?php echo size_format($cache_size); ?></strong></p>
+            <form method="post">
+                <input type="submit" name="empty_cache" class="button button-primary" value="Empty Cache Folder" />
+            </form>
+        <?php else: ?>
+            <p>No Cache folder found.</p>
+        <?php endif; ?>
+
+        <?php if ($et_cache_size > 0): ?>
+            <p>Et-cache folder found. Size: <strong><?php echo size_format($et_cache_size); ?></strong></p>
+            <form method="post">
+                <input type="submit" name="empty_et_cache" class="button button-primary" value="Empty Et-cache Folder" />
+            </form>
+        <?php else: ?>
+            <p>No Et-cache folder found.</p>
+        <?php endif; ?>
+    </div>
+    <?php
 }
 
 function folder_size($dir) {
