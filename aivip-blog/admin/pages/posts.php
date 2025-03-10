@@ -246,15 +246,26 @@ $db->closeConnection();
     overflow: visible;
 }
 
-.dropdown {
+/* Status dropdown specific styles */
+td .dropdown {
+    position: static;
+}
+
+td .dropdown-menu {
+    position: absolute;
+    z-index: 1060;
+    min-width: 8rem;
+}
+
+/* Action buttons styles */
+td .btn-group,
+td .btn {
     position: relative;
     z-index: 1050;
 }
 
+/* General dropdown styles */
 .dropdown-menu {
-    position: absolute;
-    z-index: 1050;
-    min-width: 10rem;
     padding: 0.5rem 0;
     margin: 0;
     font-size: 1rem;
