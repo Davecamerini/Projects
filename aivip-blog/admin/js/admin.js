@@ -1,19 +1,19 @@
 // Initialize TinyMCE for post content
-if (document.querySelector('#post-content')) {
+if (document.querySelector('#content')) {
     tinymce.init({
-        selector: '#post-content',
+        selector: '#content',
         plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
         toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
         height: 500,
         // License configuration
         license_key: 'gpl',
         // Self-hosted configuration
-        base_url: '/admin/js/tinymce',
+        base_url: './js/tinymce',
         suffix: '.min',
         // Additional configuration
         skin: 'oxide',
-        content_css: '/admin/js/tinymce/skins/content/default/content.min.css',
-        language_url: '/admin/js/tinymce/langs/en.min.js',
+        content_css: './js/tinymce/skins/content/default/content.min.css',
+        language_url: './js/tinymce/langs/en.min.js',
         language: 'en'
     });
 }

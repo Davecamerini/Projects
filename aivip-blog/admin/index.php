@@ -136,7 +136,7 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/admin/js/tinymce/tinymce.min.js"></script>
+    <script src="js/tinymce/tinymce.min.js"></script>
     <script src="js/admin.js"></script>
 </body>
 </html> 

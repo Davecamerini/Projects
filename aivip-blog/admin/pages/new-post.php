@@ -27,7 +27,7 @@ if ($isEditing) {
 ?>
 
 <!-- TinyMCE -->
-<script src="/admin/js/tinymce/tinymce.min.js"></script>
+<script src="../js/tinymce/tinymce.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         tinymce.init({
@@ -49,12 +49,12 @@ if ($isEditing) {
             // License configuration
             license_key: 'gpl',
             // Self-hosted configuration
-            base_url: '/admin/js/tinymce',
+            base_url: '../js/tinymce',
             suffix: '.min',
             // Additional configuration
             skin: 'oxide',
-            content_css: '/admin/js/tinymce/skins/content/default/content.min.css',
-            language_url: '/admin/js/tinymce/langs/en.min.js',
+            content_css: '../js/tinymce/skins/content/default/content.min.css',
+            language_url: '../js/tinymce/langs/en.min.js',
             language: 'en',
             // Image upload configuration
             images_upload_url: '../api/media/upload.php',
