@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /area-corsi-online/php/gestionale/
+
+    # Aggiungi questa condizione per escludere le pagine di WordPress
+    RewriteCond %{REQUEST_URI} !^/(index\.php)?$
+
+    # Blocca l'accesso diretto alla cartella video
+    RewriteRule ^video/ - [F]
+
+    # Redirect delle richieste per i video a videoHandler.php
+    RewriteRule ^video/([^/]+)/?$ /area-corsi-online/api/videoHandler.php?token=$1 [L,QSA]
+</IfModule>

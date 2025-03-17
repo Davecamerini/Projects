@@ -1,0 +1,37 @@
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Cormorant Garamond";
+}
+h2{
+  font-size: 34px!important;
+  font-weight: 600!important;
+}
+div.card{
+  border:unset!important;
+}
+div.card-body {
+  padding: 1.25rem 0!important;
+}
+div.card a:hover img.card-img-top{
+  opacity: 0.85;
+}
+.card-text{
+font-size: 20px!important;
+line-height: normal!important;
+}
+
+div.card.category-card a:hover{
+  text-decoration: none!important;
+}
+
+@media only screen and (max-width:980px){
+  .borghi-title{
+  font-size: 30px!important;
+  margin-top: 30px!important;
+  }
+  #row-selection-index{
+        flex-direction: column;
+  }
+.qodef-mobile-header-opener{
+  color:#000!important;
+}
+}

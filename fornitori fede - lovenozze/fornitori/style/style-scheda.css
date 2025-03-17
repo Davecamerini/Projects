@@ -1,0 +1,317 @@
+body, #qodef-page-wrapper {
+    font-family: "Cormorant Garamond";
+    overflow:unset!important;
+}
+.blockquote{
+  margin: 50px auto;
+  font-size: 38px;
+}
+.qodef-page-title {
+    display: none;
+}
+#qodef-page-inner {
+    padding: 50px 0 150px;
+    width: 100%;
+}
+#qodef-page-footer {
+    background: white;
+}
+.content-page-fornitore {
+    max-width: 1330px;
+    margin: auto;
+}
+.content-page-fornitore {
+    width: 100%;
+    padding: 20px;
+}
+
+/* Contenitore principale del fornitore */
+.fornitore-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+.left-column{
+  margin-bottom: 20px;
+}
+/* Colonna sinistra: immagine */
+.left-column .container-img {
+    max-width: 100%;
+    height: auto; /* Altezza fissa della colonna immagine */
+    position: relative;
+    position: sticky;
+      position: -webkit-sticky;
+      top:90px;
+}
+
+/* Immagine che si adatta */
+.left-column img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* L'immagine copre completamente il contenitore */
+    object-position: center; /* Centra l'immagine */
+      overflow:unset!important;
+      top:90px;
+}
+
+
+/* Colonna destra: contenuto */
+.right-column {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.right-column h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+
+
+/* Stile delle miniature della gallery con immagini più grandi */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colonne fisse */
+    gap: 20px; /* Spaziatura maggiore tra le immagini */
+    padding: 0px;
+    width: 100%;
+    margin: auto;
+    margin-top: 50px;
+}
+
+.gallery img {
+    width: 100%;
+    height: 540px;
+    object-fit: cover;
+    border-radius: 5px; /* Leggera arrotondatura */
+    transition: transform 0.3s ease; /* Effetto zoom al passaggio */
+}
+
+.gallery img:hover {
+    transform: scale(1.05); /* Effetto leggero di zoom */
+}
+
+
+/* Tag */
+.tag {
+    display: inline-block;
+    background-color: rgb(139, 119, 128);
+    color: white;
+    padding: 5px 10px;
+    margin-right: 5px;
+    border-radius: 1px;
+}
+
+/* Icone di contatto */
+.contact-icons a {
+    padding: 10px;
+    border-radius: 0px;
+    color: #010101;
+    margin-right: 10px;
+    font-size: 23px;
+}
+.contact-icons a:hover {
+    color: #555;
+}
+.contact-icons
+{
+  justify-content: space-between!important;
+  align-items: stretch!important;
+}
+
+/* Descrizione e Titolo */
+.description p {
+    font-size: 20px!important;
+    line-height: 27px!important;
+    color: #010101;
+
+}
+
+table.content-table td{
+  border: unset!important;
+}
+table.content-table tr{
+  border: unset!important;
+}
+.contact-icons {
+margin-top: 20px;
+}
+
+
+.contact-link {
+display: flex;
+align-items: center;
+text-decoration: none;
+color: #333; /* Colore neutro per il testo e le icone */
+transition: color 0.3s ease;
+}
+
+.contact-link:hover {
+color: #007bff; /* Colore di hover per dare un effetto interattivo */
+}
+
+.contact-text {
+margin-left: 10px;
+font-size: 22px!important;
+}
+
+i.fas {
+font-size: 1.5em; /* Dimensione leggermente maggiore per le icone */
+}
+
+
+/*stile per tabella contatti*/
+/* Impostazioni specifiche per la tabella dei contatti */
+#contact-table {
+width: 100%;
+margin-top: 20px;
+margin-left: -10px;
+}
+
+#contact-table td {
+padding: 20px;
+vertical-align: top;
+width: 50%; /* Due colonne */
+background: #efefef;
+border: 5px solid white!important;
+}
+
+#contact-table .contact-link:hover{
+color: #8b778082!important;
+}
+
+/* Stile per le icone outline */
+#contact-table .contact-link {
+display: flex;
+align-items: center;
+text-decoration: none;
+color: #333;
+transition: color 0.3s ease;
+}
+
+#contact-table .contact-link:hover {
+color: #007bff; /* Colore di hover per dare un effetto interattivo */
+}
+
+#contact-table .contact-text {
+margin-left: 10px;
+font-size: 22px;
+}
+
+#contact-table i.far {
+font-size: 1.5em; /* Dimensione leggermente maggiore per le icone */
+}
+
+.contact-text{
+font-size:20px;
+letter-spacing: 1;
+}
+
+.text-small-contact{
+font-size: 16px!important;
+}
+
+.map-container {
+position: relative;
+width: 100%;
+height: 450px;
+background-color: #f2f2f2;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.map-overlay {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.5);
+z-index: 1;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+#map-toggle {
+z-index: 2;
+padding: 10px 20px;
+font-size: 18px;
+}
+
+#map-frame {
+position: relative;
+z-index: 3;
+width: 100%!important;
+}
+
+
+/* Stile responsive per la tabella dei contatti */
+@media (max-width: 768px) {
+#contact-table {
+    display: block;
+}
+#contact-table td {
+    display: block;
+    width: 100%;
+}
+.left-column, .right-column{
+  width:100%!important;
+}
+.content-page-fornitore{
+  padding: 10px!important;
+}
+.right-column{
+  padding-left: 0px!important;
+}
+.blockquote {
+margin: 20px auto;
+font-size: 23px;
+}
+#contact-table{
+margin-left: 0px!important;
+}
+#contact-table td{
+display: inline-grid!important;
+}
+.gallery{
+margin-left: 0px!important;
+    width: 100%!important;
+    padding: 10px!important;
+}
+}
+
+@media (max-width: 840px) {
+    .gallery {
+        grid-template-columns: repeat(2, 1fr); /* 2 colonne su schermi piccoli */
+    }
+    .gallery img {
+        width: 100%;
+        height: 440px;
+      }
+}
+
+@media (max-width: 480px) {
+    .gallery {
+        grid-template-columns: 1fr; /* 1 colonna su schermi molto piccoli */
+    }
+    .gallery img {
+        width: 100%;
+        height: 240px;
+      }
+}
+
+
+
+@media (max-width: 768px) {
+.contact-icons {
+    flex-direction: column;
+    align-items: flex-start;
+}
+.contact-item {
+    margin-bottom: 10px;
+}
+}

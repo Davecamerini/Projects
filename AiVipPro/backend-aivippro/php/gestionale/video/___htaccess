@@ -1,0 +1,4 @@
+<FilesMatch "\.(mp4)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
