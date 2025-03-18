@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $whatsapp = $conn->real_escape_string($_POST['whatsapp']);
     $votazione_complessiva = $conn->real_escape_string($_POST['votazione_complessiva']);
     $categoria_id = intval($_POST['categoria']); // Nuovo campo per la categoria
+    $video_links = $conn->real_escape_string($_POST['video_links']);
 
     // Recupera la gallery attuale dal database
     $query = "SELECT img_copertina, gallery FROM borghi_scheda WHERE id=$borgo_id";
@@ -111,7 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         whatsapp='$whatsapp',
         votazione_complessiva='$votazione_complessiva',
         categoria_id='$categoria_id',
-        regione='$regione'
+        regione='$regione',
+        video_links='$video_links'
         WHERE id=$borgo_id";
 
     if ($conn->query($update_query) === TRUE) {

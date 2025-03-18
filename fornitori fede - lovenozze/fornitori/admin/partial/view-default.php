@@ -21,6 +21,11 @@ $categorie_query = "SELECT COUNT(*) as total FROM fornitori_categorie";
 $result_categorie = $conn->query($categorie_query);
 $total_categorie = $result_categorie->fetch_assoc()['total'];
 
+// Query per borghi totali
+$borghi_query = "SELECT COUNT(*) as total FROM borghi_scheda";
+$result_borghi = $conn->query($borghi_query);
+$total_borghi = $result_borghi->fetch_assoc()['total'];
+
 // Inserisci i dati nelle card
 ?>
 
@@ -36,6 +41,16 @@ $total_categorie = $result_categorie->fetch_assoc()['total'];
                 <div class="card-body">
                     <h5 class="card-title"><?php echo $total_fornitori; ?></h5> <!-- Inserisci qui il numero totale di fornitori -->
                     <p class="card-text">Fornitori attualmente registrati.</p>
+                </div>
+            </div>
+        </div>
+        <!-- Card Borghi Totali -->
+        <div class="col-md-3">
+            <div class="card text-white bg-dark mb-3">
+                <div class="card-header">Borghi Totali</div>
+                <div class="card-body">
+                    <h5 class="card-title"><?php echo $total_borghi; ?></h5>
+                    <p class="card-text">Borghi attualmente registrati.</p>
                 </div>
             </div>
         </div>
