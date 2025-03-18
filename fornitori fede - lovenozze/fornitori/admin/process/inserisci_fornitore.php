@@ -29,6 +29,7 @@ $votazione_complessiva = mysqli_real_escape_string($conn, $_POST['votazione_comp
 $latitudine = mysqli_real_escape_string($conn, $_POST['latitudine']);
 $longitudine = mysqli_real_escape_string($conn, $_POST['longitudine']);
 $regione = mysqli_real_escape_string($conn, $_POST['regione']);
+$video_links = mysqli_real_escape_string($conn, $_POST['video_links']);
 
 // Gestione dell'upload delle immagini
 $img_copertina = '';
@@ -62,8 +63,8 @@ if (isset($_FILES['gallery']) && count($_FILES['gallery']['name']) > 0) {
 }
 
 // Inserimento dati nel database
-$sql = "INSERT INTO fornitori_scheda (ragione_sociale, slug, descrizione, citazione, descrizione_due, categoria_id, img_copertina, gallery, tag, indirizzo, email, telefono, whatsapp, votazione_complessiva, latitudine, longitudine, regione)
-VALUES ('$ragione_sociale', '$slug', '$descrizione', '$citazione', '$descrizione_due', '$categoria', '$name_copertina', '$gallery', '$tag', '$indirizzo', '$email', '$telefono', '$whatsapp', '$votazione_complessiva', '$latitudine', '$longitudine', '$regione')";
+$sql = "INSERT INTO fornitori_scheda (ragione_sociale, slug, descrizione, citazione, descrizione_due, categoria_id, img_copertina, gallery, tag, indirizzo, email, telefono, whatsapp, votazione_complessiva, latitudine, longitudine, regione, video_links)
+VALUES ('$ragione_sociale', '$slug', '$descrizione', '$citazione', '$descrizione_due', '$categoria', '$name_copertina', '$gallery', '$tag', '$indirizzo', '$email', '$telefono', '$whatsapp', '$votazione_complessiva', '$latitudine', '$longitudine', '$regione', '$video_links')";
 
 if ($conn->query($sql) === TRUE) {
     // Reindirizzamento alla pagina di successo o lista fornitori

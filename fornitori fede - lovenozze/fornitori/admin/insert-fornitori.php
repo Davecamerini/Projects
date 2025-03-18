@@ -274,6 +274,12 @@ $categories_result = $conn->query($category_query);
                         <input type="number" class="form-control" id="votazione_complessiva" min="0" max="5" name="votazione_complessiva">
                     </div>
 
+                    <div class="form-group">
+                        <label for="video_links">Link Video (uno per riga)</label>
+                        <textarea class="form-control" id="video_links" name="video_links" rows="3" placeholder="Inserisci i link dei video, uno per riga"></textarea>
+                        <small class="form-text text-muted">Inserisci i link dei video che vuoi incorporare, uno per riga. Esempio: https://www.youtube.com/watch?v=...</small>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Inserisci Fornitore</button>
                 </form>
             </div>

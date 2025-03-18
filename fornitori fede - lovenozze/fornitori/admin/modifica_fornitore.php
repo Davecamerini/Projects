@@ -214,9 +214,13 @@ $conn->close();
                         <input type="text" name="whatsapp" value="<?php echo $fornitore['whatsapp']; ?>" class="form-control" required>
 
                         <label class="mt-4">Votazione Complessiva</label>
-                        <input type="text" name="votazione_complessiva" value="<?php echo $fornitore['votazione_complessiva']; ?>" class="form-control" required>
+                        <input type="number" name="votazione_complessiva" value="<?php echo $fornitore['votazione_complessiva']; ?>" class="form-control" min="0" max="5">
 
-                        <button type="submit" class="btn btn-primary">Salva modifiche</button>
+                        <label class="mt-4">Link Video (uno per riga)</label>
+                        <textarea name="video_links" class="form-control" rows="3" placeholder="Inserisci i link dei video, uno per riga"><?php echo htmlspecialchars($fornitore['video_links']); ?></textarea>
+                        <small class="form-text text-muted">Inserisci i link dei video che vuoi incorporare, uno per riga. Esempio: https://www.youtube.com/watch?v=...</small>
+
+                        <button type="submit" class="btn btn-primary mt-4">Salva Modifiche</button>
                     </form>
                 <?php } ?>
             </div>

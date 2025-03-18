@@ -12,28 +12,39 @@ body, #qodef-page-wrapper {
 #qodef-page-inner {
     padding: 50px 0 150px;
     width: 100%;
+    max-width: 1330px;
+    margin: 0 auto;
 }
 #qodef-page-footer {
     background: white;
 }
 .content-page-fornitore {
     max-width: 1330px;
-    margin: auto;
-}
-.content-page-fornitore {
     width: 100%;
     padding: 20px;
+    margin: 0 auto;
 }
 
-/* Contenitore principale del fornitore */
+/* Main container */
 .fornitore-container {
     display: flex;
     flex-wrap: wrap;
     margin-bottom: 30px;
+    gap: 20px;
 }
-.left-column{
-  margin-bottom: 20px;
+
+/* Left column */
+.left-column {
+    flex: 0 0 400px;
+    margin-bottom: 20px;
 }
+
+/* Right column */
+.right-column {
+    flex: 1;
+    min-width: 0; /* Prevents flex item from overflowing */
+}
+
 /* Colonna sinistra: immagine */
 .left-column .container-img {
     max-width: 100%;
@@ -54,21 +65,10 @@ body, #qodef-page-wrapper {
       top:90px;
 }
 
-
-/* Colonna destra: contenuto */
-.right-column {
-    padding-left: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
 .right-column h1 {
     font-size: 2rem;
     margin-bottom: 10px;
 }
-
-
 
 /* Stile delle miniature della gallery con immagini più grandi */
 .gallery {
@@ -92,7 +92,6 @@ body, #qodef-page-wrapper {
 .gallery img:hover {
     transform: scale(1.05); /* Effetto leggero di zoom */
 }
-
 
 /* Tag */
 .tag {
@@ -139,7 +138,6 @@ table.content-table tr{
 margin-top: 20px;
 }
 
-
 .contact-link {
 display: flex;
 align-items: center;
@@ -160,7 +158,6 @@ font-size: 22px!important;
 i.fas {
 font-size: 1.5em; /* Dimensione leggermente maggiore per le icone */
 }
-
 
 /*stile per tabella contatti*/
 /* Impostazioni specifiche per la tabella dei contatti */
@@ -248,40 +245,25 @@ z-index: 3;
 width: 100%!important;
 }
 
-
 /* Stile responsive per la tabella dei contatti */
 @media (max-width: 768px) {
-#contact-table {
-    display: block;
-}
-#contact-table td {
-    display: block;
-    width: 100%;
-}
-.left-column, .right-column{
-  width:100%!important;
-}
-.content-page-fornitore{
-  padding: 10px!important;
-}
-.right-column{
-  padding-left: 0px!important;
-}
-.blockquote {
-margin: 20px auto;
-font-size: 23px;
-}
-#contact-table{
-margin-left: 0px!important;
-}
-#contact-table td{
-display: inline-grid!important;
-}
-.gallery{
-margin-left: 0px!important;
-    width: 100%!important;
-    padding: 10px!important;
-}
+    .fornitore-container {
+        flex-direction: column;
+    }
+    
+    .left-column {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .right-column {
+        flex: 0 0 100%;
+        padding-left: 0;
+    }
+    
+    .content-page-fornitore {
+        padding: 10px;
+    }
 }
 
 @media (max-width: 840px) {
@@ -296,15 +278,13 @@ margin-left: 0px!important;
 
 @media (max-width: 480px) {
     .gallery {
-        grid-template-columns: 1fr; /* 1 colonna su schermi molto piccoli */
+        grid-width: 1fr; /* 1 colonna su schermi molto piccoli */
     }
     .gallery img {
         width: 100%;
         height: 240px;
       }
 }
-
-
 
 @media (max-width: 768px) {
 .contact-icons {
