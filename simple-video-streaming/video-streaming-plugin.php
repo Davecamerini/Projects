@@ -28,7 +28,7 @@ function vsp_get_folder_structure($base_dir, $current_dir = '') {
 
     $items = scandir($full_path);
     foreach ($items as $item) {
-        if ($item !== '.' && $item !== '..') {
+        if ($item !== '.' && $item !== '..' && $item !== 'thumbnails') {
             $item_path = $full_path . '/' . $item;
             if (is_dir($item_path)) {
                 $relative_path = $current_dir ? $current_dir . '/' . $item : $item;
@@ -178,9 +178,9 @@ function vsp_video_page() {
                 echo '<a href="#" class="vsp-video-link" data-video="' . esc_url($media_url) . '">' . esc_html($file['name']) . '</a>';
             } else {
                 $thumbnail_url = '';
-                $thumbnail_file = vsp_create_thumbnail($full_path);
-                if ($thumbnail_file) {
-                    $relative_path = str_replace(ABSPATH, '', $thumbnail_file);
+                $cached_path = vsp_get_cached_thumbnail_path($full_path);
+                if (file_exists($cached_path)) {
+                    $relative_path = str_replace(ABSPATH, '', $cached_path);
                     $thumbnail_url = site_url($relative_path);
                 }
                 
@@ -431,14 +431,15 @@ function vsp_create_thumbnail($source_path, $width = 40, $height = 40) {
 
 // Add admin menu
 function vsp_add_admin_menu() {
+    $icon_url = plugin_dir_url(__FILE__) . 'Mon white trasp.png';
     add_menu_page(
         'Video Streaming Settings',
         'Video Streaming',
         'manage_options',
         'video-streaming-settings',
         'vsp_settings_page',
-        'dashicons-video-alt3',
-        30
+        $icon_url,
+        95
     );
 }
 add_action('admin_menu', 'vsp_add_admin_menu');
