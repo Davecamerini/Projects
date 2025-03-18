@@ -9,16 +9,10 @@ Author: <a href="https://www.davecamerini.com">Davecamerini</a>
 // Define the upload directory
 define('VIDEO_UPLOAD_DIR', ABSPATH . 'wp-content/uploads/videos');
 
-// Add thumbnail cache directory constant
-define('THUMBNAIL_CACHE_DIR', VIDEO_UPLOAD_DIR . '/thumbnails');
-
 // Create the upload directory on plugin activation
 function vsp_create_upload_dir() {
     if (!file_exists(VIDEO_UPLOAD_DIR)) {
         mkdir(VIDEO_UPLOAD_DIR, 0755, true);
-    }
-    if (!file_exists(THUMBNAIL_CACHE_DIR)) {
-        mkdir(THUMBNAIL_CACHE_DIR, 0755, true);
     }
 }
 register_activation_hook(__FILE__, 'vsp_create_upload_dir');
@@ -84,12 +78,23 @@ function vsp_render_folder_tree($folders, $current_dir = '') {
     return $output;
 }
 
+// Function to get thumbnail directory path
+function vsp_get_thumbnail_dir($source_path) {
+    $dir = dirname($source_path);
+    $thumb_dir = $dir . '/thumbnails';
+    if (!file_exists($thumb_dir)) {
+        mkdir($thumb_dir, 0755, true);
+    }
+    return $thumb_dir;
+}
+
 // Function to get cached thumbnail path
 function vsp_get_cached_thumbnail_path($source_path) {
     $filename = basename($source_path);
-    $hash = md5($source_path . filemtime($source_path)); // Include file modification time in hash
+    $hash = md5($source_path . filemtime($source_path));
     $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    return THUMBNAIL_CACHE_DIR . '/' . $hash . '.' . $ext;
+    $thumb_dir = vsp_get_thumbnail_dir($source_path);
+    return $thumb_dir . '/' . $hash . '.' . $ext;
 }
 
 // Create a shortcode to display the video upload form and list
@@ -175,7 +180,8 @@ function vsp_video_page() {
                 $thumbnail_url = '';
                 $thumbnail_file = vsp_create_thumbnail($full_path);
                 if ($thumbnail_file) {
-                    $thumbnail_url = wp_upload_dir()['baseurl'] . '/videos/thumbnails/' . basename($thumbnail_file);
+                    $relative_path = str_replace(ABSPATH, '', $thumbnail_file);
+                    $thumbnail_url = site_url($relative_path);
                 }
                 
                 echo '<div class="vsp-media-item">';
@@ -349,7 +355,7 @@ function vsp_sorting_script() {
 }
 add_action('wp_footer', 'vsp_sorting_script');
 
-// Modified thumbnail creation function with caching
+// Modified thumbnail creation function
 function vsp_create_thumbnail($source_path, $width = 40, $height = 40) {
     // Check if file exists and is readable
     if (!file_exists($source_path) || !is_readable($source_path)) {
@@ -400,7 +406,7 @@ function vsp_create_thumbnail($source_path, $width = 40, $height = 40) {
     // Resize image
     imagecopyresampled($thumbnail, $source_image, 0, 0, 0, 0, $width, $height, imagesx($source_image), imagesy($source_image));
 
-    // Save to cache directory
+    // Save to thumbnail directory
     switch ($image_info[2]) {
         case IMAGETYPE_JPEG:
             imagejpeg($thumbnail, $cached_path, 30);
@@ -421,4 +427,291 @@ function vsp_create_thumbnail($source_path, $width = 40, $height = 40) {
     imagedestroy($thumbnail);
 
     return $cached_path;
+}
+
+// Add admin menu
+function vsp_add_admin_menu() {
+    add_menu_page(
+        'Video Streaming Settings',
+        'Video Streaming',
+        'manage_options',
+        'video-streaming-settings',
+        'vsp_settings_page',
+        'dashicons-video-alt3',
+        30
+    );
+}
+add_action('admin_menu', 'vsp_add_admin_menu');
+
+// Function to get total folder size
+function vsp_get_folder_size($path) {
+    $total_size = 0;
+    $files = scandir($path);
+    
+    foreach ($files as $file) {
+        if ($file === '.' || $file === '..') continue;
+        
+        $file_path = $path . '/' . $file;
+        if (is_dir($file_path)) {
+            $total_size += vsp_get_folder_size($file_path);
+        } else {
+            $total_size += filesize($file_path);
+        }
+    }
+    
+    return $total_size;
+}
+
+// Function to count images recursively
+function vsp_count_images($path) {
+    $count = 0;
+    $files = scandir($path);
+    
+    foreach ($files as $file) {
+        if ($file === '.' || $file === '..') continue;
+        
+        $file_path = $path . '/' . $file;
+        if (is_dir($file_path)) {
+            // Skip the thumbnails directory
+            if ($file !== 'thumbnails') {
+                $count += vsp_count_images($file_path);
+            }
+        } elseif (preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $file)) {
+            $count++;
+        }
+    }
+    
+    return $count;
+}
+
+// Modified function to count thumbnails
+function vsp_count_thumbnails($path) {
+    $count = 0;
+    $files = scandir($path);
+    
+    foreach ($files as $file) {
+        if ($file === '.' || $file === '..') continue;
+        
+        $file_path = $path . '/' . $file;
+        if (is_dir($file_path)) {
+            if ($file === 'thumbnails') {
+                $thumb_files = scandir($file_path);
+                foreach ($thumb_files as $thumb_file) {
+                    if ($thumb_file !== '.' && $thumb_file !== '..' && preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $thumb_file)) {
+                        $count++;
+                    }
+                }
+            } else {
+                $count += vsp_count_thumbnails($file_path);
+            }
+        }
+    }
+    
+    return $count;
+}
+
+// Function to get all image files recursively
+function vsp_get_all_images($path) {
+    $images = [];
+    $files = scandir($path);
+    
+    foreach ($files as $file) {
+        if ($file === '.' || $file === '..') continue;
+        
+        $file_path = $path . '/' . $file;
+        if (is_dir($file_path)) {
+            // Skip the thumbnails directory
+            if ($file !== 'thumbnails') {
+                $images = array_merge($images, vsp_get_all_images($file_path));
+            }
+        } elseif (preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $file)) {
+            $images[] = $file_path;
+        }
+    }
+    
+    return $images;
+}
+
+// AJAX handler for thumbnail generation
+function vsp_generate_thumbnails() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Permission denied.');
+        return;
+    }
+
+    $offset = isset($_POST['offset']) ? intval($_POST['offset']) : 0;
+    $batch_size = 10;
+    $images = vsp_get_all_images(VIDEO_UPLOAD_DIR);
+    $total = count($images);
+    $processed = 0;
+    
+    for ($i = $offset; $i < min($offset + $batch_size, $total); $i++) {
+        vsp_create_thumbnail($images[$i]);
+        $processed++;
+    }
+    
+    $next_offset = $offset + $batch_size;
+    $is_complete = $next_offset >= $total;
+    
+    wp_send_json_success([
+        'processed' => $processed,
+        'total' => $total,
+        'next_offset' => $next_offset,
+        'is_complete' => $is_complete
+    ]);
+}
+add_action('wp_ajax_generate_thumbnails', 'vsp_generate_thumbnails');
+
+// Settings page HTML
+function vsp_settings_page() {
+    $total_size = vsp_get_folder_size(VIDEO_UPLOAD_DIR);
+    $total_images = vsp_count_images(VIDEO_UPLOAD_DIR);
+    $total_thumbnails = vsp_count_thumbnails(VIDEO_UPLOAD_DIR);
+    ?>
+    <div class="wrap">
+        <h1>Video Streaming Settings</h1>
+        
+        <div class="vsp-stats-container">
+            <div class="vsp-stat-box">
+                <h3>Total Storage Used</h3>
+                <p><?php echo vsp_format_file_size($total_size); ?></p>
+            </div>
+            
+            <div class="vsp-stat-box">
+                <h3>Total Images</h3>
+                <p><?php echo $total_images; ?></p>
+            </div>
+            
+            <div class="vsp-stat-box">
+                <h3>Generated Thumbnails</h3>
+                <p><?php echo $total_thumbnails; ?></p>
+            </div>
+        </div>
+
+        <div class="vsp-thumbnail-generation">
+            <h2>Thumbnail Generation</h2>
+            <p>Generate thumbnails for all images in the videos folder.</p>
+            <button id="vsp-generate-thumbnails" class="button button-primary">Generate All Thumbnails</button>
+            <div id="vsp-progress-container" style="display: none;">
+                <div class="vsp-progress-bar">
+                    <div class="vsp-progress-fill"></div>
+                </div>
+                <p id="vsp-progress-text">Processing: 0/0</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    jQuery(document).ready(function($) {
+        var isProcessing = false;
+        var currentOffset = 0;
+        var totalImages = 0;
+        var totalProcessed = 0;
+        
+        // Check if there's a process in progress
+        var savedProgress = localStorage.getItem('vsp_thumbnail_progress');
+        if (savedProgress) {
+            var progress = JSON.parse(savedProgress);
+            if (!progress.is_complete) {
+                if (confirm('There is a thumbnail generation process in progress. Would you like to resume?')) {
+                    currentOffset = progress.next_offset;
+                    totalImages = progress.total;
+                    totalProcessed = progress.processed;
+                    startProcessing();
+                } else {
+                    // Clear saved progress if user doesn't want to resume
+                    localStorage.removeItem('vsp_thumbnail_progress');
+                }
+            }
+        }
+
+        $('#vsp-generate-thumbnails').on('click', function() {
+            if (!isProcessing) {
+                startProcessing();
+            }
+        });
+
+        function startProcessing() {
+            isProcessing = true;
+            var $button = $('#vsp-generate-thumbnails');
+            var $progressContainer = $('#vsp-progress-container');
+            var $progressBar = $('.vsp-progress-fill');
+            var $progressText = $('#vsp-progress-text');
+            
+            $button.prop('disabled', true).text('Generating Thumbnails...');
+            $progressContainer.show();
+            
+            // Add beforeunload event listener
+            $(window).on('beforeunload', function() {
+                if (isProcessing) {
+                    return 'Thumbnail generation is in progress. Are you sure you want to leave?';
+                }
+            });
+            
+            processBatch(currentOffset, totalProcessed);
+        }
+
+        function processBatch(offset, processed) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'generate_thumbnails',
+                    offset: offset
+                },
+                success: function(response) {
+                    if (response.success) {
+                        processed += response.data.processed;
+                        totalImages = response.data.total;
+                        var progress = (processed / totalImages) * 100;
+                        $('.vsp-progress-fill').css('width', progress + '%');
+                        $('#vsp-progress-text').text('Processing: ' + processed + '/' + totalImages);
+                        
+                        // Save progress
+                        localStorage.setItem('vsp_thumbnail_progress', JSON.stringify({
+                            processed: processed,
+                            total: totalImages,
+                            next_offset: response.data.next_offset,
+                            is_complete: response.data.is_complete
+                        }));
+                        
+                        if (!response.data.is_complete) {
+                            processBatch(response.data.next_offset, processed);
+                        } else {
+                            completeProcess();
+                        }
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while generating thumbnails. The process will resume from where it left off when you refresh the page.');
+                }
+            });
+        }
+
+        function completeProcess() {
+            isProcessing = false;
+            localStorage.removeItem('vsp_thumbnail_progress');
+            $('#vsp-generate-thumbnails').prop('disabled', false).text('Generate All Thumbnails');
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+        }
+
+        // Add cancel button
+        if (!$('#vsp-cancel-thumbnails').length) {
+            $('#vsp-generate-thumbnails').after(' <button id="vsp-cancel-thumbnails" class="button" style="display: none;">Cancel</button>');
+        }
+
+        $('#vsp-cancel-thumbnails').on('click', function() {
+            if (confirm('Are you sure you want to cancel the thumbnail generation process?')) {
+                isProcessing = false;
+                localStorage.removeItem('vsp_thumbnail_progress');
+                $('#vsp-generate-thumbnails').prop('disabled', false).text('Generate All Thumbnails');
+                $('#vsp-cancel-thumbnails').hide();
+                $('#vsp-progress-container').hide();
+            }
+        });
+    });
+    </script>
+    <?php
 }

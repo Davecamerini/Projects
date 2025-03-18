@@ -1,3 +1,61 @@
+/* Admin Settings Page Styles */
+.vsp-stats-container {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.vsp-stat-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    flex: 1;
+    text-align: center;
+}
+
+.vsp-stat-box h3 {
+    margin: 0 0 10px 0;
+    color: #23282d;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.vsp-stat-box p {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #0073aa;
+}
+
+.vsp-thumbnail-generation {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.vsp-progress-bar {
+    background: #f0f0f1;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.vsp-progress-fill {
+    background: #0073aa;
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+#vsp-progress-text {
+    margin: 5px 0;
+    color: #666;
+}
+
 .vsp-container {
     display: flex;
     max-width: 100%;
