@@ -56,7 +56,7 @@ try {
 
     // Save file info to database
     $stmt = $conn->prepare("INSERT INTO media (filename, path, type, uploaded_by, upload_date) VALUES (?, ?, ?, ?, NOW())");
-    $relativePath = '/uploads/images/' . $newFileName;
+    $relativePath = '../uploads/images/' . $newFileName;
     $stmt->bind_param("sssi", $fileName, $relativePath, $fileType, $_SESSION['user_id']);
     
     if ($stmt->execute()) {

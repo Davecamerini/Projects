@@ -1,6 +1,20 @@
 <?php
 require_once '../config/database.php';
 
+// Function to ensure correct image path
+function getImagePath($path) {
+    // If path starts with '../', it's already correct
+    if (strpos($path, '../') === 0) {
+        return $path;
+    }
+    // If path starts with '/', remove it and add '../'
+    if (strpos($path, '/') === 0) {
+        return '../' . ltrim($path, '/');
+    }
+    // If no leading slash or ../, add '../'
+    return '../' . $path;
+}
+
 // Get query parameters
 $page = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
 $limit = 12; // Show 12 items per page in grid view
@@ -49,7 +63,7 @@ $db->closeConnection();
                 <?php while ($item = $media->fetch_assoc()): ?>
                 <div class="col-md-3">
                     <div class="card h-100">
-                        <img src="<?php echo htmlspecialchars($item['path']); ?>" 
+                        <img src="<?php echo htmlspecialchars(getImagePath($item['path'])); ?>" 
                              class="card-img-top" 
                              alt="<?php echo htmlspecialchars($item['filename']); ?>"
                              style="height: 200px; object-fit: cover;">
