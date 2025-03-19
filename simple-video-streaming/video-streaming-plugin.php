@@ -439,7 +439,7 @@ function vsp_add_admin_menu() {
         'video-streaming-settings',
         'vsp_settings_page',
         $icon_url,
-        95
+        30
     );
 }
 add_action('admin_menu', 'vsp_add_admin_menu');
