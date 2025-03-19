@@ -16,10 +16,15 @@ $postStmt->execute();
 $stats = $postStmt->get_result()->fetch_assoc();
 
 // Get recent posts
-$recentStmt = $conn->prepare("SELECT p.*, u.username as author_name 
+$recentStmt = $conn->prepare("SELECT p.*, u.username as author_name,
+    GROUP_CONCAT(c.name ORDER BY c.name ASC SEPARATOR ', ') as categories,
+    GROUP_CONCAT(c.id ORDER BY c.name ASC SEPARATOR ',') as category_ids
     FROM posts p 
     JOIN users u ON p.author_id = u.id 
+    LEFT JOIN post_categories pc ON p.id = pc.post_id
+    LEFT JOIN categories c ON pc.category_id = c.id
     WHERE p.author_id = ? OR ? = 'admin'
+    GROUP BY p.id
     ORDER BY p.created_at DESC LIMIT 5");
 $recentStmt->bind_param("is", $_SESSION['user_id'], $_SESSION['role']);
 $recentStmt->execute();
@@ -71,6 +76,7 @@ $db->closeConnection();
                         <tr>
                             <th>Title</th>
                             <th>Author</th>
+                            <th>Categories</th>
                             <th>Status</th>
                             <th>Created</th>
                             <th>Actions</th>
@@ -78,11 +84,43 @@ $db->closeConnection();
                     </thead>
                     <tbody>
                         <?php while ($post = $recentPosts->fetch_assoc()): ?>
-                        <tr>
+                        <tr data-post-id="<?php echo $post['id']; ?>">
                             <td><?php echo htmlspecialchars($post['title']); ?></td>
                             <td><?php echo htmlspecialchars($post['author_name']); ?></td>
                             <td>
-                                <span class="badge bg-<?php echo $post['status'] === 'published' ? 'success' : 'warning'; ?>">
+                                <?php if ($post['categories']): ?>
+                                    <?php 
+                                    $categories = explode(', ', $post['categories']);
+                                    $categoryIds = explode(',', $post['category_ids'] ?? '');
+                                    $visibleCategories = array_slice($categories, 0, 3);
+                                    $hasMore = count($categories) > 3;
+                                    
+                                    foreach ($visibleCategories as $index => $category): 
+                                        $categoryId = $categoryIds[$index] ?? '';
+                                        echo generateCategoryBadge($category, $categoryId);
+                                    endforeach;
+                                    
+                                    if ($hasMore):
+                                    ?>
+                                        <span class="badge bg-secondary" 
+                                              data-bs-toggle="tooltip" 
+                                              data-bs-placement="top" 
+                                              title="<?php echo htmlspecialchars(implode(', ', array_slice($categories, 3))); ?>">
+                                            +<?php echo count($categories) - 3; ?> more
+                                        </span>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <span class="text-muted">Uncategorized</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span class="badge bg-<?php 
+                                    echo match($post['status']) {
+                                        'published' => 'success',
+                                        'private' => 'secondary',
+                                        'draft' => 'warning',
+                                        default => 'secondary'
+                                    }; ?>">
                                     <?php echo ucfirst($post['status']); ?>
                                 </span>
                             </td>
@@ -144,6 +182,73 @@ $db->closeConnection();
     </div>
 </div>
 
+<style>
+/* Category badge styles */
+.category-badge {
+    display: inline-block;
+    margin: 0.1rem;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.category-badge:hover {
+    opacity: 0.9;
+}
+
+/* Category colors based on name hash */
+<?php
+$categoryQuery = "SELECT id, name FROM categories ORDER BY name ASC";
+$categoryResult = $conn->query($categoryQuery);
+$allCategories = $categoryResult->fetch_all(MYSQLI_ASSOC);
+
+foreach ($allCategories as $cat) {
+    $hash = substr(md5($cat['name']), 0, 6);
+    $r = hexdec(substr($hash, 0, 2));
+    $g = hexdec(substr($hash, 2, 2));
+    $b = hexdec(substr($hash, 4, 2));
+    
+    // Ensure text is readable by adjusting background lightness
+    $lightness = ($r * 299 + $g * 587 + $b * 114) / 1000;
+    $textColor = $lightness > 128 ? '#000' : '#fff';
+    
+    echo ".category-{$cat['id']} { background-color: #{$hash}; color: {$textColor}; }\n";
+}
+?>
+
+/* Add these styles to the existing style block */
+td .dropdown {
+    position: static;
+}
+
+td .dropdown-menu {
+    position: absolute;
+    z-index: 1060;
+    min-width: 8rem;
+}
+
+td .dropdown button {
+    min-width: 90px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+td .dropdown button::after {
+    margin-left: 6px;
+}
+</style>
+
 <script>
 // Initialize all tooltips
 document.addEventListener('DOMContentLoaded', function() {
@@ -152,4 +257,50 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 });
+
+// Function to change post status
+async function changePostStatus(postId, status) {
+    try {
+        const response = await fetch('../api/posts/update.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: postId,
+                status: status
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            // Refresh the page to show updated status
+            window.location.reload();
+        } else {
+            alert(data.error || 'Failed to update post status');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while updating the post status');
+    }
+}
+
+// Function to filter by category (redirects to posts page with category filter)
+function filterByCategory(categoryId) {
+    window.location.href = `?page=posts&category=${categoryId}`;
+}
+
+<?php
+// Helper function to generate category badge HTML
+function generateCategoryBadge($categoryName, $categoryId) {
+    return sprintf(
+        '<a href="?page=posts&category=%d" class="category-badge category-%d" onclick="filterByCategory(%d); return false;">%s</a>',
+        $categoryId,
+        $categoryId,
+        $categoryId,
+        htmlspecialchars($categoryName)
+    );
+}
+?>
 </script> 

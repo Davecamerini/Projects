@@ -27,6 +27,8 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
         .sidebar {
             min-height: 100vh;
             background: #343a40;
+            position: relative;
+            z-index: 1030;
         }
         .nav-link {
             color: rgba(255,255,255,.75);
@@ -41,6 +43,24 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
         .main-content {
             min-height: 100vh;
             background: #f8f9fa;
+        }
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-menu {
+            position: absolute;
+            z-index: 1035;
+            min-width: 10rem;
+            margin-top: 0.125rem;
+        }
+        .dropdown-toggle {
+            white-space: nowrap;
+        }
+        .dropdown-toggle:after {
+            display: inline-block;
+            margin-left: 0.5em;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -78,6 +98,12 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                             <a href="?page=users" class="nav-link <?php echo $current_page === 'users' ? 'active' : ''; ?>">
                                 <i class="bi bi-people me-2"></i>
                                 Users
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="?page=categories" class="nav-link <?php echo $current_page === 'categories' ? 'active' : ''; ?>">
+                                <i class="bi bi-tags me-2"></i>
+                                Categories
                             </a>
                         </li>
                         <?php endif; ?>
@@ -127,6 +153,11 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                     case 'profile':
                         include 'pages/profile.php';
                         break;
+                    case 'categories':
+                        if ($_SESSION['role'] === 'admin') {
+                            include 'pages/categories.php';
+                        }
+                        break;
                     default:
                         include 'pages/dashboard.php';
                 }
@@ -138,5 +169,15 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/tinymce/tinymce.min.js"></script>
     <script src="js/admin.js"></script>
+    <script>
+        // Initialize all dropdowns
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dropdowns
+            var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl);
+            });
+        });
+    </script>
 </body>
 </html> 

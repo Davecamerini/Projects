@@ -171,8 +171,49 @@ if ($isEditing) {
                     <select class="form-select" id="status" name="status">
                         <option value="draft" <?php echo $isEditing && $post['status'] === 'draft' ? 'selected' : ''; ?>>Draft</option>
                         <option value="published" <?php echo $isEditing && $post['status'] === 'published' ? 'selected' : ''; ?>>Published</option>
-                        <option value="archived" <?php echo $isEditing && $post['status'] === 'archived' ? 'selected' : ''; ?>>Archived</option>
+                        <option value="private" <?php echo $isEditing && $post['status'] === 'private' ? 'selected' : ''; ?>>Private</option>
                     </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="categories" class="form-label">Categories</label>
+                    <select class="form-select" id="categories" name="categories[]" multiple>
+                        <?php
+                        // Get categories
+                        require_once '../config/database.php';
+                        $db = new Database();
+                        $conn = $db->getConnection();
+                        
+                        // Get all categories
+                        $stmt = $conn->prepare("SELECT id, name FROM categories ORDER BY name ASC");
+                        $stmt->execute();
+                        $categories = $stmt->get_result();
+
+                        // Get post categories if editing
+                        $selectedCategories = [];
+                        if ($isEditing) {
+                            $stmt = $conn->prepare("SELECT category_id FROM post_categories WHERE post_id = ?");
+                            $stmt->bind_param("i", $post['id']);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            while ($row = $result->fetch_assoc()) {
+                                $selectedCategories[] = $row['category_id'];
+                            }
+                        }
+
+                        // Output category options
+                        while ($category = $categories->fetch_assoc()): 
+                            $isSelected = in_array($category['id'], $selectedCategories);
+                        ?>
+                            <option value="<?php echo $category['id']; ?>" <?php echo $isSelected ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($category['name']); ?>
+                            </option>
+                        <?php endwhile; 
+                        
+                        $db->closeConnection();
+                        ?>
+                    </select>
+                    <div class="form-text">Hold Ctrl/Cmd to select multiple categories</div>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
@@ -192,28 +233,46 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        // Get form data
         const formData = new FormData(form);
         const content = tinymce.get('content').getContent();
-        formData.set('content', content);
+        
+        // Convert FormData to object
+        const data = {};
+        for (let [key, value] of formData.entries()) {
+            if (key === 'categories[]') {
+                // Handle multiple categories
+                if (!data.categories) {
+                    data.categories = [];
+                }
+                data.categories.push(value);
+            } else {
+                data[key] = value;
+            }
+        }
+        
+        // Add content from TinyMCE
+        data.content = content;
         
         try {
             const response = await fetch('../api/posts/<?php echo $isEditing ? 'update' : 'create'; ?>.php', {
                 method: 'POST',
-                body: JSON.stringify(Object.fromEntries(formData)),
+                body: JSON.stringify(data),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
 
-            const data = await response.json();
+            const result = await response.json();
             
-            if (data.success) {
+            if (result.success) {
                 alert('Post <?php echo $isEditing ? 'updated' : 'created'; ?> successfully!');
                 window.location.href = '?page=posts';
             } else {
-                alert('Error: ' + data.message);
+                alert('Error: ' + result.message);
             }
         } catch (error) {
+            console.error('Error:', error);
             alert('Error saving post: ' + error.message);
         }
     });
