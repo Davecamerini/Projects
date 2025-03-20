@@ -325,6 +325,36 @@ td .dropdown-menu {
     position: absolute;
     z-index: 1060;
     min-width: 8rem;
+    padding: 0.5rem 0;
+    margin: 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+}
+
+td .dropdown-menu .dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.25rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+td .dropdown-menu .dropdown-item:hover {
+    color: #1e2125;
+    background-color: #f8f9fa;
 }
 
 td .dropdown button {
@@ -345,27 +375,21 @@ td .btn {
     z-index: 1050;
 }
 
-/* General dropdown styles */
-.dropdown-menu {
-    padding: 0.5rem 0;
-    margin: 0;
-    font-size: 1rem;
-    color: #212529;
-    text-align: left;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid rgba(0,0,0,.15);
-    border-radius: 0.25rem;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+/* User dropdown specific styles */
+#dropdownUser1 + .dropdown-menu {
+    position: absolute;
+    z-index: 1035;
+    min-width: 10rem;
+    margin-top: 0.125rem;
 }
 
-.dropdown-item {
+#dropdownUser1 + .dropdown-menu .dropdown-item {
     display: block;
     width: 100%;
     padding: 0.25rem 1rem;
     clear: both;
     font-weight: 400;
-    color: #212529;
+    color: #fff;
     text-align: inherit;
     text-decoration: none;
     white-space: nowrap;
@@ -374,9 +398,13 @@ td .btn {
     cursor: pointer;
 }
 
-.dropdown-item:hover {
-    color: #1e2125;
-    background-color: #f8f9fa;
+#dropdownUser1 + .dropdown-menu .dropdown-item:hover {
+    color: #fff;
+    background-color: rgba(255,255,255,.1);
+}
+
+#dropdownUser1 + .dropdown-menu .dropdown-divider {
+    border-top-color: rgba(255,255,255,.1);
 }
 
 /* Category badge styles */
