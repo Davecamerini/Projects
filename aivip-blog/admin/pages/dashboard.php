@@ -33,6 +33,9 @@ $recentPosts = $recentStmt->get_result();
 $db->closeConnection();
 ?>
 
+<!-- Add Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <div class="container-fluid">
     <h1 class="h3 mb-4">Dashboard</h1>
 
@@ -225,17 +228,17 @@ foreach ($allCategories as $cat) {
 ?>
 
 /* Add these styles to the existing style block */
-td .dropdown {
+.table td .dropdown {
     position: static;
 }
 
-td .dropdown-menu {
+.table td .dropdown-menu {
     position: absolute;
     z-index: 1060;
     min-width: 8rem;
 }
 
-td .dropdown button {
+.table td .dropdown button {
     min-width: 90px;
     display: inline-flex;
     align-items: center;
@@ -244,7 +247,7 @@ td .dropdown button {
     padding-left: 8px;
 }
 
-td .dropdown button::after {
+.table td .dropdown button::after {
     margin-left: 6px;
 }
 </style>
@@ -252,9 +255,16 @@ td .dropdown button::after {
 <script>
 // Initialize all tooltips
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Initialize dropdowns
+    var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+        return new bootstrap.Dropdown(dropdownToggleEl);
     });
 });
 

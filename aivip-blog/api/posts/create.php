@@ -28,18 +28,40 @@ try {
     $metaDescription = isset($data['meta_description']) ? htmlspecialchars(strip_tags($data['meta_description'])) : '';
     $featuredImage = isset($data['featured_image']) ? htmlspecialchars(strip_tags($data['featured_image'])) : null;
     $authorId = $_SESSION['user_id'];
-    $status = 'draft'; // Default status
+    $status = isset($data['status']) ? $data['status'] : 'draft';
+    $categories = isset($data['categories']) ? $data['categories'] : [];
 
     // Database connection
     $db = new Database();
     $conn = $db->getConnection();
 
-    // Prepare statement
-    $stmt = $conn->prepare("INSERT INTO posts (title, content, meta_title, meta_description, featured_image, author_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-    $stmt->bind_param("sssssss", $title, $content, $metaTitle, $metaDescription, $featuredImage, $authorId, $status);
-    
-    if ($stmt->execute()) {
+    // Start transaction
+    $conn->begin_transaction();
+
+    try {
+        // Insert post
+        $stmt = $conn->prepare("INSERT INTO posts (title, content, meta_title, meta_description, featured_image, author_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $stmt->bind_param("sssssss", $title, $content, $metaTitle, $metaDescription, $featuredImage, $authorId, $status);
+        
+        if (!$stmt->execute()) {
+            throw new Exception('Failed to create post');
+        }
+
         $postId = $conn->insert_id;
+
+        // Insert categories if any
+        if (!empty($categories)) {
+            $stmt = $conn->prepare("INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)");
+            foreach ($categories as $categoryId) {
+                $stmt->bind_param("ii", $postId, $categoryId);
+                if (!$stmt->execute()) {
+                    throw new Exception('Failed to add categories');
+                }
+            }
+        }
+        
+        // Commit transaction
+        $conn->commit();
         
         // Prepare response
         $response['success'] = true;
@@ -49,8 +71,10 @@ try {
             'title' => $title,
             'status' => $status
         ];
-    } else {
-        throw new Exception('Failed to create post');
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        $conn->rollback();
+        throw $e;
     }
 
 } catch (Exception $e) {
