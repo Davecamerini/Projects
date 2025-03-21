@@ -545,10 +545,19 @@ function vsp_generate_thumbnails() {
     $images = vsp_get_all_images(VIDEO_UPLOAD_DIR);
     $total = count($images);
     $processed = 0;
+    $skipped = 0;
     
     for ($i = $offset; $i < min($offset + $batch_size, $total); $i++) {
-        vsp_create_thumbnail($images[$i]);
-        $processed++;
+        $source_path = $images[$i];
+        $cached_path = vsp_get_cached_thumbnail_path($source_path);
+        
+        // Check if thumbnail exists and is up to date
+        if (file_exists($cached_path) && filemtime($cached_path) >= filemtime($source_path)) {
+            $skipped++;
+        } else {
+            vsp_create_thumbnail($source_path);
+            $processed++;
+        }
     }
     
     $next_offset = $offset + $batch_size;
@@ -556,6 +565,7 @@ function vsp_generate_thumbnails() {
     
     wp_send_json_success([
         'processed' => $processed,
+        'skipped' => $skipped,
         'total' => $total,
         'next_offset' => $next_offset,
         'is_complete' => $is_complete
@@ -608,6 +618,7 @@ function vsp_settings_page() {
         var currentOffset = 0;
         var totalImages = 0;
         var totalProcessed = 0;
+        var totalSkipped = 0;
         
         // Check if there's a process in progress
         var savedProgress = localStorage.getItem('vsp_thumbnail_progress');
@@ -618,6 +629,7 @@ function vsp_settings_page() {
                     currentOffset = progress.next_offset;
                     totalImages = progress.total;
                     totalProcessed = progress.processed;
+                    totalSkipped = progress.skipped;
                     startProcessing();
                 } else {
                     // Clear saved progress if user doesn't want to resume
@@ -642,6 +654,13 @@ function vsp_settings_page() {
             $button.prop('disabled', true).text('Generating Thumbnails...');
             $progressContainer.show();
             
+            // Reset progress values when starting a new process
+            if (!savedProgress) {
+                currentOffset = 0;
+                totalProcessed = 0;
+                totalSkipped = 0;
+            }
+            
             // Add beforeunload event listener
             $(window).on('beforeunload', function() {
                 if (isProcessing) {
@@ -649,10 +668,10 @@ function vsp_settings_page() {
                 }
             });
             
-            processBatch(currentOffset, totalProcessed);
+            processBatch(currentOffset, totalProcessed, totalSkipped);
         }
 
-        function processBatch(offset, processed) {
+        function processBatch(offset, processed, skipped) {
             $.ajax({
                 url: ajaxurl,
                 type: 'POST',
@@ -663,21 +682,23 @@ function vsp_settings_page() {
                 success: function(response) {
                     if (response.success) {
                         processed += response.data.processed;
+                        skipped += response.data.skipped;
                         totalImages = response.data.total;
-                        var progress = (processed / totalImages) * 100;
+                        var progress = ((processed + skipped) / totalImages) * 100;
                         $('.vsp-progress-fill').css('width', progress + '%');
-                        $('#vsp-progress-text').text('Processing: ' + processed + '/' + totalImages);
+                        $('#vsp-progress-text').text('Processing: ' + (processed + skipped) + '/' + totalImages + ' (Skipped: ' + skipped + ')');
                         
                         // Save progress
                         localStorage.setItem('vsp_thumbnail_progress', JSON.stringify({
                             processed: processed,
+                            skipped: skipped,
                             total: totalImages,
                             next_offset: response.data.next_offset,
                             is_complete: response.data.is_complete
                         }));
                         
                         if (!response.data.is_complete) {
-                            processBatch(response.data.next_offset, processed);
+                            processBatch(response.data.next_offset, processed, skipped);
                         } else {
                             completeProcess();
                         }
