@@ -1,9 +1,28 @@
 jQuery(document).ready(function($) {
+    // Store original z-index values
+    const originalZIndexes = {
+        mainArea: $('#et-main-area').css('z-index'),
+        topNav: $('#et-top-navigation').css('z-index'),
+        mainHeader: $('#et-main-header').css('z-index'),
+        boc: $('#et-boc').css('z-index')
+    };
+
     // Media overlay functionality
     const overlay = $('#vsp-video-overlay');
     const overlayVideo = $('#vsp-overlay-video');
     const overlayImage = $('#vsp-overlay-image');
     const closeOverlay = $('.vsp-close-overlay');
+
+    function removeZIndexes() {
+        $('#et-main-area, #et-top-navigation, #et-main-header, #et-boc').css('z-index', '');
+    }
+
+    function restoreZIndexes() {
+        $('#et-main-area').css('z-index', originalZIndexes.mainArea);
+        $('#et-top-navigation').css('z-index', originalZIndexes.topNav);
+        $('#et-main-header').css('z-index', originalZIndexes.mainHeader);
+        $('#et-boc').css('z-index', originalZIndexes.boc);
+    }
 
     $('.vsp-video-link').on('click', function(e) {
         e.preventDefault();
@@ -11,6 +30,7 @@ jQuery(document).ready(function($) {
         overlayVideo.attr('src', videoUrl).show();
         overlayImage.hide();
         overlay.addClass('active');
+        removeZIndexes();
     });
 
     $('.vsp-image-link').on('click', function(e) {
@@ -19,12 +39,14 @@ jQuery(document).ready(function($) {
         overlayImage.attr('src', imageUrl).show();
         overlayVideo.hide();
         overlay.addClass('active');
+        removeZIndexes();
     });
 
     closeOverlay.on('click', function() {
         overlay.removeClass('active');
         overlayVideo.attr('src', '').hide();
         overlayImage.attr('src', '').hide();
+        restoreZIndexes();
     });
 
     overlay.on('click', function(e) {
@@ -32,6 +54,7 @@ jQuery(document).ready(function($) {
             overlay.removeClass('active');
             overlayVideo.attr('src', '').hide();
             overlayImage.attr('src', '').hide();
+            restoreZIndexes();
         }
     });
 

@@ -434,15 +434,15 @@
 /* Video Overlay */
 .vsp-video-overlay {
     position: fixed;
-    top: 100px; /* Start below the header */
+    top: 0;
     left: 0;
     width: 100%;
-    height: calc(100% - 100px); /* Subtract header height and margins */
+    height: 100vh;
     background: rgba(0, 0, 0, 0.9);
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 999999;
+    z-index: 999999999 !important;
 }
 
 .vsp-video-overlay.active {
@@ -451,25 +451,30 @@
 
 .vsp-video-overlay-content {
     position: relative;
-    height: 95%;
     background: #000;
     border-radius: 8px;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: auto;
+    height: auto;
+    max-width: 90vw;
+    max-height: 90vh;
+    z-index: 1000000000 !important;
 }
 
 .vsp-video-overlay-content video {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 90vh;
     width: auto;
     height: auto;
     object-fit: contain;
 }
 
 .vsp-video-overlay-content img {
-    max-height: 100%;
+    max-width: 100%;
+    max-height: 90vh;
     width: auto;
     height: auto;
     object-fit: contain;
@@ -482,7 +487,7 @@
     color: white;
     font-size: 30px;
     cursor: pointer;
-    z-index: 1000001;
+    z-index: 1000000001 !important;
     background: rgba(0, 0, 0, 0.5);
     width: 40px;
     height: 40px;
@@ -505,6 +510,14 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .vsp-video-overlay {
+        top: 0; /* Cover from the very top on mobile */
+    }
+    
+    .vsp-video-overlay-content {
+        top: 0; /* Remove the negative top margin */
+    }
+    
     .vsp-video-table {
         display: block;
         overflow-x: auto;
