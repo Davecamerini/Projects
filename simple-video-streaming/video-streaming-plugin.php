@@ -27,26 +27,40 @@ function vsp_get_folder_structure($base_dir, $current_dir = '') {
     }
 
     $items = scandir($full_path);
+    $folders = [];
+    
+    // First, collect all folders
     foreach ($items as $item) {
         if ($item !== '.' && $item !== '..' && $item !== 'thumbnails') {
             $item_path = $full_path . '/' . $item;
             if (is_dir($item_path)) {
-                $relative_path = $current_dir ? $current_dir . '/' . $item : $item;
-                $subfolders = vsp_get_folder_structure($base_dir, $relative_path);
-                $structure[] = [
-                    'name' => $item,
-                    'path' => $relative_path,
-                    'subfolders' => $subfolders
-                ];
+                $folders[] = $item;
             }
         }
+    }
+    
+    // Sort folders case-insensitively
+    usort($folders, function($a, $b) {
+        return strcasecmp($a, $b);
+    });
+    
+    // Now process the sorted folders
+    foreach ($folders as $item) {
+        $item_path = $full_path . '/' . $item;
+        $relative_path = $current_dir ? $current_dir . '/' . $item : $item;
+        $subfolders = vsp_get_folder_structure($base_dir, $relative_path);
+        $structure[] = [
+            'name' => $item,
+            'path' => $relative_path,
+            'subfolders' => $subfolders
+        ];
     }
     
     return $structure;
 }
 
 // Function to render folder tree
-function vsp_render_folder_tree($folders, $current_dir = '') {
+function vsp_render_folder_tree($folders, $current_dir = '', $is_settings_page = false) {
     if (empty($folders)) {
         return '';
     }
@@ -57,18 +71,24 @@ function vsp_render_folder_tree($folders, $current_dir = '') {
         $has_subfolders = !empty($folder['subfolders']);
         $output .= '<li>';
         $output .= '<div class="folder-item' . ($is_active ? ' active' : '') . '" data-path="' . esc_attr($folder['path']) . '">';
-        if ($has_subfolders) {
+        if (!$is_settings_page && $has_subfolders) {
             $output .= '<span class="toggle-icon"></span>';
         } else {
             $output .= '<span class="toggle-icon" style="visibility: hidden;"></span>';
         }
         $output .= '<span class="folder-icon' . ($is_active ? ' open' : '') . '"></span>';
         $output .= '<span class="folder-name">' . esc_html($folder['name']) . '</span>';
+        if ($is_settings_page) {
+            $output .= '<div class="folder-actions">';
+            $output .= '<button class="folder-action-button rename" data-action="rename" title="Rename folder"><span class="dashicons dashicons-edit"></span></button>';
+            $output .= '<button class="folder-action-button delete" data-action="delete" title="Delete folder"><span class="dashicons dashicons-trash"></span></button>';
+            $output .= '</div>';
+        }
         $output .= '</div>';
         
         if ($has_subfolders) {
             $output .= '<div class="subfolders' . ($is_active ? ' open' : '') . '">';
-            $output .= vsp_render_folder_tree($folder['subfolders'], $current_dir);
+            $output .= vsp_render_folder_tree($folder['subfolders'], $current_dir, $is_settings_page);
             $output .= '</div>';
         }
         
@@ -139,7 +159,7 @@ function vsp_video_page() {
     echo '<span class="folder-icon"></span>';
     echo '<span class="folder-name">Root</span>';
     echo '</div>';
-    echo vsp_render_folder_tree($folder_structure, $current_dir);
+    echo vsp_render_folder_tree($folder_structure, $current_dir, false);
     echo '</div>';
 
     // Main Content Area
@@ -210,7 +230,7 @@ function vsp_video_page() {
     echo '<div class="vsp-video-overlay-content">';
     echo '<span class="vsp-close-overlay">&times;</span>';
     echo '<video id="vsp-overlay-video" controls style="display: none;"></video>';
-    echo '<img id="vsp-overlay-image" style="display: none; max-width: 100%; max-height: 90vh;">';
+    echo '<img id="vsp-overlay-image" style="display: none;">';
     echo '</div>';
     echo '</div>';
     
@@ -680,11 +700,37 @@ function vsp_settings_page() {
                     </div>
                 </div>
             </div>
+
+            <!-- Folder Management Card -->
+            <div class="vsp-settings-card vsp-settings-card-full">
+                <div class="vsp-card-header">
+                    <span class="dashicons dashicons-category"></span>
+                    <h2>Folder Management</h2>
+                </div>
+                <div class="vsp-card-content">
+                    <div class="vsp-folder-management">
+                        <div class="vsp-folder-actions">
+                            <button id="vsp-create-folder" class="button button-primary">
+                                <span class="dashicons dashicons-plus-alt2"></span> Create New Folder
+                            </button>
+                        </div>
+                        <div class="vsp-folder-tree">
+                            <?php
+                            $folder_structure = vsp_get_folder_structure(VIDEO_UPLOAD_DIR);
+                            echo vsp_render_folder_tree($folder_structure, '', true);
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
     jQuery(document).ready(function($) {
+        // Add nonce for AJAX requests
+        const vspNonce = '<?php echo wp_create_nonce("vsp_nonce"); ?>';
+
         var isProcessing = false;
         var currentOffset = 0;
         var totalImages = 0;
@@ -748,7 +794,8 @@ function vsp_settings_page() {
                 type: 'POST',
                 data: {
                     action: 'generate_thumbnails',
-                    offset: offset
+                    offset: offset,
+                    nonce: vspNonce
                 },
                 success: function(response) {
                     if (response.success) {
@@ -804,7 +851,243 @@ function vsp_settings_page() {
                 $('#vsp-progress-container').hide();
             }
         });
+
+        // Folder Management
+        function initFolderManagement() {
+            // Toggle folder expansion
+            $('.vsp-folder-tree .toggle-icon').on('click', function(e) {
+                e.stopPropagation();
+                $(this).toggleClass('open');
+                $(this).closest('li').find('.subfolders').toggleClass('open');
+            });
+
+            // Create new folder
+            $('#vsp-create-folder').on('click', function() {
+                showFolderDialog('create');
+            });
+
+            // Folder action buttons
+            $(document).on('click', '.folder-action-button', function(e) {
+                e.stopPropagation();
+                const action = $(this).data('action');
+                const folderPath = $(this).closest('.folder-item').data('path');
+                const folderName = $(this).closest('.folder-item').find('.folder-name').text();
+
+                if (action === 'rename') {
+                    showFolderDialog('rename', folderPath, folderName);
+                } else if (action === 'delete') {
+                    if (confirm('Are you sure you want to delete this folder and all its contents?')) {
+                        deleteFolder(folderPath);
+                    }
+                }
+            });
+        }
+
+        function showFolderDialog(type, folderPath = '', folderName = '') {
+            const dialog = $('<div class="vsp-folder-dialog"><div class="vsp-folder-dialog-content">' +
+                '<div class="vsp-folder-dialog-header">' +
+                '<h3>' + (type === 'create' ? 'Create New Folder' : 'Rename Folder') + '</h3>' +
+                '<button class="vsp-folder-dialog-close">&times;</button>' +
+                '</div>' +
+                '<div class="vsp-folder-dialog-body">' +
+                '<input type="text" class="folder-name-input" value="' + folderName + '" placeholder="Enter folder name">' +
+                '</div>' +
+                '<div class="vsp-folder-dialog-footer">' +
+                '<button class="button cancel-folder-dialog">Cancel</button>' +
+                '<button class="button button-primary save-folder-dialog">' + (type === 'create' ? 'Create' : 'Rename') + '</button>' +
+                '</div>' +
+                '</div></div>');
+
+            $('body').append(dialog);
+            dialog.addClass('active');
+            dialog.find('.folder-name-input').focus();
+
+            // Close dialog
+            dialog.find('.vsp-folder-dialog-close, .cancel-folder-dialog').on('click', function() {
+                dialog.remove();
+            });
+
+            // Save folder
+            dialog.find('.save-folder-dialog').on('click', function() {
+                const newName = dialog.find('.folder-name-input').val().trim();
+                if (newName) {
+                    if (type === 'create') {
+                        createFolder(newName);
+                    } else {
+                        renameFolder(folderPath, newName);
+                    }
+                    dialog.remove();
+                }
+            });
+        }
+
+        function createFolder(name) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'create_folder',
+                    folder_name: name,
+                    nonce: vspNonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error creating folder: ' + response.data);
+                    }
+                }
+            });
+        }
+
+        function renameFolder(oldPath, newName) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'rename_folder',
+                    old_path: oldPath,
+                    new_name: newName,
+                    nonce: vspNonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error renaming folder: ' + response.data);
+                    }
+                }
+            });
+        }
+
+        function deleteFolder(path) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'delete_folder',
+                    folder_path: path,
+                    nonce: vspNonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error deleting folder: ' + response.data);
+                    }
+                }
+            });
+        }
+
+        // Initialize folder management
+        initFolderManagement();
+
+        // Add click handlers for images
+        $(document).on('click', '.vsp-image-link', function(e) {
+            e.preventDefault();
+            const imgSrc = $(this).attr('href');
+            const img = $('<img id="vsp-overlay-image" src="' + imgSrc + '">');
+            $('.vsp-video-overlay-content').html(img);
+            $('.vsp-video-overlay').addClass('active');
+        });
     });
     </script>
     <?php
+}
+
+// Add AJAX handlers for folder management
+add_action('wp_ajax_create_folder', 'vsp_ajax_create_folder');
+add_action('wp_ajax_rename_folder', 'vsp_ajax_rename_folder');
+add_action('wp_ajax_delete_folder', 'vsp_ajax_delete_folder');
+
+function vsp_ajax_create_folder() {
+    check_ajax_referer('vsp_nonce', 'nonce');
+    
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+
+    $folder_name = sanitize_text_field($_POST['folder_name']);
+    $new_folder = VIDEO_UPLOAD_DIR . '/' . $folder_name;
+
+    if (file_exists($new_folder)) {
+        wp_send_json_error('Folder already exists');
+    }
+
+    if (wp_mkdir_p($new_folder)) {
+        wp_send_json_success('Folder created successfully');
+    } else {
+        wp_send_json_error('Failed to create folder');
+    }
+}
+
+function vsp_ajax_rename_folder() {
+    check_ajax_referer('vsp_nonce', 'nonce');
+    
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+
+    $old_path = sanitize_text_field($_POST['old_path']);
+    $new_name = sanitize_text_field($_POST['new_name']);
+    
+    $old_folder = VIDEO_UPLOAD_DIR . '/' . $old_path;
+    $new_folder = dirname($old_folder) . '/' . $new_name;
+
+    if (!file_exists($old_folder)) {
+        wp_send_json_error('Folder does not exist');
+    }
+
+    if (file_exists($new_folder)) {
+        wp_send_json_error('Folder with new name already exists');
+    }
+
+    if (rename($old_folder, $new_folder)) {
+        wp_send_json_success('Folder renamed successfully');
+    } else {
+        wp_send_json_error('Failed to rename folder');
+    }
+}
+
+function vsp_ajax_delete_folder() {
+    check_ajax_referer('vsp_nonce', 'nonce');
+    
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+
+    $folder_path = sanitize_text_field($_POST['folder_path']);
+    $folder_to_delete = VIDEO_UPLOAD_DIR . '/' . $folder_path;
+
+    if (!file_exists($folder_to_delete)) {
+        wp_send_json_error('Folder does not exist');
+    }
+
+    if (vsp_delete_directory($folder_to_delete)) {
+        wp_send_json_success('Folder deleted successfully');
+    } else {
+        wp_send_json_error('Failed to delete folder');
+    }
+}
+
+function vsp_delete_directory($dir) {
+    if (!file_exists($dir)) {
+        return true;
+    }
+
+    if (!is_dir($dir)) {
+        return unlink($dir);
+    }
+
+    foreach (scandir($dir) as $item) {
+        if ($item == '.' || $item == '..') {
+            continue;
+        }
+
+        if (!vsp_delete_directory($dir . DIRECTORY_SEPARATOR . $item)) {
+            return false;
+        }
+    }
+
+    return rmdir($dir);
 }

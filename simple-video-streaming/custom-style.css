@@ -434,10 +434,10 @@
 /* Video Overlay */
 .vsp-video-overlay {
     position: fixed;
-    top: 80px; /* Start below the header */
+    top: 100px; /* Start below the header */
     left: 0;
     width: 100%;
-    height: calc(100% - 80px); /* Subtract header height from total height */
+    height: calc(100% - 100px); /* Subtract header height and margins */
     background: rgba(0, 0, 0, 0.9);
     display: none;
     justify-content: center;
@@ -451,16 +451,27 @@
 
 .vsp-video-overlay-content {
     position: relative;
-    max-width: 90%;
-    max-height: calc(90vh - 80px); /* Adjust max-height to account for header */
-    z-index: 1000000;
+    height: 95%;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.vsp-video-overlay-content video,
-.vsp-video-overlay-content img {
+.vsp-video-overlay-content video {
     max-width: 100%;
-    max-height: calc(90vh - 80px); /* Adjust max-height to account for header */
-    border-radius: 4px;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.vsp-video-overlay-content img {
+    max-height: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain;
 }
 
@@ -528,4 +539,256 @@
 .vsp-parent-dir a {
     color: inherit;
     text-decoration: none;
+}
+
+/* Folder Management Styles */
+.vsp-folder-management {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.vsp-folder-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.vsp-folder-actions .button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vsp-folder-actions .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.vsp-folder-tree {
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 8px;
+    padding: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.vsp-folder-tree ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.vsp-folder-tree ul ul {
+    margin-left: 24px;
+}
+
+.vsp-folder-tree li {
+    margin: 4px 0;
+}
+
+.vsp-folder-tree .folder-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.vsp-folder-tree .folder-item:hover {
+    background-color: #f0f0f0;
+}
+
+.vsp-folder-tree .folder-item.active {
+    background-color: #e5f5fa;
+}
+
+.vsp-folder-tree .folder-icon {
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vsp-folder-tree .folder-icon::before {
+    content: "📁";
+}
+
+.vsp-folder-tree .folder-icon.open::before {
+    content: "📂";
+}
+
+.vsp-folder-tree .toggle-icon {
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.vsp-folder-tree .toggle-icon::before {
+    content: "▶";
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.vsp-folder-tree .toggle-icon.open::before {
+    transform: rotate(90deg);
+}
+
+.vsp-folder-tree .folder-name {
+    flex: 1;
+    font-size: 14px;
+    color: #1d2327;
+}
+
+.vsp-folder-tree .folder-actions {
+    display: none;
+    gap: 4px;
+    margin-left: 8px;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.vsp-folder-tree .folder-item:hover .folder-actions {
+    display: flex;
+}
+
+.vsp-folder-tree .folder-action-button {
+    padding: 4px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+    color: #646970;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.vsp-folder-tree .folder-action-button:hover {
+    background: #e2e4e7;
+    color: #1d2327;
+}
+
+.vsp-folder-tree .folder-action-button.rename {
+    color: #2271b1;
+}
+
+.vsp-folder-tree .folder-action-button.delete {
+    color: #d63638;
+}
+
+.vsp-folder-tree .folder-action-button:hover.rename {
+    background: #e5f5fa;
+}
+
+.vsp-folder-tree .folder-action-button:hover.delete {
+    background: #fcf0f1;
+}
+
+.vsp-folder-tree .folder-action-button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Folder Dialog Styles */
+.vsp-folder-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999999;
+    justify-content: center;
+    align-items: center;
+}
+
+.vsp-folder-dialog.active {
+    display: flex;
+}
+
+.vsp-folder-dialog-content {
+    background: #fff;
+    padding: 24px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.vsp-folder-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.vsp-folder-dialog-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #1d2327;
+}
+
+.vsp-folder-dialog-close {
+    background: none;
+    border: none;
+    color: #646970;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.vsp-folder-dialog-close:hover {
+    background: #f0f0f0;
+    color: #1d2327;
+}
+
+.vsp-folder-dialog-body {
+    margin-bottom: 24px;
+}
+
+.vsp-folder-dialog-body input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.vsp-folder-dialog-body input:focus {
+    border-color: #2271b1;
+    outline: none;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+.vsp-folder-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.vsp-folder-dialog-footer .button {
+    min-width: 80px;
 }
