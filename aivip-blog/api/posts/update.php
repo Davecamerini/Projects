@@ -62,62 +62,39 @@ try {
         if ($isStatusUpdate) {
             // Only update the status
             $status = $data['status'];
-            error_log("Attempting status update - ID: " . $id . ", Status: " . $status);
             
-            // Validate status value
-            $validStatuses = ['draft', 'published', 'archived'];
-            if (!in_array($status, $validStatuses)) {
-                throw new Exception("Invalid status value: " . $status);
-            }
-            
-            // First verify the post exists and get current status
-            $stmt = $conn->prepare("SELECT status FROM posts WHERE id = ?");
-            if (!$stmt) {
-                error_log("Prepare failed for select: " . $conn->error);
-                throw new Exception("Database error during status check");
-            }
-            $stmt->bind_param("i", $id);
-            if (!$stmt->execute()) {
-                error_log("Execute failed for select: " . $stmt->error);
-                throw new Exception("Failed to check current status");
-            }
-            $result = $stmt->get_result();
-            $currentPost = $result->fetch_assoc();
-            error_log("Current post status: " . ($currentPost['status'] ?? 'null'));
-            
-            // Now update the status
-            $updateQuery = "UPDATE posts SET status = ?, updated_at = NOW() WHERE id = ?";
-            error_log("Update query: " . $updateQuery);
+            // Update status and published_at
+            $publishedAt = $status === 'published' ? date('Y-m-d H:i:s') : null;
+            $updateQuery = "UPDATE posts SET status = ?, published_at = ?, updated_at = NOW() WHERE id = ?";
             
             $stmt = $conn->prepare($updateQuery);
             if (!$stmt) {
-                error_log("Prepare failed for update: " . $conn->error);
                 throw new Exception("Database error during update preparation");
             }
             
-            $stmt->bind_param("si", $status, $id);
+            $stmt->bind_param("ssi", $status, $publishedAt, $id);
             if (!$stmt->execute()) {
-                error_log("Execute failed for update: " . $stmt->error);
                 throw new Exception("Failed to update status: " . $stmt->error);
-            }
-            
-            error_log("Rows affected: " . $stmt->affected_rows);
-            
-            if ($stmt->affected_rows === 0 && $currentPost['status'] !== $status) {
-                error_log("No rows were updated but status was different");
-                throw new Exception("Failed to update status");
             }
         } else {
             // Full post update
             $title = htmlspecialchars(strip_tags($data['title']));
             $content = $data['content'];
-            $metaTitle = isset($data['meta_title']) ? htmlspecialchars(strip_tags($data['meta_title'])) : $title;
-            $metaDescription = isset($data['meta_description']) ? htmlspecialchars(strip_tags($data['meta_description'])) : '';
+            $slug = isset($data['slug']) ? htmlspecialchars(strip_tags($data['slug'])) : strtolower(str_replace(' ', '-', $title));
+            $excerpt = isset($data['excerpt']) ? htmlspecialchars(strip_tags($data['excerpt'])) : substr(strip_tags($content), 0, 200);
             $featuredImage = isset($data['featured_image']) ? htmlspecialchars(strip_tags($data['featured_image'])) : null;
             $status = isset($data['status']) ? $data['status'] : $post['status'];
+            
+            // Update published_at if status changes to published
+            $publishedAt = $post['published_at'];
+            if ($status === 'published' && $post['status'] !== 'published') {
+                $publishedAt = date('Y-m-d H:i:s');
+            } elseif ($status !== 'published' && $post['status'] === 'published') {
+                $publishedAt = null;
+            }
 
-            $stmt = $conn->prepare("UPDATE posts SET title = ?, content = ?, meta_title = ?, meta_description = ?, featured_image = ?, status = ?, updated_at = NOW() WHERE id = ?");
-            $stmt->bind_param("ssssssi", $title, $content, $metaTitle, $metaDescription, $featuredImage, $status, $id);
+            $stmt = $conn->prepare("UPDATE posts SET title = ?, slug = ?, content = ?, excerpt = ?, featured_image = ?, status = ?, published_at = ?, updated_at = NOW() WHERE id = ?");
+            $stmt->bind_param("sssssssi", $title, $slug, $content, $excerpt, $featuredImage, $status, $publishedAt, $id);
         }
         
         if (!$stmt->execute()) {
@@ -155,7 +132,7 @@ try {
         $conn->commit();
         
         // Get the updated post data
-        $stmt = $conn->prepare("SELECT status FROM posts WHERE id = ?");
+        $stmt = $conn->prepare("SELECT status, published_at FROM posts WHERE id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -166,11 +143,13 @@ try {
         $response['message'] = 'Post updated successfully';
         $response['data'] = [
             'id' => $id,
-            'status' => $updatedPost['status']
+            'status' => $updatedPost['status'],
+            'published_at' => $updatedPost['published_at']
         ];
 
         if (!$isStatusUpdate) {
             $response['data']['title'] = $title;
+            $response['data']['slug'] = $slug;
             if (isset($categories)) {
                 $response['data']['categories'] = $categories;
             }

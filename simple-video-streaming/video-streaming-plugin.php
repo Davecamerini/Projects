@@ -299,7 +299,20 @@ function vsp_enqueue_scripts() {
     // Localize script to make ajaxurl available
     wp_localize_script('vsp-custom-script', 'ajaxurl', admin_url('admin-ajax.php'));
 }
+
+// Add admin styles
+function vsp_admin_enqueue_scripts($hook) {
+    // Only load on our plugin's settings page
+    if ('toplevel_page_video-streaming-settings' !== $hook) {
+        return;
+    }
+    
+    wp_enqueue_style('custom-style', plugin_dir_url(__FILE__) . 'custom-style.css');
+    wp_enqueue_style('dashicons');
+}
+
 add_action('wp_enqueue_scripts', 'vsp_enqueue_scripts');
+add_action('admin_enqueue_scripts', 'vsp_admin_enqueue_scripts');
 
 // Add JavaScript for sorting functionality
 function vsp_sorting_script() {
@@ -573,41 +586,99 @@ function vsp_generate_thumbnails() {
 }
 add_action('wp_ajax_generate_thumbnails', 'vsp_generate_thumbnails');
 
+// Function to count videos recursively
+function vsp_count_videos($path) {
+    $count = 0;
+    $files = scandir($path);
+    
+    foreach ($files as $file) {
+        if ($file === '.' || $file === '..') continue;
+        
+        $file_path = $path . '/' . $file;
+        if (is_dir($file_path)) {
+            // Skip the thumbnails directory
+            if ($file !== 'thumbnails') {
+                $count += vsp_count_videos($file_path);
+            }
+        } elseif (preg_match('/\.(mp4|m4v|webm|ogg|flv)$/i', $file)) {
+            $count++;
+        }
+    }
+    
+    return $count;
+}
+
 // Settings page HTML
 function vsp_settings_page() {
     $total_size = vsp_get_folder_size(VIDEO_UPLOAD_DIR);
     $total_images = vsp_count_images(VIDEO_UPLOAD_DIR);
     $total_thumbnails = vsp_count_thumbnails(VIDEO_UPLOAD_DIR);
+    $total_videos = vsp_count_videos(VIDEO_UPLOAD_DIR);
     ?>
-    <div class="wrap">
+    <div class="wrap vsp-settings-page">
         <h1>Video Streaming Settings</h1>
         
-        <div class="vsp-stats-container">
-            <div class="vsp-stat-box">
-                <h3>Total Storage Used</h3>
-                <p><?php echo vsp_format_file_size($total_size); ?></p>
-            </div>
-            
-            <div class="vsp-stat-box">
-                <h3>Total Images</h3>
-                <p><?php echo $total_images; ?></p>
-            </div>
-            
-            <div class="vsp-stat-box">
-                <h3>Generated Thumbnails</h3>
-                <p><?php echo $total_thumbnails; ?></p>
-            </div>
-        </div>
-
-        <div class="vsp-thumbnail-generation">
-            <h2>Thumbnail Generation</h2>
-            <p>Generate thumbnails for all images in the videos folder.</p>
-            <button id="vsp-generate-thumbnails" class="button button-primary">Generate All Thumbnails</button>
-            <div id="vsp-progress-container" style="display: none;">
-                <div class="vsp-progress-bar">
-                    <div class="vsp-progress-fill"></div>
+        <div class="vsp-settings-grid">
+            <!-- Storage Card -->
+            <div class="vsp-settings-card">
+                <div class="vsp-card-header">
+                    <span class="dashicons dashicons-database"></span>
+                    <h2>Storage Usage</h2>
                 </div>
-                <p id="vsp-progress-text">Processing: 0/0</p>
+                <div class="vsp-card-content">
+                    <div class="vsp-stats-row">
+                        <div class="vsp-stat-group">
+                            <div class="vsp-stat-value"><?php echo vsp_format_file_size($total_size); ?></div>
+                            <div class="vsp-stat-label">Storage Used</div>
+                        </div>
+                        <div class="vsp-stat-group">
+                            <div class="vsp-stat-value"><?php echo $total_videos; ?></div>
+                            <div class="vsp-stat-label">Total Videos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images Card -->
+            <div class="vsp-settings-card">
+                <div class="vsp-card-header">
+                    <span class="dashicons dashicons-format-image"></span>
+                    <h2>Images</h2>
+                </div>
+                <div class="vsp-card-content">
+                    <div class="vsp-stat-value"><?php echo $total_images; ?></div>
+                    <div class="vsp-stat-label">Total Images</div>
+                </div>
+            </div>
+
+            <!-- Thumbnails Card -->
+            <div class="vsp-settings-card">
+                <div class="vsp-card-header">
+                    <span class="dashicons dashicons-camera"></span>
+                    <h2>Thumbnails</h2>
+                </div>
+                <div class="vsp-card-content">
+                    <div class="vsp-stat-value"><?php echo $total_thumbnails; ?></div>
+                    <div class="vsp-stat-label">Generated Thumbnails</div>
+                </div>
+            </div>
+
+            <!-- Thumbnail Generation Card -->
+            <div class="vsp-settings-card vsp-settings-card-full">
+                <div class="vsp-card-header">
+                    <span class="dashicons dashicons-update"></span>
+                    <h2>Thumbnail Generation</h2>
+                </div>
+                <div class="vsp-card-content">
+                    <p>Generate thumbnails for all images in the videos folder.</p>
+                    <button id="vsp-generate-thumbnails" class="button button-primary">Generate All Thumbnails</button>
+                    <div id="vsp-progress-container" style="display: none;">
+                        <div class="vsp-progress-bar">
+                            <div class="vsp-progress-fill"></div>
+                        </div>
+                        <p id="vsp-progress-text">Processing: 0/0</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

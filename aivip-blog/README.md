@@ -6,7 +6,7 @@ A modern, secure, and feature-rich blog platform with a powerful admin panel.
 
 AIVIP Blog is a complete blogging platform that includes:
 - Secure user authentication and authorization
-- Content management system
+- Content management system with categories
 - Media management
 - User management
 - Email notifications
@@ -55,11 +55,12 @@ aivip-blog/
 ### Content Management
 - Create, edit, and delete blog posts
 - Rich text editor
-- Meta title and description support
+- Category management
 - Featured image support
 - Post status management (draft/published/archived)
 - Post search and filtering
 - Pagination for post lists
+- URL-friendly slugs
 
 ### Media Management
 - Image upload support
@@ -113,21 +114,35 @@ The system uses the following tables:
 ### posts
 - id (INT, AUTO_INCREMENT)
 - title (VARCHAR)
+- slug (VARCHAR, UNIQUE)
 - content (TEXT)
-- meta_title (VARCHAR)
-- meta_description (TEXT)
+- excerpt (TEXT)
 - featured_image (VARCHAR)
 - author_id (INT)
 - status (ENUM: 'draft', 'published', 'archived')
+- published_at (DATETIME)
 - created_at (DATETIME)
 - updated_at (DATETIME)
+
+### categories
+- id (INT, AUTO_INCREMENT)
+- name (VARCHAR)
+- slug (VARCHAR, UNIQUE)
+- description (TEXT)
+- created_at (DATETIME)
+- updated_at (DATETIME)
+
+### post_categories
+- post_id (INT)
+- category_id (INT)
+- created_at (DATETIME)
 
 ### media
 - id (INT, AUTO_INCREMENT)
 - filename (VARCHAR)
-- path (VARCHAR)
-- type (VARCHAR)
-- size (INT)
+- filepath (VARCHAR)
+- filetype (VARCHAR)
+- filesize (INT)
 - uploaded_by (INT)
 - created_at (DATETIME)
 
@@ -176,8 +191,12 @@ GET /api/posts/list.php
 Query Parameters:
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10, max: 50)
-- `status` (optional): Filter by status
-- `search` (optional): Search in title and content
+- `status` (optional): Filter by status (draft/published/archived)
+- `search` (optional): Search in title, content, and excerpt
+- `category` (optional): Filter by category ID
+- `author` (optional): Filter by author ID
+- `sort` (optional): Sort field (created_at/updated_at/published_at/title)
+- `order` (optional): Sort order (ASC/DESC)
 
 #### Create Post
 ```
@@ -188,9 +207,10 @@ Request body:
 {
     "title": "string (required)",
     "content": "string (required)",
-    "meta_title": "string (optional)",
-    "meta_description": "string (optional)",
-    "featured_image": "string (optional)"
+    "excerpt": "string (optional)",
+    "featured_image": "string (optional)",
+    "status": "string (optional: draft/published/archived)",
+    "categories": ["integer"] (optional)
 }
 ```
 
@@ -204,10 +224,10 @@ Request body:
     "id": "integer (required)",
     "title": "string (required)",
     "content": "string (required)",
-    "meta_title": "string (optional)",
-    "meta_description": "string (optional)",
+    "excerpt": "string (optional)",
     "featured_image": "string (optional)",
-    "status": "string (optional)"
+    "status": "string (optional: draft/published/archived)",
+    "categories": ["integer"] (optional)
 }
 ```
 
@@ -289,56 +309,198 @@ Request body:
 }
 ```
 
-## Error Handling
+## Default Users
 
-All API endpoints return errors in the following format:
-```json
-{
-    "success": false,
-    "message": "Error message description"
-}
-```
+The system comes with two default users:
 
-Common error messages:
-- "Unauthorized access"
-- "Invalid credentials"
-- "Resource not found"
-- "Permission denied"
-- "Invalid input"
-- "Database error"
+1. Admin User
+   - Username: admin
+   - Password: admin123
+   - Role: admin
 
-## Requirements
+2. Author User
+   - Username: author
+   - Password: author123
+   - Role: author
 
-- PHP 7.4 or higher
-- MySQL 5.7 or higher
-- Web server (Apache/Nginx)
-- SSL certificate for secure connections
-- PHP extensions:
-  - mysqli
-  - json
-  - fileinfo
-  - gd (for image processing)
+## Security Notes
 
-## Security Considerations
-
-1. All passwords are hashed using PHP's `password_hash()`
-2. SQL queries use prepared statements
-3. User input is sanitized and validated
-4. Session management follows security best practices
-5. Password reset tokens expire after 1 hour
-6. Remember me tokens are securely stored
-7. File uploads are validated and restricted
-8. XSS protection is implemented
-9. CSRF protection is in place
+1. Change default passwords immediately after installation
+2. Configure proper file permissions for the uploads directory
+3. Use HTTPS in production
+4. Regularly update dependencies
+5. Monitor error logs
+6. Implement rate limiting for API endpoints
+7. Use strong passwords
+8. Enable CSRF protection
+9. Validate all user inputs
+10. Sanitize output data
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch
+2. Create a feature branch
 3. Commit your changes
 4. Push to the branch
-5. Create a new Pull Request
+5. Create a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Testing with Postman
+
+### Setup
+1. Download and install [Postman](https://www.postman.com/downloads/)
+2. Create a new collection named "AIVIP Blog API"
+3. Set up environment variables:
+   - `base_url`: Your API base URL (e.g., `http://localhost/aivip-blog/api`)
+   - `token`: Will be set after login (optional)
+
+### Authentication
+1. Login Request:
+   ```
+   POST {{base_url}}/auth/login.php
+   Body (raw JSON):
+   {
+       "username": "admin",
+       "password": "doaoakero"
+   }
+   ```
+
+2. Logout Request:
+   ```
+   POST {{base_url}}/auth/logout.php
+   ```
+
+### Posts
+1. List Posts:
+   ```
+   GET {{base_url}}/posts/list.php
+   Query Params (optional):
+   - page: 1
+   - limit: 10
+   - status: published
+   - search: technology
+   - category: 1
+   - author: 1
+   - sort: published_at
+   - order: DESC
+   ```
+
+2. Create Post:
+   ```
+   POST {{base_url}}/posts/create.php
+   Body (raw JSON):
+   {
+       "title": "Test Post",
+       "content": "This is a test post content.",
+       "excerpt": "A brief summary of the post",
+       "status": "draft",
+       "categories": [1]
+   }
+   ```
+
+3. Update Post:
+   ```
+   POST {{base_url}}/posts/update.php
+   Body (raw JSON):
+   {
+       "id": 1,
+       "title": "Updated Post Title",
+       "content": "Updated content here.",
+       "excerpt": "Updated excerpt",
+       "status": "published",
+       "categories": [1, 2]
+   }
+   ```
+
+4. Delete Post:
+   ```
+   POST {{base_url}}/posts/delete.php
+   Body (raw JSON):
+   {
+       "id": 1
+   }
+   ```
+
+### Media
+1. Upload Image:
+   ```
+   POST {{base_url}}/media/upload.php
+   Body (form-data):
+   - Key: image
+   - Value: [Select image file]
+   ```
+
+### Users
+1. Create User:
+   ```
+   POST {{base_url}}/users/create.php
+   Body (raw JSON):
+   {
+       "username": "newuser",
+       "email": "user@example.com",
+       "password": "password123",
+       "first_name": "New",
+       "last_name": "User",
+       "role": "author"
+   }
+   ```
+
+2. Update User:
+   ```
+   POST {{base_url}}/users/update.php
+   Body (raw JSON):
+   {
+       "id": 2,
+       "username": "updateduser",
+       "email": "updated@example.com",
+       "first_name": "Updated",
+       "last_name": "User",
+       "role": "author",
+       "status": "active"
+   }
+   ```
+
+3. Delete User:
+   ```
+   POST {{base_url}}/users/delete.php
+   Body (raw JSON):
+   {
+       "id": 2
+   }
+   ```
+
+4. Reset Password:
+   ```
+   POST {{base_url}}/users/reset-password.php
+   Body (raw JSON):
+   {
+       "id": 2
+   }
+   ```
+
+### Tips for Testing
+1. Always test with the default admin user first
+2. Create test data in a logical order (users → categories → posts)
+3. Use environment variables for dynamic values
+4. Save successful responses as examples
+5. Test error cases by sending invalid data
+6. Check response status codes and messages
+7. Verify database changes after each request
+8. Test pagination with different limit values
+9. Test search functionality with various terms
+10. Test file upload with different image types and sizes
+
+### Common Issues
+1. 401 Unauthorized: Check if you're logged in
+2. 403 Forbidden: Verify user permissions
+3. 404 Not Found: Check resource IDs
+4. 422 Validation Error: Review request body
+5. 500 Server Error: Check server logs
+6. File Upload Issues: Verify file size and type
+7. Database Errors: Check connection settings
+8. Session Issues: Clear browser cookies
+9. CSRF Errors: Check token implementation
+10. Rate Limiting: Wait between requests 
