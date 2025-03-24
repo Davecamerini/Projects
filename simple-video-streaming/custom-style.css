@@ -464,6 +464,8 @@
     max-width: 90vw;
     max-height: 90vh;
     z-index: 1000000000 !important;
+    margin-bottom: -110px;
+    transform: scale(0.9);
 }
 
 .vsp-video-overlay-content video {
@@ -517,7 +519,8 @@
     }
     
     .vsp-video-overlay-content {
-        top: 0; /* Remove the negative top margin */
+        margin-bottom: 0;
+        transform: none;
     }
     
     .vsp-video-table {

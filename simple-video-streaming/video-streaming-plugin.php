@@ -169,9 +169,11 @@ function vsp_video_page() {
         $path_parts = explode('/', $current_dir);
         $folder_name = end($path_parts);
         $parent_folder = count($path_parts) > 1 ? $path_parts[count($path_parts) - 2] : '';
-        echo '<h2 class="vsp-title">' . esc_html($parent_folder ? $parent_folder . ' / ' . $folder_name : $folder_name) . '</h2>';
+        $media_count = vsp_count_media_files($video_dir);
+        echo '<h2 class="vsp-title">' . esc_html($parent_folder ? $parent_folder . ' / ' . $folder_name : $folder_name) . ' - ' . $media_count . ' ' . ($media_count === 1 ? 'item' : 'items') . '</h2>';
     } else {
-        echo '<h2 class="vsp-title">Root</h2>';
+        $media_count = vsp_count_media_files(VIDEO_UPLOAD_DIR);
+        echo '<h2 class="vsp-title">Root - ' . $media_count . ' ' . ($media_count === 1 ? 'item' : 'items') . '</h2>';
     }
 
     // Media List
@@ -1090,4 +1092,20 @@ function vsp_delete_directory($dir) {
     }
 
     return rmdir($dir);
+}
+
+// Function to count media files in a directory
+function vsp_count_media_files($dir) {
+    $count = 0;
+    $items = scandir($dir);
+    
+    foreach ($items as $item) {
+        if ($item !== '.' && $item !== '..' && $item !== 'thumbnails') {
+            if (preg_match('/\.(mp4|m4v|webm|ogg|flv|jpg|jpeg|png|gif|webp)$/i', $item)) {
+                $count++;
+            }
+        }
+    }
+    
+    return $count;
 }
