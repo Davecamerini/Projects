@@ -248,13 +248,15 @@
 }
 
 .vsp-tree-view .toggle-icon::before {
-    content: "▶";
-    font-size: 12px;
-    transition: transform 0.2s;
+    content: "▼";
+    font-size: 10px;
+    color: #646970;
+    transition: transform 0.3s ease;
+    transform: rotate(-90deg);
 }
 
 .vsp-tree-view .toggle-icon.open::before {
-    transform: rotate(90deg);
+    transform: rotate(0deg);
 }
 
 .vsp-tree-view .subfolders {
@@ -648,13 +650,15 @@
 }
 
 .vsp-folder-tree .toggle-icon::before {
-    content: "▶";
-    font-size: 12px;
-    transition: transform 0.2s;
+    content: "▼";
+    font-size: 10px;
+    color: #646970;
+    transition: transform 0.3s ease;
+    transform: rotate(-90deg);
 }
 
 .vsp-folder-tree .toggle-icon.open::before {
-    transform: rotate(90deg);
+    transform: rotate(0deg);
 }
 
 .vsp-folder-tree .folder-name {
@@ -804,4 +808,107 @@
 
 .vsp-folder-dialog-footer .button {
     min-width: 80px;
+}
+
+/* Mobile Tree View Collapse */
+@media (max-width: 768px) {
+    .vsp-tree-view {
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #fff;
+        border: 1px solid #e2e4e7;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .vsp-tree-view h3 {
+        display: none;
+    }
+
+    .vsp-tree-view::before {
+        content: "Folders";
+        display: block;
+        font-weight: 600;
+        font-size: 16px;
+        color: #1d2327;
+        margin: 0;
+        padding: 16px;
+        padding-right: 48px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e2e4e7;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .vsp-tree-view::before::before {
+        content: "📁";
+        font-size: 18px;
+    }
+
+    .vsp-tree-view::after {
+        content: "▼";
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: transform 0.3s ease;
+        pointer-events: none;
+        font-size: 10px;
+        color: #646970;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+    }
+
+    .vsp-tree-view.collapsed::after {
+        transform: translateY(-50%) rotate(-90deg);
+    }
+
+    .vsp-tree-view.collapsed > *:not(:first-child) {
+        display: none !important;
+    }
+
+    .vsp-tree-view > .folder-item {
+        margin: 0;
+        border-bottom: none;
+        padding: 12px 16px;
+    }
+
+    .vsp-tree-view > .folder-item:first-child {
+        border-top: none;
+    }
+
+    .vsp-tree-view .folder-item {
+        padding: 12px 16px;
+    }
+
+    .vsp-tree-view .folder-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    .vsp-tree-view .folder-item.active {
+        background-color: #e5f5fa;
+    }
+
+    .vsp-tree-view .subfolders {
+        margin-left: 0;
+        background: #f8f9fa;
+        border-top: 1px solid #e2e4e7;
+    }
+
+    .vsp-tree-view .subfolders .folder-item {
+        padding-left: 32px;
+    }
+
+    .vsp-tree-view .subfolders .subfolders .folder-item {
+        padding-left: 48px;
+    }
 }

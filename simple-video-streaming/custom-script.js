@@ -126,4 +126,24 @@ jQuery(document).ready(function($) {
         $(this).closest('li').find('.subfolders').show();
         $(this).closest('li').find('.toggle-icon').addClass('open');
     });
+
+    // Mobile Tree View Collapse
+    const treeView = $('.vsp-tree-view');
+    if (treeView.length) {
+        // Add collapsed class by default on mobile
+        if (window.innerWidth <= 768) {
+            treeView.addClass('collapsed');
+        }
+
+        // Add mobile collapse functionality
+        treeView.on('click', function(e) {
+            // Only trigger on mobile
+            if (window.innerWidth <= 768) {
+                // Don't trigger if clicking on folder items or their children
+                if (!$(e.target).closest('.folder-item').length) {
+                    $(this).toggleClass('collapsed');
+                }
+            }
+        });
+    }
 });
