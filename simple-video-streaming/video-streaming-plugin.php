@@ -126,8 +126,29 @@ function vsp_format_duration($seconds) {
     return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 }
 
+// Function to get cached duration
+function vsp_get_cached_duration($file_path) {
+    $cache_file = $file_path . '.duration';
+    if (file_exists($cache_file) && filemtime($cache_file) >= filemtime($file_path)) {
+        return file_get_contents($cache_file);
+    }
+    return false;
+}
+
+// Function to cache duration
+function vsp_cache_duration($file_path, $duration) {
+    $cache_file = $file_path . '.duration';
+    file_put_contents($cache_file, $duration);
+}
+
 // Function to get video duration
 function vsp_get_video_duration($file_path) {
+    // Check cache first
+    $cached_duration = vsp_get_cached_duration($file_path);
+    if ($cached_duration !== false) {
+        return $cached_duration;
+    }
+
     // Check if FFmpeg is available
     if (!function_exists('exec')) {
         return 'N/A';
@@ -145,7 +166,9 @@ function vsp_get_video_duration($file_path) {
                 $minutes = intval($matches[2]);
                 $seconds = intval($matches[3]);
                 $total_seconds = $hours * 3600 + $minutes * 60 + $seconds;
-                return vsp_format_duration($total_seconds);
+                $duration = vsp_format_duration($total_seconds);
+                vsp_cache_duration($file_path, $duration);
+                return $duration;
             }
         }
     }
@@ -157,7 +180,9 @@ function vsp_get_video_duration($file_path) {
         
         if ($duration !== null) {
             $total_seconds = floatval($duration);
-            return vsp_format_duration($total_seconds);
+            $formatted_duration = vsp_format_duration($total_seconds);
+            vsp_cache_duration($file_path, $formatted_duration);
+            return $formatted_duration;
         }
     }
 
@@ -262,7 +287,7 @@ function vsp_video_page() {
                 echo '</div>';
             }
             echo '</td>';
-            echo '<td>' . ($file['type'] === 'video' ? esc_html(vsp_get_video_duration($full_path)) : '-') . '</td>';
+            echo '<td>' . ($file['type'] === 'video' ? esc_html(vsp_get_cached_duration($full_path) ?: 'N/A') : '-') . '</td>';
             echo '<td>' . esc_html($formatted_size) . '</td>';
             echo '<td class="vsp-video-actions">';
             echo '<button class="vsp-rename-video" data-video-name="' . esc_attr($file['name']) . '">Rename</button>';
@@ -694,6 +719,108 @@ function vsp_count_videos($path) {
     return $count;
 }
 
+// Function to get all video files recursively
+function vsp_get_all_videos($path) {
+    $videos = [];
+    $files = scandir($path);
+    
+    foreach ($files as $file) {
+        if ($file === '.' || $file === '..') continue;
+        
+        $file_path = $path . '/' . $file;
+        if (is_dir($file_path)) {
+            // Skip the thumbnails directory
+            if ($file !== 'thumbnails') {
+                $videos = array_merge($videos, vsp_get_all_videos($file_path));
+            }
+        } elseif (preg_match('/\.(mp4|m4v|webm|ogg|flv)$/i', $file)) {
+            $videos[] = $file_path;
+        }
+    }
+    
+    return $videos;
+}
+
+// AJAX handler for bulk duration calculation
+function vsp_calculate_durations() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Permission denied.');
+        return;
+    }
+
+    $offset = isset($_POST['offset']) ? intval($_POST['offset']) : 0;
+    $batch_size = 5; // Process 5 videos at a time
+    $videos = vsp_get_all_videos(VIDEO_UPLOAD_DIR);
+    $total = count($videos);
+    $processed = 0;
+    $skipped = 0;
+    
+    for ($i = $offset; $i < min($offset + $batch_size, $total); $i++) {
+        $source_path = $videos[$i];
+        $cached_path = $source_path . '.duration';
+        
+        // Check if duration exists and is up to date
+        if (file_exists($cached_path) && filemtime($cached_path) >= filemtime($source_path)) {
+            $skipped++;
+        } else {
+            vsp_get_video_duration($source_path);
+            $processed++;
+        }
+    }
+    
+    $next_offset = $offset + $batch_size;
+    $is_complete = $next_offset >= $total;
+    
+    wp_send_json_success([
+        'processed' => $processed,
+        'skipped' => $skipped,
+        'total' => $total,
+        'next_offset' => $next_offset,
+        'is_complete' => $is_complete
+    ]);
+}
+add_action('wp_ajax_calculate_durations', 'vsp_calculate_durations');
+
+// Add function to clear duration cache
+function vsp_clear_duration_cache() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Permission denied.');
+        return;
+    }
+
+    $videos = vsp_get_all_videos(VIDEO_UPLOAD_DIR);
+    $cleared = 0;
+    
+    foreach ($videos as $video_path) {
+        $cache_file = $video_path . '.duration';
+        if (file_exists($cache_file)) {
+            if (unlink($cache_file)) {
+                $cleared++;
+            }
+        }
+    }
+    
+    wp_send_json_success([
+        'cleared' => $cleared,
+        'total' => count($videos)
+    ]);
+}
+add_action('wp_ajax_clear_duration_cache', 'vsp_clear_duration_cache');
+
+// Add function to count videos without durations
+function vsp_count_videos_without_duration() {
+    $videos = vsp_get_all_videos(VIDEO_UPLOAD_DIR);
+    $count = 0;
+    
+    foreach ($videos as $video_path) {
+        if (!vsp_get_cached_duration($video_path)) {
+            $count++;
+        }
+    }
+    
+    return $count;
+}
+
 // Settings page HTML
 function vsp_settings_page() {
     $total_size = vsp_get_folder_size(VIDEO_UPLOAD_DIR);
@@ -750,7 +877,7 @@ function vsp_settings_page() {
             </div>
 
             <!-- Thumbnail Generation Card -->
-            <div class="vsp-settings-card vsp-settings-card-full">
+            <div class="vsp-settings-card">
                 <div class="vsp-card-header">
                     <span class="dashicons dashicons-update"></span>
                     <h2>Thumbnail Generation</h2>
@@ -763,6 +890,35 @@ function vsp_settings_page() {
                             <div class="vsp-progress-fill"></div>
                         </div>
                         <p id="vsp-progress-text">Processing: 0/0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Duration Calculation Card -->
+            <div class="vsp-settings-card">
+                <div class="vsp-card-header">
+                    <span class="dashicons dashicons-clock"></span>
+                    <h2>Video Durations</h2>
+                </div>
+                <div class="vsp-card-content">
+                    <?php
+                    $videos_without_duration = vsp_count_videos_without_duration();
+                    if ($videos_without_duration > 0) {
+                        echo '<div class="vsp-notice vsp-notice-warning">';
+                        echo '<p><strong>' . $videos_without_duration . ' video' . ($videos_without_duration === 1 ? '' : 's') . ' missing duration</strong></p>';
+                        echo '</div>';
+                    }
+                    ?>
+                    <p>Calculate durations for all videos in the videos folder.</p>
+                    <div class="vsp-button-group">
+                        <button id="vsp-calculate-durations" class="button button-primary">Calculate All Durations</button>
+                        <button id="vsp-clear-durations" class="button">Clear Duration Cache</button>
+                    </div>
+                    <div id="vsp-duration-progress" style="display: none;">
+                        <div class="vsp-progress-bar">
+                            <div class="vsp-progress-fill"></div>
+                        </div>
+                        <p id="vsp-duration-progress-text">Processing: 0/0</p>
                     </div>
                 </div>
             </div>
@@ -797,69 +953,67 @@ function vsp_settings_page() {
         // Add nonce for AJAX requests
         const vspNonce = '<?php echo wp_create_nonce("vsp_nonce"); ?>';
 
-        var isProcessing = false;
-        var currentOffset = 0;
-        var totalImages = 0;
-        var totalProcessed = 0;
-        var totalSkipped = 0;
-        
-        // Check if there's a process in progress
-        var savedProgress = localStorage.getItem('vsp_thumbnail_progress');
-        if (savedProgress) {
-            var progress = JSON.parse(savedProgress);
+        // Duration calculation
+        var isCalculatingDurations = false;
+        var durationOffset = 0;
+        var totalVideos = 0;
+        var totalProcessedDurations = 0;
+        var totalSkippedDurations = 0;
+
+        // Check if there's a duration calculation in progress
+        var savedDurationProgress = localStorage.getItem('vsp_duration_progress');
+        if (savedDurationProgress) {
+            var progress = JSON.parse(savedDurationProgress);
             if (!progress.is_complete) {
-                if (confirm('There is a thumbnail generation process in progress. Would you like to resume?')) {
-                    currentOffset = progress.next_offset;
-                    totalImages = progress.total;
-                    totalProcessed = progress.processed;
-                    totalSkipped = progress.skipped;
-                    startProcessing();
+                if (confirm('There is a duration calculation process in progress. Would you like to resume?')) {
+                    durationOffset = progress.next_offset;
+                    totalVideos = progress.total;
+                    totalProcessedDurations = progress.processed;
+                    totalSkippedDurations = progress.skipped;
+                    startDurationCalculation();
                 } else {
-                    // Clear saved progress if user doesn't want to resume
-                    localStorage.removeItem('vsp_thumbnail_progress');
+                    localStorage.removeItem('vsp_duration_progress');
                 }
             }
         }
 
-        $('#vsp-generate-thumbnails').on('click', function() {
-            if (!isProcessing) {
-                startProcessing();
+        $('#vsp-calculate-durations').on('click', function() {
+            if (!isCalculatingDurations) {
+                startDurationCalculation();
             }
         });
 
-        function startProcessing() {
-            isProcessing = true;
-            var $button = $('#vsp-generate-thumbnails');
-            var $progressContainer = $('#vsp-progress-container');
-            var $progressBar = $('.vsp-progress-fill');
-            var $progressText = $('#vsp-progress-text');
+        function startDurationCalculation() {
+            isCalculatingDurations = true;
+            var $button = $('#vsp-calculate-durations');
+            var $progressContainer = $('#vsp-duration-progress');
+            var $progressBar = $progressContainer.find('.vsp-progress-fill');
+            var $progressText = $('#vsp-duration-progress-text');
             
-            $button.prop('disabled', true).text('Generating Thumbnails...');
+            $button.prop('disabled', true).text('Calculating Durations...');
             $progressContainer.show();
             
-            // Reset progress values when starting a new process
-            if (!savedProgress) {
-                currentOffset = 0;
-                totalProcessed = 0;
-                totalSkipped = 0;
+            if (!savedDurationProgress) {
+                durationOffset = 0;
+                totalProcessedDurations = 0;
+                totalSkippedDurations = 0;
             }
             
-            // Add beforeunload event listener
             $(window).on('beforeunload', function() {
-                if (isProcessing) {
-                    return 'Thumbnail generation is in progress. Are you sure you want to leave?';
+                if (isCalculatingDurations) {
+                    return 'Duration calculation is in progress. Are you sure you want to leave?';
                 }
             });
             
-            processBatch(currentOffset, totalProcessed, totalSkipped);
+            processDurationBatch(durationOffset, totalProcessedDurations, totalSkippedDurations);
         }
 
-        function processBatch(offset, processed, skipped) {
+        function processDurationBatch(offset, processed, skipped) {
             $.ajax({
                 url: ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'generate_thumbnails',
+                    action: 'calculate_durations',
                     offset: offset,
                     nonce: vspNonce
                 },
@@ -867,54 +1021,84 @@ function vsp_settings_page() {
                     if (response.success) {
                         processed += response.data.processed;
                         skipped += response.data.skipped;
-                        totalImages = response.data.total;
-                        var progress = ((processed + skipped) / totalImages) * 100;
-                        $('.vsp-progress-fill').css('width', progress + '%');
-                        $('#vsp-progress-text').text('Processing: ' + (processed + skipped) + '/' + totalImages + ' (Skipped: ' + skipped + ')');
+                        totalVideos = response.data.total;
+                        var progress = ((processed + skipped) / totalVideos) * 100;
+                        $('#vsp-duration-progress .vsp-progress-fill').css('width', progress + '%');
+                        $('#vsp-duration-progress-text').text('Processing: ' + (processed + skipped) + '/' + totalVideos + ' (Skipped: ' + skipped + ')');
                         
-                        // Save progress
-                        localStorage.setItem('vsp_thumbnail_progress', JSON.stringify({
+                        localStorage.setItem('vsp_duration_progress', JSON.stringify({
                             processed: processed,
                             skipped: skipped,
-                            total: totalImages,
+                            total: totalVideos,
                             next_offset: response.data.next_offset,
                             is_complete: response.data.is_complete
                         }));
                         
                         if (!response.data.is_complete) {
-                            processBatch(response.data.next_offset, processed, skipped);
+                            processDurationBatch(response.data.next_offset, processed, skipped);
                         } else {
-                            completeProcess();
+                            completeDurationCalculation();
                         }
                     }
                 },
                 error: function() {
-                    alert('An error occurred while generating thumbnails. The process will resume from where it left off when you refresh the page.');
+                    alert('An error occurred while calculating durations. The process will resume from where it left off when you refresh the page.');
                 }
             });
         }
 
-        function completeProcess() {
-            isProcessing = false;
-            localStorage.removeItem('vsp_thumbnail_progress');
-            $('#vsp-generate-thumbnails').prop('disabled', false).text('Generate All Thumbnails');
+        function completeDurationCalculation() {
+            isCalculatingDurations = false;
+            localStorage.removeItem('vsp_duration_progress');
+            $('#vsp-calculate-durations').prop('disabled', false).text('Calculate All Durations');
             setTimeout(function() {
                 location.reload();
             }, 1000);
         }
 
-        // Add cancel button
-        if (!$('#vsp-cancel-thumbnails').length) {
-            $('#vsp-generate-thumbnails').after(' <button id="vsp-cancel-thumbnails" class="button" style="display: none;">Cancel</button>');
+        // Add cancel button for duration calculation
+        if (!$('#vsp-cancel-durations').length) {
+            $('#vsp-calculate-durations').after(' <button id="vsp-cancel-durations" class="button" style="display: none;">Cancel</button>');
         }
 
-        $('#vsp-cancel-thumbnails').on('click', function() {
-            if (confirm('Are you sure you want to cancel the thumbnail generation process?')) {
-                isProcessing = false;
-                localStorage.removeItem('vsp_thumbnail_progress');
-                $('#vsp-generate-thumbnails').prop('disabled', false).text('Generate All Thumbnails');
-                $('#vsp-cancel-thumbnails').hide();
-                $('#vsp-progress-container').hide();
+        $('#vsp-cancel-durations').on('click', function() {
+            if (confirm('Are you sure you want to cancel the duration calculation process?')) {
+                isCalculatingDurations = false;
+                localStorage.removeItem('vsp_duration_progress');
+                $('#vsp-calculate-durations').prop('disabled', false).text('Calculate All Durations');
+                $('#vsp-cancel-durations').hide();
+                $('#vsp-duration-progress').hide();
+            }
+        });
+
+        // Clear duration cache
+        $('#vsp-clear-durations').on('click', function() {
+            if (confirm('Are you sure you want to clear all cached durations? This will require recalculating durations for all videos.')) {
+                var $button = $(this);
+                $button.prop('disabled', true).text('Clearing Cache...');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'clear_duration_cache',
+                        nonce: vspNonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Successfully cleared ' + response.data.cleared + ' cached durations.');
+                            location.reload();
+                        } else {
+                            alert('Error clearing duration cache: ' + response.data);
+                        }
+                    },
+                    error: function() {
+                        alert('Error clearing duration cache. Please try again.');
+                    },
+                    complete: function() {
+                        $button.prop('disabled', false).text('Clear Duration Cache');
+                    }
+                });
             }
         });
 

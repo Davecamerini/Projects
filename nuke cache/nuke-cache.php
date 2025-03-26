@@ -8,9 +8,9 @@
  * Requires PHP: 7.2
  * Author: Davecamerini
  * Author URI: https://www.davecamerini.it
- * License: MIT
- * License URI: https://opensource.org/licenses/MIT
- * Text Domain: nuke-cache
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: nuke cache
  * Domain Path: /languages
  */
 
@@ -136,7 +136,7 @@ function nuke_cache_admin_styles($hook) {
 }
 
 function cache_folder_scanner_menu() {
-    $icon_url = plugins_url('Mon white trasp.png', __FILE__);
+    $icon_url = plugins_url('Mon.png', __FILE__);
     add_menu_page('Nuke Cache', 'Cache Nuker', 'manage_options', 'cache-folder-scanner', 'cache_folder_scanner_page', $icon_url, 30);
 }
 
@@ -152,27 +152,27 @@ function cache_folder_scanner_page() {
     // Handle form submissions with nonce verification
     if (isset($_POST['empty_cache']) && isset($_POST['nuke_cache_nonce']) && wp_verify_nonce($_POST['nuke_cache_nonce'], 'empty_cache_action')) {
         delete_folder($cache_dir);
-        echo '<div class="updated"><p>' . esc_html__('Cache folder emptied.', 'nuke-cache') . '</p></div>';
+        echo '<div class="updated"><p>' . esc_html__('Cache folder emptied.', 'nuke cache') . '</p></div>';
         // Refresh the cache size after deletion
         $cache_size = is_dir($cache_dir) ? folder_size($cache_dir) : 0;
     }
 
     if (isset($_POST['empty_et_cache']) && isset($_POST['nuke_cache_nonce']) && wp_verify_nonce($_POST['nuke_cache_nonce'], 'empty_et_cache_action')) {
         delete_folder($et_cache_dir);
-        echo '<div class="updated"><p>' . esc_html__('Et-cache folder emptied.', 'nuke-cache') . '</p></div>';
+        echo '<div class="updated"><p>' . esc_html__('Et-cache folder emptied.', 'nuke cache') . '</p></div>';
         // Refresh the et-cache size after deletion
         $et_cache_size = is_dir($et_cache_dir) ? folder_size($et_cache_dir) : 0;
     }
     ?>
     <div class="wrap nuke-cache-container">
-        <h1><?php echo esc_html__('Cache Nuker', 'nuke-cache'); ?></h1>
+        <h1><?php echo esc_html__('Cache Nuker', 'nuke cache'); ?></h1>
         
         <div class="nuke-cache-grid">
             <!-- WordPress Cache Card -->
             <div class="nuke-cache-card">
                 <div class="nuke-card-header">
                     <span class="dashicons dashicons-performance"></span>
-                    <h2><?php echo esc_html__('WordPress Cache', 'nuke-cache'); ?></h2>
+                    <h2><?php echo esc_html__('WordPress Cache', 'nuke cache'); ?></h2>
                 </div>
                 <div class="nuke-card-content">
                     <?php if ($cache_size > 0): ?>
@@ -180,22 +180,22 @@ function cache_folder_scanner_page() {
                             <?php echo esc_html(size_format($cache_size)); ?>
                         </div>
                         <div class="nuke-cache-label">
-                            <?php echo esc_html__('Total Cache Size', 'nuke-cache'); ?>
+                            <?php echo esc_html__('Total Cache Size', 'nuke cache'); ?>
                         </div>
                         <div class="nuke-cache-status found">
-                            <?php echo esc_html__('Cache folder found and ready to be cleared.', 'nuke-cache'); ?>
+                            <?php echo esc_html__('Cache folder found and ready to be cleared.', 'nuke cache'); ?>
                         </div>
                         <form method="post">
                             <?php wp_nonce_field('empty_cache_action', 'nuke_cache_nonce'); ?>
-                            <input type="submit" name="empty_cache" class="button button-primary" value="<?php echo esc_attr__('Empty Cache Folder', 'nuke-cache'); ?>" />
+                            <input type="submit" name="empty_cache" class="button button-primary" value="<?php echo esc_attr__('Empty Cache Folder', 'nuke cache'); ?>" />
                         </form>
                     <?php else: ?>
                         <div class="nuke-cache-size">0 MB</div>
                         <div class="nuke-cache-label">
-                            <?php echo esc_html__('Total Cache Size', 'nuke-cache'); ?>
+                            <?php echo esc_html__('Total Cache Size', 'nuke cache'); ?>
                         </div>
                         <div class="nuke-cache-status empty">
-                            <?php echo esc_html__('No Cache folder found.', 'nuke-cache'); ?>
+                            <?php echo esc_html__('No Cache folder found.', 'nuke cache'); ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -205,7 +205,7 @@ function cache_folder_scanner_page() {
             <div class="nuke-cache-card">
                 <div class="nuke-card-header">
                     <span class="dashicons dashicons-layout"></span>
-                    <h2><?php echo esc_html__('Divi Cache', 'nuke-cache'); ?></h2>
+                    <h2><?php echo esc_html__('Divi Cache', 'nuke cache'); ?></h2>
                 </div>
                 <div class="nuke-card-content">
                     <?php if ($et_cache_size > 0): ?>
@@ -213,22 +213,22 @@ function cache_folder_scanner_page() {
                             <?php echo esc_html(size_format($et_cache_size)); ?>
                         </div>
                         <div class="nuke-cache-label">
-                            <?php echo esc_html__('Total Cache Size', 'nuke-cache'); ?>
+                            <?php echo esc_html__('Total Cache Size', 'nuke cache'); ?>
                         </div>
                         <div class="nuke-cache-status found">
-                            <?php echo esc_html__('Divi cache folder found and ready to be cleared.', 'nuke-cache'); ?>
+                            <?php echo esc_html__('Divi cache folder found and ready to be cleared.', 'nuke cache'); ?>
                         </div>
                         <form method="post">
                             <?php wp_nonce_field('empty_et_cache_action', 'nuke_cache_nonce'); ?>
-                            <input type="submit" name="empty_et_cache" class="button button-primary" value="<?php echo esc_attr__('Empty Et-cache Folder', 'nuke-cache'); ?>" />
+                            <input type="submit" name="empty_et_cache" class="button button-primary" value="<?php echo esc_attr__('Empty Et-cache Folder', 'nuke cache'); ?>" />
                         </form>
                     <?php else: ?>
                         <div class="nuke-cache-size">0 MB</div>
                         <div class="nuke-cache-label">
-                            <?php echo esc_html__('Total Cache Size', 'nuke-cache'); ?>
+                            <?php echo esc_html__('Total Cache Size', 'nuke cache'); ?>
                         </div>
                         <div class="nuke-cache-status empty">
-                            <?php echo esc_html__('No Divi cache folder found.', 'nuke-cache'); ?>
+                            <?php echo esc_html__('No Divi cache folder found.', 'nuke cache'); ?>
                         </div>
                     <?php endif; ?>
                 </div>
