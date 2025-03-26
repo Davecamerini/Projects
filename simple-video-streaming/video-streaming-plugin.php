@@ -31,7 +31,7 @@ function vsp_get_folder_structure($base_dir, $current_dir = '') {
     
     // First, collect all folders
     foreach ($items as $item) {
-        if ($item !== '.' && $item !== '..' && $item !== 'thumbnails') {
+        if ($item !== '.' && $item !== '..' && $item !== 'thumbnails' && $item !== 'duration') {
             $item_path = $full_path . '/' . $item;
             if (is_dir($item_path)) {
                 $folders[] = $item;
@@ -128,8 +128,12 @@ function vsp_format_duration($seconds) {
 
 // Function to get cached duration
 function vsp_get_cached_duration($file_path) {
-    $cache_file = $file_path . '.duration';
-    if (file_exists($cache_file) && filemtime($cache_file) >= filemtime($file_path)) {
+    $duration_dir = dirname($file_path) . '/duration';
+    if (!file_exists($duration_dir)) {
+        mkdir($duration_dir, 0755, true);
+    }
+    $cache_file = $duration_dir . '/' . basename($file_path) . '.duration';
+    if (file_exists($cache_file)) {
         return file_get_contents($cache_file);
     }
     return false;
@@ -137,7 +141,11 @@ function vsp_get_cached_duration($file_path) {
 
 // Function to cache duration
 function vsp_cache_duration($file_path, $duration) {
-    $cache_file = $file_path . '.duration';
+    $duration_dir = dirname($file_path) . '/duration';
+    if (!file_exists($duration_dir)) {
+        mkdir($duration_dir, 0755, true);
+    }
+    $cache_file = $duration_dir . '/' . basename($file_path) . '.duration';
     file_put_contents($cache_file, $duration);
 }
 
@@ -372,6 +380,23 @@ function vsp_rename_video() {
 
     if (file_exists($old_full_path)) {
         if (rename($old_full_path, $new_full_path)) {
+            // Handle duration file
+            $old_duration_dir = dirname($old_full_path) . '/duration';
+            $new_duration_dir = dirname($new_full_path) . '/duration';
+            
+            // Create duration directory if it doesn't exist
+            if (!file_exists($new_duration_dir)) {
+                mkdir($new_duration_dir, 0755, true);
+            }
+            
+            // Move duration file if it exists
+            $old_duration_file = $old_duration_dir . '/' . $old_name . '.duration';
+            $new_duration_file = $new_duration_dir . '/' . $new_name . '.duration';
+            
+            if (file_exists($old_duration_file)) {
+                rename($old_duration_file, $new_duration_file);
+            }
+            
             wp_send_json_success('Video renamed successfully.');
         } else {
             wp_send_json_error('Error renaming video.');
@@ -783,19 +808,23 @@ add_action('wp_ajax_calculate_durations', 'vsp_calculate_durations');
 
 // Add function to clear duration cache
 function vsp_clear_duration_cache() {
+    check_ajax_referer('vsp_nonce', 'nonce');
+    
     if (!current_user_can('manage_options')) {
-        wp_send_json_error('Permission denied.');
-        return;
+        wp_send_json_error('Unauthorized');
     }
-
+    
     $videos = vsp_get_all_videos(VIDEO_UPLOAD_DIR);
     $cleared = 0;
     
     foreach ($videos as $video_path) {
-        $cache_file = $video_path . '.duration';
-        if (file_exists($cache_file)) {
-            if (unlink($cache_file)) {
-                $cleared++;
+        $duration_dir = dirname($video_path) . '/duration';
+        if (file_exists($duration_dir)) {
+            $duration_file = $duration_dir . '/' . basename($video_path) . '.duration';
+            if (file_exists($duration_file)) {
+                if (unlink($duration_file)) {
+                    $cleared++;
+                }
             }
         }
     }
