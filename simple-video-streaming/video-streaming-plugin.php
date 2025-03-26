@@ -117,6 +117,53 @@ function vsp_get_cached_thumbnail_path($source_path) {
     return $thumb_dir . '/' . $hash . '.' . $ext;
 }
 
+// Function to convert seconds to HH:MM:SS format
+function vsp_format_duration($seconds) {
+    $hours = floor($seconds / 3600);
+    $minutes = floor(($seconds % 3600) / 60);
+    $seconds = floor($seconds % 60);
+    
+    return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+}
+
+// Function to get video duration
+function vsp_get_video_duration($file_path) {
+    // Check if FFmpeg is available
+    if (!function_exists('exec')) {
+        return 'N/A';
+    }
+
+    // Try to get duration using FFmpeg
+    $command = "ffmpeg -i " . escapeshellarg($file_path) . " 2>&1";
+    exec($command, $output, $return_var);
+
+    if ($return_var === 0 && !empty($output)) {
+        // Look for duration in the output
+        foreach ($output as $line) {
+            if (preg_match('/Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})/', $line, $matches)) {
+                $hours = intval($matches[1]);
+                $minutes = intval($matches[2]);
+                $seconds = intval($matches[3]);
+                $total_seconds = $hours * 3600 + $minutes * 60 + $seconds;
+                return vsp_format_duration($total_seconds);
+            }
+        }
+    }
+
+    // If FFmpeg failed or couldn't find duration, try alternative method
+    if (function_exists('shell_exec')) {
+        $command = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 " . escapeshellarg($file_path);
+        $duration = shell_exec($command);
+        
+        if ($duration !== null) {
+            $total_seconds = floatval($duration);
+            return vsp_format_duration($total_seconds);
+        }
+    }
+
+    return 'N/A';
+}
+
 // Create a shortcode to display the video upload form and list
 function vsp_video_page() {
     ob_start();
@@ -182,7 +229,8 @@ function vsp_video_page() {
         echo '<thead>';
         echo '<tr>';
         echo '<th onclick="sortTable(0)">Name <span class="sort-icon">↕</span></th>';
-        echo '<th onclick="sortTable(1)">Size <span class="sort-icon">↕</span></th>';
+        echo '<th onclick="sortTable(1)">Duration <span class="sort-icon">↕</span></th>';
+        echo '<th onclick="sortTable(2)">Size <span class="sort-icon">↕</span></th>';
         echo '<th>Actions</th>';
         echo '</tr>';
         echo '</thead>';
@@ -214,6 +262,7 @@ function vsp_video_page() {
                 echo '</div>';
             }
             echo '</td>';
+            echo '<td>' . ($file['type'] === 'video' ? esc_html(vsp_get_video_duration($full_path)) : '-') . '</td>';
             echo '<td>' . esc_html($formatted_size) . '</td>';
             echo '<td class="vsp-video-actions">';
             echo '<button class="vsp-rename-video" data-video-name="' . esc_attr($file['name']) . '">Rename</button>';
@@ -357,6 +406,18 @@ function vsp_sorting_script() {
             return 0; // Default to 0 if no match
         }
 
+        function convertToSeconds(duration) {
+            if (duration === 'N/A') return 0;
+            const parts = duration.split(':');
+            if (parts.length === 3) {
+                const hours = parseInt(parts[0]);
+                const minutes = parseInt(parts[1]);
+                const seconds = parseInt(parts[2]);
+                return hours * 3600 + minutes * 60 + seconds;
+            }
+            return 0;
+        }
+
         function sortTable(columnIndex) {
             const table = document.querySelector('.vsp-video-table tbody');
             const rows = Array.from(table.rows);
@@ -367,10 +428,13 @@ function vsp_sorting_script() {
                 const aText = a.cells[columnIndex].innerText;
                 const bText = b.cells[columnIndex].innerText;
 
-                if (columnIndex === 0) { // Video column
-                    // Custom comparison for video names
+                if (columnIndex === 0) { // Name column
                     return aText.localeCompare(bText, undefined, { numeric: true, sensitivity: 'base' }) * direction;
-                } else if (columnIndex === 1) { // Size column
+                } else if (columnIndex === 1) { // Duration column
+                    const aSeconds = convertToSeconds(aText);
+                    const bSeconds = convertToSeconds(bText);
+                    return (aSeconds - bSeconds) * direction;
+                } else if (columnIndex === 2) { // Size column
                     const aSizeInBytes = convertToBytes(aText);
                     const bSizeInBytes = convertToBytes(bText);
                     return (aSizeInBytes - bSizeInBytes) * direction;
