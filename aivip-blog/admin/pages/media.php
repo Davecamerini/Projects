@@ -56,6 +56,12 @@ $db->closeConnection();
         </button>
     </div>
 
+    <!-- Image Overlay -->
+    <div id="imageOverlay" class="image-overlay">
+        <span class="close-overlay">&times;</span>
+        <img id="overlayImage" class="overlay-content">
+    </div>
+
     <!-- Media Grid -->
     <div class="card">
         <div class="card-body">
@@ -64,9 +70,10 @@ $db->closeConnection();
                 <div class="col-md-3">
                     <div class="card h-100">
                         <img src="<?php echo htmlspecialchars(getImagePath($item['path'])); ?>" 
-                             class="card-img-top" 
+                             class="card-img-top media-image" 
                              alt="<?php echo htmlspecialchars($item['filename']); ?>"
-                             style="height: 200px; object-fit: cover;">
+                             data-full-src="<?php echo htmlspecialchars(getImagePath($item['path'])); ?>"
+                             style="height: 200px; object-fit: cover; cursor: pointer;">
                         <div class="card-body">
                             <h6 class="card-title text-truncate"><?php echo htmlspecialchars($item['filename']); ?></h6>
                             <p class="card-text small text-muted">
@@ -152,6 +159,50 @@ $db->closeConnection();
     </div>
 </div>
 
+<style>
+.image-overlay {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    overflow: auto;
+}
+
+.overlay-content {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 90vh;
+    margin-top: 5vh;
+}
+
+.close-overlay {
+    position: absolute;
+    right: 35px;
+    top: 15px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-overlay:hover {
+    color: #bbb;
+}
+
+.media-image {
+    transition: transform 0.2s;
+}
+
+.media-image:hover {
+    transform: scale(1.05);
+}
+</style>
+
 <script>
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
@@ -160,4 +211,39 @@ function copyToClipboard(text) {
         console.error('Failed to copy URL:', err);
     });
 }
+
+// Image overlay functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('imageOverlay');
+    const overlayImg = document.getElementById('overlayImage');
+    const closeBtn = document.querySelector('.close-overlay');
+    const mediaImages = document.querySelectorAll('.media-image');
+
+    // Open overlay when clicking on an image
+    mediaImages.forEach(img => {
+        img.addEventListener('click', function() {
+            overlay.style.display = 'block';
+            overlayImg.src = this.getAttribute('data-full-src');
+        });
+    });
+
+    // Close overlay when clicking the close button
+    closeBtn.addEventListener('click', function() {
+        overlay.style.display = 'none';
+    });
+
+    // Close overlay when clicking outside the image
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            overlay.style.display = 'none';
+        }
+    });
+
+    // Close overlay with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && overlay.style.display === 'block') {
+            overlay.style.display = 'none';
+        }
+    });
+});
 </script> 

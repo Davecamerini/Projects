@@ -1,9 +1,9 @@
 <?php
 class Database {
-    private $host = "db27.webme.it";
-    private $db_name = "sitidi_684";
-    private $username = "sitidi_684";
-    private $password = "b4G6ywDZ";
+    private $host = "HOSTNAME HERE";
+    private $db_name = "DB NAME HERE";
+    private $username = "DB USER HERE";
+    private $password = "DB PSW HERE";
     private $conn;
 
     public function getConnection() {
