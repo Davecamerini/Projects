@@ -143,6 +143,7 @@ ON DUPLICATE KEY UPDATE id = id;
 
 -- Insert default categories
 INSERT INTO categories (name, slug, description) VALUES
+('Uncategorized', 'uncategorized', 'Default category for posts without a specific category'),
 ('Technology', 'technology', 'Technology related posts'),
 ('Lifestyle', 'lifestyle', 'Lifestyle related posts'),
 ('Travel', 'travel', 'Travel related posts')

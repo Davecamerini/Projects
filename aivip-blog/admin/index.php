@@ -106,6 +106,12 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                                 Categories
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="?page=subscribers" class="nav-link <?php echo $current_page === 'subscribers' ? 'active' : ''; ?>">
+                                <i class="bi bi-envelope me-2"></i>
+                                Subscribers
+                            </a>
+                        </li>
                         <?php endif; ?>
                         <li class="nav-item">
                             <a href="?page=media" class="nav-link <?php echo $current_page === 'media' ? 'active' : ''; ?>">
@@ -156,6 +162,11 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                     case 'categories':
                         if ($_SESSION['role'] === 'admin') {
                             include 'pages/categories.php';
+                        }
+                        break;
+                    case 'subscribers':
+                        if ($_SESSION['role'] === 'admin') {
+                            include 'pages/subscribers.php';
                         }
                         break;
                     default:

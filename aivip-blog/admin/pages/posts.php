@@ -151,14 +151,14 @@ $db->closeConnection();
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover" id="postsTable">
                     <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Categories</th>
-                            <th>Status</th>
-                            <th>Created</th>
+                            <th class="sortable" data-sort="title">Title <i class="bi bi-arrow-down-up"></i></th>
+                            <th class="sortable" data-sort="author_name">Author <i class="bi bi-arrow-down-up"></i></th>
+                            <th class="sortable" data-sort="categories">Categories <i class="bi bi-arrow-down-up"></i></th>
+                            <th class="sortable" data-sort="status">Status <i class="bi bi-arrow-down-up"></i></th>
+                            <th class="sortable" data-sort="created_at">Created <i class="bi bi-arrow-down-up"></i></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -456,6 +456,30 @@ foreach ($allCategories as $cat) {
 .btn-outline-warning {
     color: #ffc107;
 }
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
+.sortable:hover {
+    background-color: rgba(0,0,0,.05);
+}
+
+.sortable i {
+    margin-left: 5px;
+    opacity: 0.3;
+}
+
+.sortable.asc i {
+    opacity: 1;
+}
+
+.sortable.desc i {
+    opacity: 1;
+    transform: rotate(180deg);
+}
 </style>
 
 <script>
@@ -544,6 +568,81 @@ function changePostStatus(postId, newStatus) {
         alert('Error updating status: ' + error.message);
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to sort table
+    function sortTable(table, column, type = 'text') {
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const direction = table.dataset.sortDirection === 'asc' ? -1 : 1;
+        
+        rows.sort((a, b) => {
+            let aValue = a.cells[column].textContent.trim();
+            let bValue = b.cells[column].textContent.trim();
+            
+            // Special handling for title column (includes meta title)
+            if (column === 0) {
+                aValue = a.querySelector('.fw-bold').textContent.trim();
+                bValue = b.querySelector('.fw-bold').textContent.trim();
+            }
+            
+            // Special handling for categories column
+            if (column === 2) {
+                aValue = aValue.replace(/\+(\d+) more/, '').trim();
+                bValue = bValue.replace(/\+(\d+) more/, '').trim();
+            }
+            
+            // Special handling for status column
+            if (column === 3) {
+                aValue = a.querySelector('.btn').textContent.trim();
+                bValue = b.querySelector('.btn').textContent.trim();
+            }
+            
+            if (type === 'number') {
+                aValue = parseInt(aValue);
+                bValue = parseInt(bValue);
+            } else if (type === 'date') {
+                aValue = new Date(aValue);
+                bValue = new Date(bValue);
+            }
+            
+            if (aValue < bValue) return -1 * direction;
+            if (aValue > bValue) return 1 * direction;
+            return 0;
+        });
+        
+        // Clear and re-append sorted rows
+        tbody.innerHTML = '';
+        rows.forEach(row => tbody.appendChild(row));
+        
+        // Update sort direction
+        table.dataset.sortDirection = direction === 1 ? 'asc' : 'desc';
+    }
+    
+    // Add click handlers to all sortable tables
+    document.querySelectorAll('table').forEach(table => {
+        const headers = table.querySelectorAll('th.sortable');
+        
+        headers.forEach((header, index) => {
+            header.addEventListener('click', () => {
+                // Remove sort classes from all headers
+                headers.forEach(h => {
+                    h.classList.remove('asc', 'desc');
+                });
+                
+                // Add sort class to clicked header
+                header.classList.add(table.dataset.sortDirection === 'asc' ? 'asc' : 'desc');
+                
+                // Determine column type
+                let type = 'text';
+                if (header.dataset.sort === 'created_at') type = 'date';
+                
+                // Sort the table
+                sortTable(table, index, type);
+            });
+        });
+    });
+});
 </script>
 
 <?php

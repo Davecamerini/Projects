@@ -58,7 +58,17 @@ try {
 
         $postId = $conn->insert_id;
 
-        // Insert categories if any
+        // Get the Uncategorized category ID
+        $stmt = $conn->prepare("SELECT id FROM categories WHERE slug = 'uncategorized'");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $uncategorizedCategory = $result->fetch_assoc();
+        
+        if (!$uncategorizedCategory) {
+            throw new Exception('Uncategorized category not found');
+        }
+
+        // Insert categories if any, otherwise use Uncategorized
         if (!empty($categories)) {
             $stmt = $conn->prepare("INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)");
             foreach ($categories as $categoryId) {
@@ -66,6 +76,13 @@ try {
                 if (!$stmt->execute()) {
                     throw new Exception('Failed to add categories');
                 }
+            }
+        } else {
+            // Assign to Uncategorized if no categories specified
+            $stmt = $conn->prepare("INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)");
+            $stmt->bind_param("ii", $postId, $uncategorizedCategory['id']);
+            if (!$stmt->execute()) {
+                throw new Exception('Failed to add Uncategorized category');
             }
         }
         

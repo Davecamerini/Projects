@@ -171,7 +171,7 @@ if ($isEditing) {
                     <select class="form-select" id="status" name="status">
                         <option value="draft" <?php echo $isEditing && $post['status'] === 'draft' ? 'selected' : ''; ?>>Draft</option>
                         <option value="published" <?php echo $isEditing && $post['status'] === 'published' ? 'selected' : ''; ?>>Published</option>
-                        <option value="private" <?php echo $isEditing && $post['status'] === 'private' ? 'selected' : ''; ?>>Private</option>
+                        <option value="archived" <?php echo $isEditing && $post['status'] === 'archived' ? 'selected' : ''; ?>>Archived</option>
                     </select>
                 </div>
 
