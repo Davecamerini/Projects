@@ -7,6 +7,19 @@ $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 $category = isset($_GET['category']) ? $_GET['category'] : '';
+$sort_column = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
+$sort_direction = isset($_GET['direction']) ? $_GET['direction'] : 'desc';
+
+// Validate sort column
+$allowed_columns = ['id', 'title', 'author_name', 'status', 'created_at'];
+if (!in_array($sort_column, $allowed_columns)) {
+    $sort_column = 'created_at';
+}
+
+// Validate sort direction
+if (!in_array($sort_direction, ['asc', 'desc'])) {
+    $sort_direction = 'desc';
+}
 
 // Database connection
 $db = new Database();
@@ -74,9 +87,9 @@ $countStmt->execute();
 $totalResult = $countStmt->get_result()->fetch_assoc();
 $total = $totalResult['total'];
 
-// Add pagination
+// Add pagination and sorting
 $offset = ($page - 1) * $limit;
-$query .= " GROUP BY p.id ORDER BY p.created_at DESC LIMIT ? OFFSET ?";
+$query .= " GROUP BY p.id ORDER BY $sort_column $sort_direction LIMIT ? OFFSET ?";
 $params[] = $limit;
 $params[] = $offset;
 $types .= "ii";
@@ -151,20 +164,47 @@ $db->closeConnection();
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover" id="postsTable">
+                <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th class="sortable" data-sort="title">Title <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="author_name">Author <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="categories">Categories <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="status">Status <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="created_at">Created <i class="bi bi-arrow-down-up"></i></th>
+                            <th class="sortable" data-column="id">
+                                ID
+                                <?php if ($sort_column === 'id'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="title">
+                                Title
+                                <?php if ($sort_column === 'title'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="author_name">
+                                Author
+                                <?php if ($sort_column === 'author_name'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th>Categories</th>
+                            <th class="sortable" data-column="status">
+                                Status
+                                <?php if ($sort_column === 'status'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="created_at">
+                                Created
+                                <?php if ($sort_column === 'created_at'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php while ($post = $posts->fetch_assoc()): ?>
                         <tr data-post-id="<?php echo $post['id']; ?>" data-content="<?php echo htmlspecialchars($post['content']); ?>">
+                            <td><?php echo htmlspecialchars($post['id']); ?></td>
                             <td>
                                 <div class="fw-bold"><?php echo htmlspecialchars($post['title']); ?></div>
                                 <div class="small text-muted"><?php echo htmlspecialchars($post['meta_title']); ?></div>
@@ -302,6 +342,25 @@ $db->closeConnection();
     position: relative;
     z-index: 1;
     overflow: visible;
+}
+
+/* Add hover effect for sortable columns */
+.sortable {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sortable i {
+    margin-left: 4px;
+    opacity: 0.5;
+}
+
+.sortable:hover i {
+    opacity: 1;
 }
 
 .card-body {
@@ -456,30 +515,6 @@ foreach ($allCategories as $cat) {
 .btn-outline-warning {
     color: #ffc107;
 }
-
-.sortable {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-}
-
-.sortable:hover {
-    background-color: rgba(0,0,0,.05);
-}
-
-.sortable i {
-    margin-left: 5px;
-    opacity: 0.3;
-}
-
-.sortable.asc i {
-    opacity: 1;
-}
-
-.sortable.desc i {
-    opacity: 1;
-    transform: rotate(180deg);
-}
 </style>
 
 <script>
@@ -488,6 +523,21 @@ document.addEventListener('DOMContentLoaded', function() {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Add click handlers for sortable columns
+    document.querySelectorAll('.sortable').forEach(function(header) {
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', function() {
+            const column = this.getAttribute('data-column');
+            const currentDirection = new URLSearchParams(window.location.search).get('direction') || 'desc';
+            const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('sort', column);
+            urlParams.set('direction', newDirection);
+            window.location.search = urlParams.toString();
+        });
     });
 });
 
@@ -568,81 +618,6 @@ function changePostStatus(postId, newStatus) {
         alert('Error updating status: ' + error.message);
     });
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Function to sort table
-    function sortTable(table, column, type = 'text') {
-        const tbody = table.querySelector('tbody');
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        const direction = table.dataset.sortDirection === 'asc' ? -1 : 1;
-        
-        rows.sort((a, b) => {
-            let aValue = a.cells[column].textContent.trim();
-            let bValue = b.cells[column].textContent.trim();
-            
-            // Special handling for title column (includes meta title)
-            if (column === 0) {
-                aValue = a.querySelector('.fw-bold').textContent.trim();
-                bValue = b.querySelector('.fw-bold').textContent.trim();
-            }
-            
-            // Special handling for categories column
-            if (column === 2) {
-                aValue = aValue.replace(/\+(\d+) more/, '').trim();
-                bValue = bValue.replace(/\+(\d+) more/, '').trim();
-            }
-            
-            // Special handling for status column
-            if (column === 3) {
-                aValue = a.querySelector('.btn').textContent.trim();
-                bValue = b.querySelector('.btn').textContent.trim();
-            }
-            
-            if (type === 'number') {
-                aValue = parseInt(aValue);
-                bValue = parseInt(bValue);
-            } else if (type === 'date') {
-                aValue = new Date(aValue);
-                bValue = new Date(bValue);
-            }
-            
-            if (aValue < bValue) return -1 * direction;
-            if (aValue > bValue) return 1 * direction;
-            return 0;
-        });
-        
-        // Clear and re-append sorted rows
-        tbody.innerHTML = '';
-        rows.forEach(row => tbody.appendChild(row));
-        
-        // Update sort direction
-        table.dataset.sortDirection = direction === 1 ? 'asc' : 'desc';
-    }
-    
-    // Add click handlers to all sortable tables
-    document.querySelectorAll('table').forEach(table => {
-        const headers = table.querySelectorAll('th.sortable');
-        
-        headers.forEach((header, index) => {
-            header.addEventListener('click', () => {
-                // Remove sort classes from all headers
-                headers.forEach(h => {
-                    h.classList.remove('asc', 'desc');
-                });
-                
-                // Add sort class to clicked header
-                header.classList.add(table.dataset.sortDirection === 'asc' ? 'asc' : 'desc');
-                
-                // Determine column type
-                let type = 'text';
-                if (header.dataset.sort === 'created_at') type = 'date';
-                
-                // Sort the table
-                sortTable(table, index, type);
-            });
-        });
-    });
-});
 </script>
 
 <?php

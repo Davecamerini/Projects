@@ -6,16 +6,100 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 
 require_once '../config/database.php';
+
+// Get query parameters
+$page = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
+$limit = 10;
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$sort_column = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
+$sort_direction = isset($_GET['direction']) ? $_GET['direction'] : 'desc';
+
+// Validate sort column
+$allowed_columns = ['id', 'nome_cognome', 'email', 'created_at'];
+if (!in_array($sort_column, $allowed_columns)) {
+    $sort_column = 'created_at';
+}
+
+// Validate sort direction
+if (!in_array($sort_direction, ['asc', 'desc'])) {
+    $sort_direction = 'desc';
+}
+
 $db = new Database();
 $conn = $db->getConnection();
 
+// Build query for contact form submissions
+$contactQuery = "SELECT * FROM contact_form WHERE 1=1";
+$contactCountQuery = "SELECT COUNT(*) as total FROM contact_form WHERE 1=1";
+$contactParams = [];
+$contactTypes = "";
+
+// Add search filter for contact form
+if ($search) {
+    $searchTerm = "%$search%";
+    $contactQuery .= " AND (nome_cognome LIKE ? OR email LIKE ? OR ragione_sociale LIKE ?)";
+    $contactCountQuery .= " AND (nome_cognome LIKE ? OR email LIKE ? OR ragione_sociale LIKE ?)";
+    $contactParams = array_merge($contactParams, [$searchTerm, $searchTerm, $searchTerm]);
+    $contactTypes .= "sss";
+}
+
+// Get total count for contact form
+$countStmt = $conn->prepare($contactCountQuery);
+if (!empty($contactParams)) {
+    $countStmt->bind_param($contactTypes, ...$contactParams);
+}
+$countStmt->execute();
+$contactTotal = $countStmt->get_result()->fetch_assoc()['total'];
+
+// Add pagination and sorting for contact form
+$offset = ($page - 1) * $limit;
+$contactQuery .= " ORDER BY $sort_column $sort_direction LIMIT ? OFFSET ?";
+$contactParams[] = $limit;
+$contactParams[] = $offset;
+$contactTypes .= "ii";
+
 // Get contact form submissions
-$stmt = $conn->prepare("SELECT * FROM contact_form ORDER BY created_at DESC");
+$stmt = $conn->prepare($contactQuery);
+if (!empty($contactParams)) {
+    $stmt->bind_param($contactTypes, ...$contactParams);
+}
 $stmt->execute();
 $contactSubmissions = $stmt->get_result();
 
+// Build query for newsletter subscribers
+$newsletterQuery = "SELECT * FROM newsletter WHERE 1=1";
+$newsletterCountQuery = "SELECT COUNT(*) as total FROM newsletter WHERE 1=1";
+$newsletterParams = [];
+$newsletterTypes = "";
+
+// Add search filter for newsletter
+if ($search) {
+    $searchTerm = "%$search%";
+    $newsletterQuery .= " AND (nome_cognome LIKE ? OR email LIKE ?)";
+    $newsletterCountQuery .= " AND (nome_cognome LIKE ? OR email LIKE ?)";
+    $newsletterParams = array_merge($newsletterParams, [$searchTerm, $searchTerm]);
+    $newsletterTypes .= "ss";
+}
+
+// Get total count for newsletter
+$countStmt = $conn->prepare($newsletterCountQuery);
+if (!empty($newsletterParams)) {
+    $countStmt->bind_param($newsletterTypes, ...$newsletterParams);
+}
+$countStmt->execute();
+$newsletterTotal = $countStmt->get_result()->fetch_assoc()['total'];
+
+// Add pagination and sorting for newsletter
+$newsletterQuery .= " ORDER BY $sort_column $sort_direction LIMIT ? OFFSET ?";
+$newsletterParams[] = $limit;
+$newsletterParams[] = $offset;
+$newsletterTypes .= "ii";
+
 // Get newsletter subscribers
-$stmt = $conn->prepare("SELECT * FROM newsletter ORDER BY created_at DESC");
+$stmt = $conn->prepare($newsletterQuery);
+if (!empty($newsletterParams)) {
+    $stmt->bind_param($newsletterTypes, ...$newsletterParams);
+}
 $stmt->execute();
 $newsletterSubscribers = $stmt->get_result();
 
@@ -27,6 +111,26 @@ $db->closeConnection();
         <h1 class="h3">Subscribers & Contact Form</h1>
     </div>
 
+    <!-- Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="search" placeholder="Search..." 
+                               value="<?php echo htmlspecialchars($search); ?>">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <input type="hidden" name="page" value="subscribers">
+                <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort_column); ?>">
+                <input type="hidden" name="direction" value="<?php echo htmlspecialchars($sort_direction); ?>">
+            </form>
+        </div>
+    </div>
+
     <!-- Newsletter Subscribers -->
     <div class="card mb-4">
         <div class="card-header">
@@ -34,16 +138,36 @@ $db->closeConnection();
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped table-hover" id="newsletterTable">
+                <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th class="sortable" data-sort="id">ID <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="nome_cognome">Name <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="email">Email <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="preferenza_invio">Preference <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="url_invio">URL <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="privacy">Privacy <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="created_at">Date <i class="bi bi-arrow-down-up"></i></th>
+                            <th class="sortable" data-column="id">
+                                ID
+                                <?php if ($sort_column === 'id'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="nome_cognome">
+                                Name
+                                <?php if ($sort_column === 'nome_cognome'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="email">
+                                Email
+                                <?php if ($sort_column === 'email'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th>Preference</th>
+                            <th>URL</th>
+                            <th>Privacy</th>
+                            <th class="sortable" data-column="created_at">
+                                Date
+                                <?php if ($sort_column === 'created_at'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,6 +191,45 @@ $db->closeConnection();
                     </tbody>
                 </table>
             </div>
+
+            <!-- Newsletter Pagination -->
+            <?php if ($newsletterTotal > $limit): ?>
+            <div class="d-flex justify-content-center mt-4">
+                <nav>
+                    <ul class="pagination">
+                        <?php
+                        $totalPages = ceil($newsletterTotal / $limit);
+                        $startPage = max(1, $page - 2);
+                        $endPage = min($totalPages, $page + 2);
+                        ?>
+                        
+                        <?php if ($page > 1): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=subscribers&page_num=1&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
+                                First
+                            </a>
+                        </li>
+                        <?php endif; ?>
+
+                        <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                        <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
+                            <a class="page-link" href="?page=subscribers&page_num=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
+                                <?php echo $i; ?>
+                            </a>
+                        </li>
+                        <?php endfor; ?>
+
+                        <?php if ($page < $totalPages): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=subscribers&page_num=<?php echo $totalPages; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
+                                Last
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
+                </nav>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -77,18 +240,38 @@ $db->closeConnection();
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped table-hover" id="contactTable">
+                <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th class="sortable" data-sort="id">ID <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="nome_cognome">Name <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="email">Email <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="telefono">Phone <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="ragione_sociale">Company <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="messaggio">Message <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="privacy">Privacy <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="url_invio">URL <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="sortable" data-sort="created_at">Date <i class="bi bi-arrow-down-up"></i></th>
+                            <th class="sortable" data-column="id">
+                                ID
+                                <?php if ($sort_column === 'id'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="nome_cognome">
+                                Name
+                                <?php if ($sort_column === 'nome_cognome'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="email">
+                                Email
+                                <?php if ($sort_column === 'email'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th>Phone</th>
+                            <th>Company</th>
+                            <th>Message</th>
+                            <th>Privacy</th>
+                            <th>URL</th>
+                            <th class="sortable" data-column="created_at">
+                                Date
+                                <?php if ($sort_column === 'created_at'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,91 +297,84 @@ $db->closeConnection();
                     </tbody>
                 </table>
             </div>
+
+            <!-- Contact Form Pagination -->
+            <?php if ($contactTotal > $limit): ?>
+            <div class="d-flex justify-content-center mt-4">
+                <nav>
+                    <ul class="pagination">
+                        <?php
+                        $totalPages = ceil($contactTotal / $limit);
+                        $startPage = max(1, $page - 2);
+                        $endPage = min($totalPages, $page + 2);
+                        ?>
+                        
+                        <?php if ($page > 1): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=subscribers&page_num=1&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
+                                First
+                            </a>
+                        </li>
+                        <?php endif; ?>
+
+                        <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                        <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
+                            <a class="page-link" href="?page=subscribers&page_num=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
+                                <?php echo $i; ?>
+                            </a>
+                        </li>
+                        <?php endfor; ?>
+
+                        <?php if ($page < $totalPages): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=subscribers&page_num=<?php echo $totalPages; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
+                                Last
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
+                </nav>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <style>
+/* Add hover effect for sortable columns */
 .sortable {
     cursor: pointer;
-    user-select: none;
-    position: relative;
+    transition: background-color 0.2s ease;
 }
 
 .sortable:hover {
-    background-color: rgba(0,0,0,.05);
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .sortable i {
-    margin-left: 5px;
-    opacity: 0.3;
+    margin-left: 4px;
+    opacity: 0.5;
 }
 
-.sortable.asc i {
+.sortable:hover i {
     opacity: 1;
-}
-
-.sortable.desc i {
-    opacity: 1;
-    transform: rotate(180deg);
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Function to sort table
-    function sortTable(table, column, type = 'text') {
-        const tbody = table.querySelector('tbody');
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        const direction = table.dataset.sortDirection === 'asc' ? -1 : 1;
-        
-        rows.sort((a, b) => {
-            let aValue = a.cells[column].textContent.trim();
-            let bValue = b.cells[column].textContent.trim();
+    // Add click handlers for sortable columns
+    document.querySelectorAll('.sortable').forEach(function(header) {
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', function() {
+            const column = this.getAttribute('data-column');
+            const currentDirection = new URLSearchParams(window.location.search).get('direction') || 'desc';
+            const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
             
-            if (type === 'number') {
-                aValue = parseInt(aValue);
-                bValue = parseInt(bValue);
-            } else if (type === 'date') {
-                aValue = new Date(aValue);
-                bValue = new Date(bValue);
-            }
-            
-            if (aValue < bValue) return -1 * direction;
-            if (aValue > bValue) return 1 * direction;
-            return 0;
-        });
-        
-        // Clear and re-append sorted rows
-        tbody.innerHTML = '';
-        rows.forEach(row => tbody.appendChild(row));
-        
-        // Update sort direction
-        table.dataset.sortDirection = direction === 1 ? 'asc' : 'desc';
-    }
-    
-    // Add click handlers to all sortable tables
-    document.querySelectorAll('table').forEach(table => {
-        const headers = table.querySelectorAll('th.sortable');
-        
-        headers.forEach((header, index) => {
-            header.addEventListener('click', () => {
-                // Remove sort classes from all headers
-                headers.forEach(h => {
-                    h.classList.remove('asc', 'desc');
-                });
-                
-                // Add sort class to clicked header
-                header.classList.add(table.dataset.sortDirection === 'asc' ? 'asc' : 'desc');
-                
-                // Determine column type
-                let type = 'text';
-                if (header.dataset.sort === 'id') type = 'number';
-                if (header.dataset.sort === 'created_at') type = 'date';
-                
-                // Sort the table
-                sortTable(table, index, type);
-            });
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('sort', column);
+            urlParams.set('direction', newDirection);
+            window.location.search = urlParams.toString();
         });
     });
 });
