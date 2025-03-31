@@ -103,6 +103,34 @@ CREATE TABLE IF NOT EXISTS password_resets (
     INDEX idx_expires (expires_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Create contact_form table
+CREATE TABLE IF NOT EXISTS contact_form (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome_cognome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    telefono VARCHAR(255) NOT NULL,
+    ragione_sociale VARCHAR(255) NOT NULL,
+    messaggio VARCHAR(255) NOT NULL,
+    privacy BOOLEAN NOT NULL DEFAULT FALSE,
+    url_invio VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create newsletter table
+CREATE TABLE IF NOT EXISTS newsletter (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome_cognome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    privacy BOOLEAN NOT NULL DEFAULT FALSE,
+    url_invio VARCHAR(255) NOT NULL,
+    preferenza_invio VARCHAR(255) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Insert default admin user
 INSERT INTO users (username, email, password, first_name, last_name, role) 
 VALUES ('admin', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin')
