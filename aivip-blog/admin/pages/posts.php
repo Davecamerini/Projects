@@ -11,7 +11,7 @@ $sort_column = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
 $sort_direction = isset($_GET['direction']) ? $_GET['direction'] : 'desc';
 
 // Validate sort column
-$allowed_columns = ['id', 'title', 'author_name', 'status', 'created_at'];
+$allowed_columns = ['id', 'title', 'author_name', 'status', 'created_at', 'categories'];
 if (!in_array($sort_column, $allowed_columns)) {
     $sort_column = 'created_at';
 }
@@ -89,7 +89,11 @@ $total = $totalResult['total'];
 
 // Add pagination and sorting
 $offset = ($page - 1) * $limit;
-$query .= " GROUP BY p.id ORDER BY $sort_column $sort_direction LIMIT ? OFFSET ?";
+if ($sort_column === 'categories') {
+    $query .= " GROUP BY p.id ORDER BY categories $sort_direction LIMIT ? OFFSET ?";
+} else {
+    $query .= " GROUP BY p.id ORDER BY $sort_column $sort_direction LIMIT ? OFFSET ?";
+}
 $params[] = $limit;
 $params[] = $offset;
 $types .= "ii";
@@ -185,7 +189,12 @@ $db->closeConnection();
                                     <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
                                 <?php endif; ?>
                             </th>
-                            <th>Categories</th>
+                            <th class="sortable" data-column="categories">
+                                Categories
+                                <?php if ($sort_column === 'categories'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
                             <th class="sortable" data-column="status">
                                 Status
                                 <?php if ($sort_column === 'status'): ?>
@@ -373,6 +382,22 @@ $db->closeConnection();
     position: relative;
     z-index: 1;
     overflow: visible;
+}
+
+/* Fixed column widths */
+.table th:nth-child(1), .table td:nth-child(1) { width: 5%; }  /* ID column */
+.table th:nth-child(2), .table td:nth-child(2) { width: 25%; } /* Title column */
+.table th:nth-child(3), .table td:nth-child(3) { width: 15%; } /* Author column */
+.table th:nth-child(4), .table td:nth-child(4) { width: 20%; } /* Categories column */
+.table th:nth-child(5), .table td:nth-child(5) { width: 10%; } /* Status column */
+.table th:nth-child(6), .table td:nth-child(6) { width: 15%; } /* Created column */
+.table th:nth-child(7), .table td:nth-child(7) { width: 10%; } /* Actions column */
+
+/* Ensure table cells don't wrap */
+.table td, .table th {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Status dropdown specific styles */

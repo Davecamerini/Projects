@@ -330,6 +330,23 @@ $db->closeConnection();
 .sortable i {
     margin-left: 5px;
 }
+
+/* Fixed column widths */
+.table th:nth-child(1), .table td:nth-child(1) { width: 5%; }  /* ID column */
+.table th:nth-child(2), .table td:nth-child(2) { width: 15%; } /* Username column */
+.table th:nth-child(3), .table td:nth-child(3) { width: 20%; } /* Name column */
+.table th:nth-child(4), .table td:nth-child(4) { width: 25%; } /* Email column */
+.table th:nth-child(5), .table td:nth-child(5) { width: 10%; } /* Role column */
+.table th:nth-child(6), .table td:nth-child(6) { width: 10%; } /* Status column */
+.table th:nth-child(7), .table td:nth-child(7) { width: 10%; } /* Created column */
+.table th:nth-child(8), .table td:nth-child(8) { width: 5%; }  /* Actions column */
+
+/* Ensure table cells don't wrap */
+.table td, .table th {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 </style>
 
 <script>
