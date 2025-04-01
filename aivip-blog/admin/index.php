@@ -107,15 +107,9 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="?page=subscribers" class="nav-link <?php echo $current_page === 'subscribers' ? 'active' : ''; ?>">
+                            <a href="?page=newsletter" class="nav-link <?php echo $current_page === 'newsletter' ? 'active' : ''; ?>">
                                 <i class="bi bi-envelope me-2"></i>
-                                Newsletter Subscribers
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="?page=contact-form" class="nav-link <?php echo $current_page === 'contact-form' ? 'active' : ''; ?>">
-                                <i class="bi bi-chat-dots me-2"></i>
-                                Contact Form
+                                Newsletter
                             </a>
                         </li>
                         <?php endif; ?>
@@ -170,14 +164,9 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                             include 'pages/categories.php';
                         }
                         break;
-                    case 'subscribers':
+                    case 'newsletter':
                         if ($_SESSION['role'] === 'admin') {
-                            include 'pages/subscribers.php';
-                        }
-                        break;
-                    case 'contact-form':
-                        if ($_SESSION['role'] === 'admin') {
-                            include 'pages/contact-form.php';
+                            include 'pages/newsletter.php';
                         }
                         break;
                     default:

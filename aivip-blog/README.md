@@ -9,6 +9,8 @@ AIVIP Blog is a complete blogging platform that includes:
 - Content management system with categories
 - Media management
 - User management
+- Newsletter subscription system
+- Contact form management
 - Email notifications
 - Responsive admin interface
 
@@ -20,6 +22,9 @@ aivip-blog/
 │   ├── assets/          # CSS, images, and other static assets
 │   ├── js/              # JavaScript files
 │   ├── pages/           # Admin panel page templates
+│   │   ├── subscribers.php    # Newsletter subscribers management
+│   │   ├── contact-form.php   # Contact form submissions management
+│   │   └── ...               # Other admin pages
 │   ├── index.php        # Admin dashboard
 │   ├── login.php        # Login page
 │   ├── logout.php       # Logout handler
@@ -29,7 +34,9 @@ aivip-blog/
 │   ├── auth/            # Authentication endpoints
 │   ├── posts/           # Post management endpoints
 │   ├── users/           # User management endpoints
-│   └── media/           # Media upload endpoints
+│   ├── media/           # Media upload endpoints
+│   ├── newsletter/      # Newsletter subscription endpoints
+│   └── contact/         # Contact form endpoints
 ├── config/              # Configuration files
 │   ├── database.php     # Database connection settings
 │   ├── mail.php         # Email configuration
@@ -62,6 +69,22 @@ aivip-blog/
 - Pagination for post lists
 - URL-friendly slugs
 
+### Newsletter Management
+- Newsletter subscription system
+- Subscriber management interface
+- Sortable subscriber list with search and pagination
+- Privacy consent tracking
+- Subscription preferences
+- URL tracking for subscriptions
+
+### Contact Form Management
+- Contact form submission handling
+- Submission management interface
+- Sortable submission list with search and pagination
+- Privacy consent tracking
+- Company information tracking
+- URL tracking for submissions
+
 ### Media Management
 - Image upload support
 - File type validation
@@ -82,6 +105,8 @@ aivip-blog/
 ### Email Features
 - Password reset emails
 - Account notifications
+- Newsletter communications
+- Contact form notifications
 - HTML email templates
 - SMTP configuration
 
@@ -159,6 +184,26 @@ The system uses the following tables:
 - token (VARCHAR)
 - expires_at (DATETIME)
 - used (TINYINT)
+- created_at (DATETIME)
+
+### newsletter
+- id (INT, AUTO_INCREMENT)
+- nome_cognome (VARCHAR)
+- email (VARCHAR, UNIQUE)
+- preferenza_invio (VARCHAR)
+- url_invio (VARCHAR)
+- privacy (TINYINT)
+- created_at (DATETIME)
+
+### contact_form
+- id (INT, AUTO_INCREMENT)
+- nome_cognome (VARCHAR)
+- email (VARCHAR)
+- telefono (VARCHAR)
+- ragione_sociale (VARCHAR)
+- messaggio (TEXT)
+- privacy (TINYINT)
+- url_invio (VARCHAR)
 - created_at (DATETIME)
 
 ## API Documentation
@@ -242,6 +287,113 @@ Request body:
 }
 ```
 
+### Categories
+
+#### List Categories
+```
+GET /api/categories/list.php
+```
+Query Parameters:
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10, max: 50)
+- `search` (optional): Search in name
+- `sort` (optional): Sort field (name)
+- `order` (optional): Sort order (ASC/DESC)
+
+#### Create Category
+```
+POST /api/categories/create.php
+```
+Request body:
+```json
+{
+    "name": "string (required)",
+    "description": "string (optional)"
+}
+```
+
+#### Update Category
+```
+POST /api/categories/update.php
+```
+Request body:
+```json
+{
+    "id": "integer (required)",
+    "name": "string (required)",
+    "description": "string (optional)"
+}
+```
+
+#### Delete Category
+```
+POST /api/categories/delete.php
+```
+Request body:
+```json
+{
+    "id": "integer (required)"
+}
+```
+
+### Newsletter
+
+#### Subscribe
+```
+POST /api/newsletter/subscribe.php
+```
+Request body:
+```json
+{
+    "nome_cognome": "string (required)",
+    "email": "string (required)",
+    "preferenza_invio": "string (required)",
+    "privacy": "boolean (required)",
+    "url_invio": "string (required)"
+}
+```
+
+#### List Subscribers
+```
+GET /api/newsletter/list.php
+```
+Query Parameters:
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10, max: 50)
+- `search` (optional): Search in name and email
+- `sort` (optional): Sort field (created_at/email/nome_cognome)
+- `order` (optional): Sort order (ASC/DESC)
+
+### Contact Form
+
+#### Submit Contact Form
+```
+POST /api/contact/submit.php
+```
+Request body:
+```json
+{
+    "nome_cognome": "string (required)",
+    "email": "string (required)",
+    "telefono": "string (required)",
+    "ragione_sociale": "string (required)",
+    "messaggio": "string (required)",
+    "privacy": "boolean (required)",
+    "url_invio": "string (required)"
+}
+```
+
+#### List Submissions
+```
+GET /api/contact/list.php
+```
+Query Parameters:
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10, max: 50)
+- `search` (optional): Search in name, email, and company
+- `sort` (optional): Sort field (created_at/email/nome_cognome/ragione_sociale)
+- `order` (optional): Sort order (ASC/DESC)
+
 ### Media Upload
 ```
 POST /api/media/upload.php
@@ -306,6 +458,19 @@ Request body:
 ```json
 {
     "id": "integer (required)"
+}
+```
+
+#### Change Password
+```
+POST /api/users/change-password.php
+```
+Request body:
+```json
+{
+    "current_password": "string (required)",
+    "new_password": "string (required)",
+    "confirm_password": "string (required)"
 }
 ```
 
@@ -424,6 +589,100 @@ This project is licensed under the MIT License - see the LICENSE file for detail
    }
    ```
 
+### Categories
+1. List Categories:
+   ```
+   GET {{base_url}}/categories/list.php
+   Query Params (optional):
+   - page: 1
+   - limit: 10
+   - search: technology
+   - sort: name
+   - order: ASC
+   ```
+
+2. Create Category:
+   ```
+   POST {{base_url}}/categories/create.php
+   Body (raw JSON):
+   {
+       "name": "Technology",
+       "description": "Posts about technology and innovation"
+   }
+   ```
+
+3. Update Category:
+   ```
+   POST {{base_url}}/categories/update.php
+   Body (raw JSON):
+   {
+       "id": 1,
+       "name": "Tech & Innovation",
+       "description": "Updated description"
+   }
+   ```
+
+4. Delete Category:
+   ```
+   POST {{base_url}}/categories/delete.php
+   Body (raw JSON):
+   {
+       "id": 1
+   }
+   ```
+
+### Newsletter
+1. Subscribe:
+   ```
+   POST {{base_url}}/newsletter/subscribe.php
+   Body (raw JSON):
+   {
+       "nome_cognome": "John Doe",
+       "email": "john@example.com",
+       "preferenza_invio": "mensile",
+       "privacy": true,
+       "url_invio": "http://example.com/newsletter"
+   }
+   ```
+
+2. List Subscribers:
+   ```
+   GET {{base_url}}/newsletter/list.php
+   Query Params (optional):
+   - page: 1
+   - limit: 10
+   - search: John
+   - sort: email
+   - order: ASC
+   ```
+
+### Contact Form
+1. Submit:
+   ```
+   POST {{base_url}}/contact/submit.php
+   Body (raw JSON):
+   {
+       "nome_cognome": "John Doe",
+       "email": "john@example.com",
+       "telefono": "+39 1234567890",
+       "ragione_sociale": "Example Ltd.",
+       "messaggio": "I'd like to learn more about your services.",
+       "privacy": true,
+       "url_invio": "http://example.com/contact"
+   }
+   ```
+
+2. List Submissions:
+   ```
+   GET {{base_url}}/contact/list.php
+   Query Params (optional):
+   - page: 1
+   - limit: 10
+   - search: John
+   - sort: created_at
+   - order: DESC
+   ```
+
 ### Media
 1. Upload Image:
    ```
@@ -478,6 +737,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
    Body (raw JSON):
    {
        "id": 2
+   }
+   ```
+
+5. Change Password:
+   ```
+   POST {{base_url}}/users/change-password.php
+   Body (raw JSON):
+   {
+       "current_password": "oldpassword123",
+       "new_password": "newpassword123",
+       "confirm_password": "newpassword123"
    }
    ```
 

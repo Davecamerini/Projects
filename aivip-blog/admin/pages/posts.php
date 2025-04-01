@@ -7,19 +7,6 @@ $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 $category = isset($_GET['category']) ? $_GET['category'] : '';
-$sort_column = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
-$sort_direction = isset($_GET['direction']) ? $_GET['direction'] : 'desc';
-
-// Validate sort column
-$allowed_columns = ['id', 'title', 'author_name', 'status', 'created_at', 'categories'];
-if (!in_array($sort_column, $allowed_columns)) {
-    $sort_column = 'created_at';
-}
-
-// Validate sort direction
-if (!in_array($sort_direction, ['asc', 'desc'])) {
-    $sort_direction = 'desc';
-}
 
 // Database connection
 $db = new Database();
@@ -87,13 +74,9 @@ $countStmt->execute();
 $totalResult = $countStmt->get_result()->fetch_assoc();
 $total = $totalResult['total'];
 
-// Add pagination and sorting
+// Add pagination
 $offset = ($page - 1) * $limit;
-if ($sort_column === 'categories') {
-    $query .= " GROUP BY p.id ORDER BY categories $sort_direction LIMIT ? OFFSET ?";
-} else {
-    $query .= " GROUP BY p.id ORDER BY $sort_column $sort_direction LIMIT ? OFFSET ?";
-}
+$query .= " GROUP BY p.id ORDER BY p.created_at DESC LIMIT ? OFFSET ?";
 $params[] = $limit;
 $params[] = $offset;
 $types .= "ii";
@@ -171,49 +154,17 @@ $db->closeConnection();
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th class="sortable" data-column="id">
-                                ID
-                                <?php if ($sort_column === 'id'): ?>
-                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
-                                <?php endif; ?>
-                            </th>
-                            <th class="sortable" data-column="title">
-                                Title
-                                <?php if ($sort_column === 'title'): ?>
-                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
-                                <?php endif; ?>
-                            </th>
-                            <th class="sortable" data-column="author_name">
-                                Author
-                                <?php if ($sort_column === 'author_name'): ?>
-                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
-                                <?php endif; ?>
-                            </th>
-                            <th class="sortable" data-column="categories">
-                                Categories
-                                <?php if ($sort_column === 'categories'): ?>
-                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
-                                <?php endif; ?>
-                            </th>
-                            <th class="sortable" data-column="status">
-                                Status
-                                <?php if ($sort_column === 'status'): ?>
-                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
-                                <?php endif; ?>
-                            </th>
-                            <th class="sortable" data-column="created_at">
-                                Created
-                                <?php if ($sort_column === 'created_at'): ?>
-                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
-                                <?php endif; ?>
-                            </th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Categories</th>
+                            <th>Status</th>
+                            <th>Created</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php while ($post = $posts->fetch_assoc()): ?>
                         <tr data-post-id="<?php echo $post['id']; ?>" data-content="<?php echo htmlspecialchars($post['content']); ?>">
-                            <td><?php echo htmlspecialchars($post['id']); ?></td>
                             <td>
                                 <div class="fw-bold"><?php echo htmlspecialchars($post['title']); ?></div>
                                 <div class="small text-muted"><?php echo htmlspecialchars($post['meta_title']); ?></div>
@@ -353,25 +304,6 @@ $db->closeConnection();
     overflow: visible;
 }
 
-/* Add hover effect for sortable columns */
-.sortable {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.sortable:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
-.sortable i {
-    margin-left: 4px;
-    opacity: 0.5;
-}
-
-.sortable:hover i {
-    opacity: 1;
-}
-
 .card-body {
     position: relative;
     z-index: 1;
@@ -382,22 +314,6 @@ $db->closeConnection();
     position: relative;
     z-index: 1;
     overflow: visible;
-}
-
-/* Fixed column widths */
-.table th:nth-child(1), .table td:nth-child(1) { width: 5%; }  /* ID column */
-.table th:nth-child(2), .table td:nth-child(2) { width: 25%; } /* Title column */
-.table th:nth-child(3), .table td:nth-child(3) { width: 15%; } /* Author column */
-.table th:nth-child(4), .table td:nth-child(4) { width: 20%; } /* Categories column */
-.table th:nth-child(5), .table td:nth-child(5) { width: 10%; } /* Status column */
-.table th:nth-child(6), .table td:nth-child(6) { width: 15%; } /* Created column */
-.table th:nth-child(7), .table td:nth-child(7) { width: 10%; } /* Actions column */
-
-/* Ensure table cells don't wrap */
-.table td, .table th {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 /* Status dropdown specific styles */
@@ -548,21 +464,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // Add click handlers for sortable columns
-    document.querySelectorAll('.sortable').forEach(function(header) {
-        header.style.cursor = 'pointer';
-        header.addEventListener('click', function() {
-            const column = this.getAttribute('data-column');
-            const currentDirection = new URLSearchParams(window.location.search).get('direction') || 'desc';
-            const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('sort', column);
-            urlParams.set('direction', newDirection);
-            window.location.search = urlParams.toString();
-        });
     });
 });
 
