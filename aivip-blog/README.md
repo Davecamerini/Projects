@@ -345,11 +345,11 @@ POST /api/newsletter/subscribe.php
 Request body:
 ```json
 {
-    "nome_cognome": "string (required)",
-    "email": "string (required)",
-    "preferenza_invio": "string (required)",
-    "privacy": "boolean (required)",
-    "url_invio": "string (required)"
+    "nome_cognome": "John Doe",
+    "email": "john@example.com",
+    "preferenza_invio": "mensile",
+    "privacy": true,
+    "url_invio": "http://example.com/newsletter"
 }
 ```
 
@@ -373,13 +373,13 @@ POST /api/contact/submit.php
 Request body:
 ```json
 {
-    "nome_cognome": "string (required)",
-    "email": "string (required)",
-    "telefono": "string (required)",
-    "ragione_sociale": "string (required)",
-    "messaggio": "string (required)",
-    "privacy": "boolean (required)",
-    "url_invio": "string (required)"
+    "nome_cognome": "John Doe",
+    "email": "john@example.com",
+    "telefono": "+39 1234567890",
+    "ragione_sociale": "Example Ltd.",
+    "messaggio": "I'd like to learn more about your services.",
+    "privacy": true,
+    "url_invio": "http://example.com/contact"
 }
 ```
 
@@ -480,12 +480,12 @@ The system comes with two default users:
 
 1. Admin User
    - Username: admin
-   - Password: admin123
+   - Password: doaoakero
    - Role: admin
 
 2. Author User
    - Username: author
-   - Password: author123
+   - Password: doaoakero
    - Role: author
 
 ## Security Notes
@@ -751,26 +751,61 @@ This project is licensed under the MIT License - see the LICENSE file for detail
    }
    ```
 
-### Tips for Testing
-1. Always test with the default admin user first
-2. Create test data in a logical order (users → categories → posts)
-3. Use environment variables for dynamic values
-4. Save successful responses as examples
-5. Test error cases by sending invalid data
-6. Check response status codes and messages
-7. Verify database changes after each request
-8. Test pagination with different limit values
-9. Test search functionality with various terms
-10. Test file upload with different image types and sizes
+### Common Issues and Solutions
 
-### Common Issues
-1. 401 Unauthorized: Check if you're logged in
-2. 403 Forbidden: Verify user permissions
-3. 404 Not Found: Check resource IDs
-4. 422 Validation Error: Review request body
-5. 500 Server Error: Check server logs
-6. File Upload Issues: Verify file size and type
-7. Database Errors: Check connection settings
-8. Session Issues: Clear browser cookies
-9. CSRF Errors: Check token implementation
-10. Rate Limiting: Wait between requests 
+#### Authentication Issues
+1. 401 Unauthorized
+   - Cause: Not logged in or session expired
+   - Solution: Login again or refresh session
+   - Example: "Unauthorized: Please login to continue"
+
+2. 403 Forbidden
+   - Cause: Insufficient permissions
+   - Solution: Use an account with appropriate role
+   - Example: "Forbidden: You don't have permission to perform this action"
+
+#### Resource Issues
+3. 404 Not Found
+   - Cause: Resource doesn't exist
+   - Solution: Check resource ID or URL
+   - Example: "Not Found: Post with ID 123 does not exist"
+
+4. 422 Validation Error
+   - Cause: Invalid input data
+   - Solution: Review request body and fix validation errors
+   - Example: "Validation Error: Email must be a valid email address"
+
+#### Server Issues
+5. 500 Server Error
+   - Cause: Internal server error
+   - Solution: Check server logs and contact support
+   - Example: "Internal Server Error: Database connection failed"
+
+#### File Upload Issues
+6. File Upload Errors
+   - Cause: Invalid file type or size
+   - Solution: Check file requirements
+   - Example: "File Upload Error: Maximum file size exceeded (5MB limit)"
+
+#### Database Issues
+7. Database Errors
+   - Cause: Connection or query issues
+   - Solution: Check database configuration
+   - Example: "Database Error: Could not connect to database"
+
+#### Session Issues
+8. Session Problems
+   - Cause: Invalid or expired session
+   - Solution: Clear cookies and login again
+   - Example: "Session Error: Your session has expired"
+
+#### Security Issues
+9. CSRF Errors
+   - Cause: Missing or invalid CSRF token
+   - Solution: Include valid CSRF token in request
+   - Example: "CSRF Error: Invalid security token"
+
+10. Rate Limiting
+    - Cause: Too many requests
+    - Solution: Wait before making more requests
+    - Example: "Rate Limit Exceeded: Please wait 60 seconds before trying again" 

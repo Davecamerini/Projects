@@ -8,7 +8,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3">Newsletter Subscriptions</h1>
+        <h1 class="h3">Contact Form Submissions</h1>
     </div>
 
     <!-- Search and Filter -->
@@ -17,7 +17,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="input-group">
-                        <input type="text" class="form-control" id="search" placeholder="Search by name or email...">
+                        <input type="text" class="form-control" id="search" placeholder="Search by name, email, or company...">
                         <button class="btn btn-outline-secondary" type="button" id="searchBtn">
                             <i class="bi bi-search"></i>
                         </button>
@@ -34,7 +34,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
         </div>
     </div>
 
-    <!-- Newsletter Table -->
+    <!-- Contact Form Table -->
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
@@ -53,31 +53,39 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
                                 Email
                                 <i class="bi bi-sort-up"></i>
                             </th>
-                            <th class="sortable" data-sort="preferenza_invio">
-                                Preference
+                            <th class="sortable" data-sort="telefono">
+                                Phone
                                 <i class="bi bi-sort-up"></i>
                             </th>
-                            <th class="sortable" data-sort="url_invio">
-                                URL
+                            <th class="sortable" data-sort="ragione_sociale">
+                                Company
+                                <i class="bi bi-sort-up"></i>
+                            </th>
+                            <th class="sortable" data-sort="messaggio">
+                                Message
                                 <i class="bi bi-sort-up"></i>
                             </th>
                             <th class="sortable" data-sort="privacy">
                                 Privacy
                                 <i class="bi bi-sort-up"></i>
                             </th>
+                            <th class="sortable" data-sort="url_invio">
+                                URL
+                                <i class="bi bi-sort-up"></i>
+                            </th>
                             <th class="sortable" data-sort="created_at">
-                                Subscribed
+                                Submitted
                                 <i class="bi bi-sort-down"></i>
                             </th>
                         </tr>
                     </thead>
-                    <tbody id="subscriptionsList">
-                        <!-- Subscriptions will be loaded here -->
+                    <tbody id="submissionsList">
+                        <!-- Submissions will be loaded here -->
                     </tbody>
                 </table>
                 <div id="noDataMessage" class="text-center py-5" style="display: none;">
                     <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
-                    <p class="mt-3 text-muted">No newsletter subscriptions found</p>
+                    <p class="mt-3 text-muted">No contact form submissions found</p>
                 </div>
             </div>
 
@@ -105,9 +113,15 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 .sortable i {
     margin-left: 5px;
     display: none;
+    vertical-align: middle;
 }
 .sortable:hover i {
     display: inline-block;
+}
+/* Add fixed width for ID column */
+th[data-sort="id"],
+td:first-child {
+    width: 80px;
 }
 </style>
 
@@ -119,32 +133,32 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentSearch = '';
     let currentLimit = 10;
 
-    // Load subscriptions
-    async function loadSubscriptions() {
+    // Load submissions
+    async function loadSubmissions() {
         try {
-            const response = await fetch(`../api/newsletter/list.php?page=${currentPage}&limit=${currentLimit}&sort=${currentSort}&order=${currentOrder}&search=${encodeURIComponent(currentSearch)}`);
+            const response = await fetch(`../api/contact/list.php?page=${currentPage}&limit=${currentLimit}&sort=${currentSort}&order=${currentOrder}&search=${encodeURIComponent(currentSearch)}`);
             const data = await response.json();
             
             if (data.success) {
-                displaySubscriptions(data.data.subscriptions);
+                displaySubmissions(data.data.submissions);
                 updatePagination(data.data);
             } else {
-                alert('Error loading subscriptions: ' + data.message);
+                alert('Error loading submissions: ' + data.message);
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error loading subscriptions');
+            alert('Error loading submissions');
         }
     }
 
-    // Display subscriptions in table
-    function displaySubscriptions(subscriptions) {
-        const tbody = document.getElementById('subscriptionsList');
+    // Display submissions in table
+    function displaySubmissions(submissions) {
+        const tbody = document.getElementById('submissionsList');
         const noDataMessage = document.getElementById('noDataMessage');
         tbody.innerHTML = '';
 
         // Show/hide no data message
-        if (subscriptions.length === 0) {
+        if (submissions.length === 0) {
             tbody.style.display = 'none';
             noDataMessage.style.display = 'block';
         } else {
@@ -166,19 +180,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        subscriptions.forEach(sub => {
+        submissions.forEach(sub => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${sub.id}</td>
                 <td>${escapeHtml(sub.nome_cognome)}</td>
                 <td>${escapeHtml(sub.email)}</td>
-                <td>${escapeHtml(sub.preferenza_invio)}</td>
-                <td>${escapeHtml(sub.url_invio)}</td>
+                <td>${escapeHtml(sub.telefono)}</td>
+                <td>${escapeHtml(sub.ragione_sociale)}</td>
+                <td>${escapeHtml(sub.messaggio)}</td>
                 <td>
                     <span class="badge bg-${sub.privacy ? 'success' : 'danger'}">
                         ${sub.privacy ? 'Accepted' : 'Not Accepted'}
                     </span>
                 </td>
+                <td>${escapeHtml(sub.url_invio)}</td>
                 <td>${formatDate(sub.created_at)}</td>
             `;
             tbody.appendChild(tr);
@@ -231,21 +247,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('searchBtn').addEventListener('click', function() {
         currentSearch = document.getElementById('search').value;
         currentPage = 1;
-        loadSubscriptions();
+        loadSubmissions();
     });
 
     document.getElementById('search').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             currentSearch = this.value;
             currentPage = 1;
-            loadSubscriptions();
+            loadSubmissions();
         }
     });
 
     document.getElementById('limit').addEventListener('change', function() {
         currentLimit = parseInt(this.value);
         currentPage = 1;
-        loadSubscriptions();
+        loadSubmissions();
     });
 
     document.getElementById('pagination').addEventListener('click', function(e) {
@@ -254,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const page = parseInt(e.target.dataset.page);
             if (page && page !== currentPage) {
                 currentPage = page;
-                loadSubscriptions();
+                loadSubmissions();
             }
         }
     });
@@ -271,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentOrder = 'DESC';
             }
             
-            loadSubscriptions();
+            loadSubmissions();
         });
     });
 
@@ -291,6 +307,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initial load
-    loadSubscriptions();
+    loadSubmissions();
 });
 </script> 
