@@ -109,7 +109,13 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                         <li class="nav-item">
                             <a href="?page=subscribers" class="nav-link <?php echo $current_page === 'subscribers' ? 'active' : ''; ?>">
                                 <i class="bi bi-envelope me-2"></i>
-                                Subscribers
+                                Newsletter Subscribers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="?page=contact-form" class="nav-link <?php echo $current_page === 'contact-form' ? 'active' : ''; ?>">
+                                <i class="bi bi-chat-dots me-2"></i>
+                                Contact Form
                             </a>
                         </li>
                         <?php endif; ?>
@@ -167,6 +173,11 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                     case 'subscribers':
                         if ($_SESSION['role'] === 'admin') {
                             include 'pages/subscribers.php';
+                        }
+                        break;
+                    case 'contact-form':
+                        if ($_SESSION['role'] === 'admin') {
+                            include 'pages/contact-form.php';
                         }
                         break;
                     default:

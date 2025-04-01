@@ -15,7 +15,7 @@ $sort_column = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
 $sort_direction = isset($_GET['direction']) ? $_GET['direction'] : 'desc';
 
 // Validate sort columns
-$allowed_columns = ['id', 'nome_cognome', 'email', 'preferenza_invio', 'url_invio', 'privacy', 'created_at'];
+$allowed_columns = ['id', 'nome_cognome', 'email', 'telefono', 'ragione_sociale', 'messaggio', 'privacy', 'url_invio', 'created_at'];
 
 if (!in_array($sort_column, $allowed_columns)) {
     $sort_column = 'created_at';
@@ -29,19 +29,19 @@ if (!in_array($sort_direction, ['asc', 'desc'])) {
 $db = new Database();
 $conn = $db->getConnection();
 
-// Build query for newsletter subscribers
-$query = "SELECT * FROM newsletter WHERE 1=1";
-$countQuery = "SELECT COUNT(*) as total FROM newsletter WHERE 1=1";
+// Build query for contact form submissions
+$query = "SELECT * FROM contact_form WHERE 1=1";
+$countQuery = "SELECT COUNT(*) as total FROM contact_form WHERE 1=1";
 $params = [];
 $types = "";
 
 // Add search filter
 if ($search) {
     $searchTerm = "%$search%";
-    $query .= " AND (nome_cognome LIKE ? OR email LIKE ?)";
-    $countQuery .= " AND (nome_cognome LIKE ? OR email LIKE ?)";
-    $params = array_merge($params, [$searchTerm, $searchTerm]);
-    $types .= "ss";
+    $query .= " AND (nome_cognome LIKE ? OR email LIKE ? OR ragione_sociale LIKE ?)";
+    $countQuery .= " AND (nome_cognome LIKE ? OR email LIKE ? OR ragione_sociale LIKE ?)";
+    $params = array_merge($params, [$searchTerm, $searchTerm, $searchTerm]);
+    $types .= "sss";
 }
 
 // Get total count
@@ -59,20 +59,20 @@ $params[] = $limit;
 $params[] = $offset;
 $types .= "ii";
 
-// Get newsletter subscribers
+// Get contact form submissions
 $stmt = $conn->prepare($query);
 if (!empty($params)) {
     $stmt->bind_param($types, ...$params);
 }
 $stmt->execute();
-$subscribers = $stmt->get_result();
+$submissions = $stmt->get_result();
 
 $db->closeConnection();
 ?>
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3">Newsletter Subscribers</h1>
+        <h1 class="h3">Contact Form Submissions</h1>
     </div>
 
     <!-- Search -->
@@ -88,14 +88,14 @@ $db->closeConnection();
                         </button>
                     </div>
                 </div>
-                <input type="hidden" name="page" value="subscribers">
+                <input type="hidden" name="page" value="contact-form">
                 <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort_column); ?>">
                 <input type="hidden" name="direction" value="<?php echo htmlspecialchars($sort_direction); ?>">
             </form>
         </div>
     </div>
 
-    <!-- Newsletter Subscribers -->
+    <!-- Contact Form Submissions -->
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
@@ -120,21 +120,33 @@ $db->closeConnection();
                                     <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
                                 <?php endif; ?>
                             </th>
-                            <th class="sortable" data-column="preferenza_invio">
-                                Preference
-                                <?php if ($sort_column === 'preferenza_invio'): ?>
+                            <th class="sortable" data-column="telefono">
+                                Phone
+                                <?php if ($sort_column === 'telefono'): ?>
                                     <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
                                 <?php endif; ?>
                             </th>
-                            <th class="sortable" data-column="url_invio">
-                                URL
-                                <?php if ($sort_column === 'url_invio'): ?>
+                            <th class="sortable" data-column="ragione_sociale">
+                                Company
+                                <?php if ($sort_column === 'ragione_sociale'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="messaggio">
+                                Message
+                                <?php if ($sort_column === 'messaggio'): ?>
                                     <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
                                 <?php endif; ?>
                             </th>
                             <th class="sortable" data-column="privacy">
                                 Privacy
                                 <?php if ($sort_column === 'privacy'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="url_invio">
+                                URL
+                                <?php if ($sort_column === 'url_invio'): ?>
                                     <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
                                 <?php endif; ?>
                             </th>
@@ -147,21 +159,23 @@ $db->closeConnection();
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($subscriber = $subscribers->fetch_assoc()): ?>
+                        <?php while ($submission = $submissions->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($subscriber['id']); ?></td>
-                            <td><?php echo htmlspecialchars($subscriber['nome_cognome']); ?></td>
-                            <td><?php echo htmlspecialchars($subscriber['email']); ?></td>
-                            <td><?php echo htmlspecialchars($subscriber['preferenza_invio']); ?></td>
-                            <td><?php echo htmlspecialchars($subscriber['url_invio']); ?></td>
+                            <td><?php echo htmlspecialchars($submission['id']); ?></td>
+                            <td><?php echo htmlspecialchars($submission['nome_cognome']); ?></td>
+                            <td><?php echo htmlspecialchars($submission['email']); ?></td>
+                            <td><?php echo htmlspecialchars($submission['telefono']); ?></td>
+                            <td><?php echo htmlspecialchars($submission['ragione_sociale']); ?></td>
+                            <td><?php echo htmlspecialchars($submission['messaggio']); ?></td>
                             <td>
-                                <?php if ($subscriber['privacy']): ?>
+                                <?php if ($submission['privacy']): ?>
                                     <span class="badge bg-success">Accepted</span>
                                 <?php else: ?>
                                     <span class="badge bg-danger">Not Accepted</span>
                                 <?php endif; ?>
                             </td>
-                            <td><?php echo date('Y-m-d H:i:s', strtotime($subscriber['created_at'])); ?></td>
+                            <td><?php echo htmlspecialchars($submission['url_invio']); ?></td>
+                            <td><?php echo date('Y-m-d H:i:s', strtotime($submission['created_at'])); ?></td>
                         </tr>
                         <?php endwhile; ?>
                     </tbody>
@@ -181,7 +195,7 @@ $db->closeConnection();
                         
                         <?php if ($page > 1): ?>
                         <li class="page-item">
-                            <a class="page-link" href="?page=subscribers&page_num=1&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
+                            <a class="page-link" href="?page=contact-form&page_num=1&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
                                 First
                             </a>
                         </li>
@@ -189,7 +203,7 @@ $db->closeConnection();
 
                         <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
                         <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
-                            <a class="page-link" href="?page=subscribers&page_num=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
+                            <a class="page-link" href="?page=contact-form&page_num=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
                                 <?php echo $i; ?>
                             </a>
                         </li>
@@ -197,7 +211,7 @@ $db->closeConnection();
 
                         <?php if ($page < $totalPages): ?>
                         <li class="page-item">
-                            <a class="page-link" href="?page=subscribers&page_num=<?php echo $totalPages; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
+                            <a class="page-link" href="?page=contact-form&page_num=<?php echo $totalPages; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort_column); ?>&direction=<?php echo urlencode($sort_direction); ?>">
                                 Last
                             </a>
                         </li>
@@ -218,11 +232,13 @@ $db->closeConnection();
 }
 .table th:nth-child(1), .table td:nth-child(1) { width: 5%; }   /* ID column */
 .table th:nth-child(2), .table td:nth-child(2) { width: 15%; }  /* Name column */
-.table th:nth-child(3), .table td:nth-child(3) { width: 20%; }  /* Email column */
-.table th:nth-child(4), .table td:nth-child(4) { width: 15%; }  /* Preference column */
-.table th:nth-child(5), .table td:nth-child(5) { width: 15%; }  /* URL column */
-.table th:nth-child(6), .table td:nth-child(6) { width: 10%; }  /* Privacy column */
-.table th:nth-child(7), .table td:nth-child(7) { width: 20%; }  /* Date column */
+.table th:nth-child(3), .table td:nth-child(3) { width: 15%; }  /* Email column */
+.table th:nth-child(4), .table td:nth-child(4) { width: 10%; }  /* Phone column */
+.table th:nth-child(5), .table td:nth-child(5) { width: 10%; }  /* Company column */
+.table th:nth-child(6), .table td:nth-child(6) { width: 20%; }  /* Message column */
+.table th:nth-child(7), .table td:nth-child(7) { width: 5%; }   /* Privacy column */
+.table th:nth-child(8), .table td:nth-child(8) { width: 10%; }  /* URL column */
+.table th:nth-child(9), .table td:nth-child(9) { width: 10%; }  /* Date column */
 
 /* Ensure table cells don't wrap */
 .table td, .table th {
