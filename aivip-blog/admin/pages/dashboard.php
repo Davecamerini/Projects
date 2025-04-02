@@ -42,7 +42,7 @@ $db->closeConnection();
 
     <!-- Statistics -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md-3 mb-3 mb-md-0">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Posts</h5>
@@ -50,7 +50,7 @@ $db->closeConnection();
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 mb-3 mb-md-0">
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Published Posts</h5>
@@ -58,7 +58,7 @@ $db->closeConnection();
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 mb-3 mb-md-0">
             <div class="card bg-warning text-white">
                 <div class="card-body">
                     <h5 class="card-title">Draft Posts</h5>
@@ -66,7 +66,7 @@ $db->closeConnection();
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 mb-3 mb-md-0">
             <div class="card bg-secondary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Archived Posts</h5>
