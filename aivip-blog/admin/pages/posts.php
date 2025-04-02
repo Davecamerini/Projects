@@ -7,6 +7,19 @@ $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 $category = isset($_GET['category']) ? $_GET['category'] : '';
+$sort_column = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
+$sort_direction = isset($_GET['direction']) ? $_GET['direction'] : 'desc';
+
+// Validate sort column
+$allowed_columns = ['title', 'author_name', 'status', 'created_at', 'categories'];
+if (!in_array($sort_column, $allowed_columns)) {
+    $sort_column = 'created_at';
+}
+
+// Validate sort direction
+if (!in_array($sort_direction, ['asc', 'desc'])) {
+    $sort_direction = 'desc';
+}
 
 // Database connection
 $db = new Database();
@@ -74,9 +87,13 @@ $countStmt->execute();
 $totalResult = $countStmt->get_result()->fetch_assoc();
 $total = $totalResult['total'];
 
-// Add pagination
+// Add pagination and sorting
 $offset = ($page - 1) * $limit;
-$query .= " GROUP BY p.id ORDER BY p.created_at DESC LIMIT ? OFFSET ?";
+if ($sort_column === 'categories') {
+    $query .= " GROUP BY p.id ORDER BY MIN(c.name) " . $sort_direction . " LIMIT ? OFFSET ?";
+} else {
+    $query .= " GROUP BY p.id ORDER BY " . $sort_column . " " . $sort_direction . " LIMIT ? OFFSET ?";
+}
 $params[] = $limit;
 $params[] = $offset;
 $types .= "ii";
@@ -154,11 +171,36 @@ $db->closeConnection();
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Categories</th>
-                            <th>Status</th>
-                            <th>Created</th>
+                            <th class="sortable" data-column="title">
+                                Title
+                                <?php if ($sort_column === 'title'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="author_name">
+                                Author
+                                <?php if ($sort_column === 'author_name'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="categories">
+                                Categories
+                                <?php if ($sort_column === 'categories'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="status">
+                                Status
+                                <?php if ($sort_column === 'status'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
+                            <th class="sortable" data-column="created_at">
+                                Created
+                                <?php if ($sort_column === 'created_at'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -456,6 +498,24 @@ foreach ($allCategories as $cat) {
 .btn-outline-warning {
     color: #ffc107;
 }
+
+.sortable {
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+}
+.sortable:hover {
+    background-color: rgba(0,0,0,.075);
+}
+.sortable i {
+    margin-left: 5px;
+    display: none;
+    vertical-align: middle;
+}
+.sortable:hover i,
+.sortable i[class*="bi-sort-"] {
+    display: inline-block;
+}
 </style>
 
 <script>
@@ -544,6 +604,32 @@ function changePostStatus(postId, newStatus) {
         alert('Error updating status: ' + error.message);
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle sortable columns
+    document.querySelectorAll('.sortable').forEach(header => {
+        header.addEventListener('click', function() {
+            const column = this.dataset.column;
+            const currentUrl = new URL(window.location.href);
+            const currentSort = currentUrl.searchParams.get('sort');
+            const currentDirection = currentUrl.searchParams.get('direction');
+            
+            // Determine new sort direction
+            let newDirection = 'asc';
+            if (currentSort === column) {
+                newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+            }
+            
+            // Update URL parameters
+            currentUrl.searchParams.set('sort', column);
+            currentUrl.searchParams.set('direction', newDirection);
+            currentUrl.searchParams.set('page_num', '1'); // Reset to first page when sorting changes
+            
+            // Navigate to new URL
+            window.location.href = currentUrl.toString();
+        });
+    });
+});
 </script>
 
 <?php
