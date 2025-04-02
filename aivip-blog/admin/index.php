@@ -70,8 +70,8 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 px-0 sidebar">
                 <div class="d-flex flex-column p-3">
-                    <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                        <span class="fs-4">AIVIP Blog</span>
+                    <a href="index.php" class="d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                        <img src="assets/images/logo sidebar.svg" alt="AIVIP Blog" style="height: 100px;">
                     </a>
                     <hr class="text-white">
                     <ul class="nav nav-pills flex-column mb-auto">
