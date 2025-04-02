@@ -9,7 +9,8 @@ $conn = $db->getConnection();
 $postStmt = $conn->prepare("SELECT 
     COUNT(*) as total_posts,
     COUNT(CASE WHEN status = 'published' THEN 1 END) as published_posts,
-    COUNT(CASE WHEN status = 'draft' THEN 1 END) as draft_posts
+    COUNT(CASE WHEN status = 'draft' THEN 1 END) as draft_posts,
+    COUNT(CASE WHEN status = 'archived' THEN 1 END) as archived_posts
     FROM posts WHERE author_id = ? OR ? = 'admin'");
 $postStmt->bind_param("is", $_SESSION['user_id'], $_SESSION['role']);
 $postStmt->execute();
@@ -41,7 +42,7 @@ $db->closeConnection();
 
     <!-- Statistics -->
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Posts</h5>
@@ -49,7 +50,7 @@ $db->closeConnection();
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Published Posts</h5>
@@ -57,11 +58,19 @@ $db->closeConnection();
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-warning text-white">
                 <div class="card-body">
                     <h5 class="card-title">Draft Posts</h5>
                     <h2 class="card-text"><?php echo $stats['draft_posts']; ?></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Archived Posts</h5>
+                    <h2 class="card-text"><?php echo $stats['archived_posts']; ?></h2>
                 </div>
             </div>
         </div>
