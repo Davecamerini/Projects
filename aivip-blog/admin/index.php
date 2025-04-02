@@ -62,13 +62,60 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
             margin-left: 0.5em;
             vertical-align: middle;
         }
+
+        /* Mobile Hamburger Menu */
+        .hamburger-menu {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1040;
+            width: 40px;
+            height: 40px;
+            background: #343a40;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 8px;
+        }
+        .hamburger-menu span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            transition: 0.3s;
+        }
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        @media (max-width: 768px) {
+            .hamburger-menu {
+                display: block;
+            }
+            .sidebar {
+                position: fixed;
+                transform: translateX(-100%);
+                width: 250px;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-top: 60px;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="hamburger-menu" id="hamburgerMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 px-0 sidebar">
+            <div class="col-md-3 col-lg-2 px-0 sidebar" id="sidebar">
                 <div class="d-flex flex-column p-3">
                     <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
                         <img src="assets/images/logo sidebar.svg" alt="AIVIP Blog" style="height: 100px;">
@@ -198,6 +245,25 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
             var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
             var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
                 return new bootstrap.Dropdown(dropdownToggleEl);
+            });
+
+            // Hamburger menu functionality
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const sidebar = document.getElementById('sidebar');
+            
+            hamburgerMenu.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                hamburgerMenu.classList.toggle('active');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768) {
+                    if (!sidebar.contains(event.target) && !hamburgerMenu.contains(event.target)) {
+                        sidebar.classList.remove('active');
+                        hamburgerMenu.classList.remove('active');
+                    }
+                }
             });
         });
     </script>
