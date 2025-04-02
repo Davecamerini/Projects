@@ -16,7 +16,7 @@ if (!in_array($_SESSION['role'], ['admin', 'author'])) {
 $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"></html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,7 +70,7 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 px-0 sidebar">
                 <div class="d-flex flex-column p-3">
-                    <a href="index.php" class="d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                    <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
                         <img src="assets/images/logo sidebar.svg" alt="AIVIP Blog" style="height: 100px;">
                     </a>
                     <hr class="text-white">

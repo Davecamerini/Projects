@@ -218,10 +218,6 @@ $db->closeConnection();
 
 /* Category colors based on name hash */
 <?php
-// Reopen database connection for category styling
-$db = new Database();
-$conn = $db->getConnection();
-
 $categoryQuery = "SELECT id, name FROM categories ORDER BY name ASC";
 $categoryResult = $conn->query($categoryQuery);
 $allCategories = $categoryResult->fetch_all(MYSQLI_ASSOC);
@@ -238,8 +234,6 @@ foreach ($allCategories as $cat) {
     
     echo ".category-{$cat['id']} { background-color: #{$hash}; color: {$textColor}; }\n";
 }
-
-$db->closeConnection();
 ?>
 
 /* Add these styles to the existing style block */
