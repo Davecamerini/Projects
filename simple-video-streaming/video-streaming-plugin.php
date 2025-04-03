@@ -80,6 +80,7 @@ function vsp_render_folder_tree($folders, $current_dir = '', $is_settings_page =
         $output .= '<span class="folder-name">' . esc_html($folder['name']) . '</span>';
         if ($is_settings_page) {
             $output .= '<div class="folder-actions">';
+            $output .= '<button class="folder-action-button add" data-action="add" title="Add subfolder"><span class="dashicons dashicons-plus-alt2"></span></button>';
             $output .= '<button class="folder-action-button rename" data-action="rename" title="Rename folder"><span class="dashicons dashicons-edit"></span></button>';
             $output .= '<button class="folder-action-button delete" data-action="delete" title="Delete folder"><span class="dashicons dashicons-trash"></span></button>';
             $output .= '</div>';
@@ -782,7 +783,8 @@ function vsp_calculate_durations() {
     
     for ($i = $offset; $i < min($offset + $batch_size, $total); $i++) {
         $source_path = $videos[$i];
-        $cached_path = $source_path . '.duration';
+        $duration_dir = dirname($source_path) . '/duration';
+        $cached_path = $duration_dir . '/' . basename($source_path) . '.duration';
         
         // Check if duration exists and is up to date
         if (file_exists($cached_path) && filemtime($cached_path) >= filemtime($source_path)) {
@@ -1152,7 +1154,9 @@ function vsp_settings_page() {
                 const folderPath = $(this).closest('.folder-item').data('path');
                 const folderName = $(this).closest('.folder-item').find('.folder-name').text();
 
-                if (action === 'rename') {
+                if (action === 'add') {
+                    showFolderDialog('add', folderPath);
+                } else if (action === 'rename') {
                     showFolderDialog('rename', folderPath, folderName);
                 } else if (action === 'delete') {
                     if (confirm('Are you sure you want to delete this folder and all its contents?')) {
@@ -1165,7 +1169,7 @@ function vsp_settings_page() {
         function showFolderDialog(type, folderPath = '', folderName = '') {
             const dialog = $('<div class="vsp-folder-dialog"><div class="vsp-folder-dialog-content">' +
                 '<div class="vsp-folder-dialog-header">' +
-                '<h3>' + (type === 'create' ? 'Create New Folder' : 'Rename Folder') + '</h3>' +
+                '<h3>' + (type === 'add' ? 'Add Subfolder' : (type === 'create' ? 'Create New Folder' : 'Rename Folder')) + '</h3>' +
                 '<button class="vsp-folder-dialog-close">&times;</button>' +
                 '</div>' +
                 '<div class="vsp-folder-dialog-body">' +
@@ -1173,7 +1177,7 @@ function vsp_settings_page() {
                 '</div>' +
                 '<div class="vsp-folder-dialog-footer">' +
                 '<button class="button cancel-folder-dialog">Cancel</button>' +
-                '<button class="button button-primary save-folder-dialog">' + (type === 'create' ? 'Create' : 'Rename') + '</button>' +
+                '<button class="button button-primary save-folder-dialog">' + (type === 'add' ? 'Add' : (type === 'create' ? 'Create' : 'Rename')) + '</button>' +
                 '</div>' +
                 '</div></div>');
 
@@ -1190,7 +1194,9 @@ function vsp_settings_page() {
             dialog.find('.save-folder-dialog').on('click', function() {
                 const newName = dialog.find('.folder-name-input').val().trim();
                 if (newName) {
-                    if (type === 'create') {
+                    if (type === 'add') {
+                        createSubfolder(folderPath, newName);
+                    } else if (type === 'create') {
                         createFolder(newName);
                     } else {
                         renameFolder(folderPath, newName);
@@ -1258,6 +1264,26 @@ function vsp_settings_page() {
             });
         }
 
+        function createSubfolder(parentPath, name) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'create_subfolder',
+                    parent_path: parentPath,
+                    folder_name: name,
+                    nonce: vspNonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Error creating subfolder: ' + response.data);
+                    }
+                }
+            });
+        }
+
         // Initialize folder management
         initFolderManagement();
 
@@ -1278,6 +1304,7 @@ function vsp_settings_page() {
 add_action('wp_ajax_create_folder', 'vsp_ajax_create_folder');
 add_action('wp_ajax_rename_folder', 'vsp_ajax_rename_folder');
 add_action('wp_ajax_delete_folder', 'vsp_ajax_delete_folder');
+add_action('wp_ajax_create_subfolder', 'vsp_ajax_create_subfolder');
 
 function vsp_ajax_create_folder() {
     check_ajax_referer('vsp_nonce', 'nonce');
@@ -1369,6 +1396,28 @@ function vsp_delete_directory($dir) {
     }
 
     return rmdir($dir);
+}
+
+function vsp_ajax_create_subfolder() {
+    check_ajax_referer('vsp_nonce', 'nonce');
+    
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+
+    $parent_path = sanitize_text_field($_POST['parent_path']);
+    $folder_name = sanitize_text_field($_POST['folder_name']);
+    $new_folder = VIDEO_UPLOAD_DIR . '/' . ($parent_path ? $parent_path . '/' : '') . $folder_name;
+
+    if (file_exists($new_folder)) {
+        wp_send_json_error('Folder already exists');
+    }
+
+    if (wp_mkdir_p($new_folder)) {
+        wp_send_json_success('Subfolder created successfully');
+    } else {
+        wp_send_json_error('Failed to create subfolder');
+    }
 }
 
 // Function to count media files in a directory

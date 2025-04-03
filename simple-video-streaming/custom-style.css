@@ -719,12 +719,20 @@
     color: #2271b1;
 }
 
+.vsp-folder-tree .folder-action-button.add {
+    color: #00a32a;
+}
+
 .vsp-folder-tree .folder-action-button.delete {
     color: #d63638;
 }
 
 .vsp-folder-tree .folder-action-button:hover.rename {
     background: #e5f5fa;
+}
+
+.vsp-folder-tree .folder-action-button:hover.add {
+    background: #edfaef;
 }
 
 .vsp-folder-tree .folder-action-button:hover.delete {
