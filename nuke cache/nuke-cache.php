@@ -14,9 +14,57 @@
  * Domain Path: /languages
  */
 
+// If this file is called directly, abort.
+if (!defined('WPINC')) {
+    die;
+}
+
+// Plugin initialization
+function nuke_cache_init() {
+    // Load plugin text domain
+    load_plugin_textdomain('nuke cache', false, dirname(plugin_basename(__FILE__)) . '/languages');
+}
+add_action('init', 'nuke_cache_init');
+
 // Hook to add a menu item in the admin dashboard
 add_action('admin_menu', 'cache_folder_scanner_menu');
-add_action('admin_enqueue_scripts', 'nuke_cache_admin_styles');
+add_action('admin_enqueue_scripts', 'nuke_cache_admin_scripts');
+
+function nuke_cache_admin_scripts($hook) {
+    if ('toplevel_page_cache-folder-scanner' !== $hook) {
+        return;
+    }
+
+    // Register and enqueue CSS
+    wp_register_style(
+        'nuke-cache-style',
+        plugins_url('nuke-cache.css', __FILE__),
+        array(),
+        '1.0.0'
+    );
+    wp_enqueue_style('nuke-cache-style');
+
+    // Register and enqueue JavaScript
+    wp_register_script(
+        'nuke-cache-script',
+        plugins_url('nuke-cache.js', __FILE__),
+        array('jquery'),
+        '1.0.0',
+        true
+    );
+
+    // Localize the script with nonce
+    wp_localize_script(
+        'nuke-cache-script',
+        'nukeCacheData',
+        array(
+            'nonce' => wp_create_nonce('nuke_cache_nonce'),
+            'ajaxurl' => admin_url('admin-ajax.php')
+        )
+    );
+
+    wp_enqueue_script('nuke-cache-script');
+}
 
 function nuke_cache_admin_styles($hook) {
     if ('toplevel_page_cache-folder-scanner' !== $hook) {
@@ -136,8 +184,15 @@ function nuke_cache_admin_styles($hook) {
 }
 
 function cache_folder_scanner_menu() {
-    $icon_url = plugins_url('Mon.png', __FILE__);
-    add_menu_page('Nuke Cache', 'Cache Nuker', 'manage_options', 'cache-folder-scanner', 'cache_folder_scanner_page', $icon_url, 30);
+    add_menu_page(
+        'Cache Folder Scanner',
+        'Cache Nuker',
+        'manage_options',
+        'cache-folder-scanner',
+        'cache_folder_scanner_page',
+        plugins_url('Mon.png', __FILE__),
+        30
+    );
 }
 
 function cache_folder_scanner_page() {
@@ -170,11 +225,11 @@ function cache_folder_scanner_page() {
         <div class="nuke-cache-grid">
             <!-- WordPress Cache Card -->
             <div class="nuke-cache-card">
-                <div class="nuke-card-header">
+                <div class="nuke-cache-card-header">
                     <span class="dashicons dashicons-performance"></span>
                     <h2><?php echo esc_html__('WordPress Cache', 'nuke cache'); ?></h2>
                 </div>
-                <div class="nuke-card-content">
+                <div class="nuke-cache-card-content">
                     <?php if ($cache_size > 0): ?>
                         <div class="nuke-cache-size">
                             <?php echo esc_html(size_format($cache_size)); ?>
@@ -187,7 +242,7 @@ function cache_folder_scanner_page() {
                         </div>
                         <form method="post">
                             <?php wp_nonce_field('empty_cache_action', 'nuke_cache_nonce'); ?>
-                            <input type="submit" name="empty_cache" class="button button-primary" value="<?php echo esc_attr__('Empty Cache Folder', 'nuke cache'); ?>" />
+                            <input type="submit" name="empty_cache" class="nuke-cache-button primary" value="<?php echo esc_attr__('Empty Cache Folder', 'nuke cache'); ?>" />
                         </form>
                     <?php else: ?>
                         <div class="nuke-cache-size">0 MB</div>
@@ -203,11 +258,11 @@ function cache_folder_scanner_page() {
 
             <!-- Divi Cache Card -->
             <div class="nuke-cache-card">
-                <div class="nuke-card-header">
+                <div class="nuke-cache-card-header">
                     <span class="dashicons dashicons-layout"></span>
                     <h2><?php echo esc_html__('Divi Cache', 'nuke cache'); ?></h2>
                 </div>
-                <div class="nuke-card-content">
+                <div class="nuke-cache-card-content">
                     <?php if ($et_cache_size > 0): ?>
                         <div class="nuke-cache-size">
                             <?php echo esc_html(size_format($et_cache_size)); ?>
@@ -220,7 +275,7 @@ function cache_folder_scanner_page() {
                         </div>
                         <form method="post">
                             <?php wp_nonce_field('empty_et_cache_action', 'nuke_cache_nonce'); ?>
-                            <input type="submit" name="empty_et_cache" class="button button-primary" value="<?php echo esc_attr__('Empty Et-cache Folder', 'nuke cache'); ?>" />
+                            <input type="submit" name="empty_et_cache" class="nuke-cache-button primary" value="<?php echo esc_attr__('Empty Et-cache Folder', 'nuke cache'); ?>" />
                         </form>
                     <?php else: ?>
                         <div class="nuke-cache-size">0 MB</div>

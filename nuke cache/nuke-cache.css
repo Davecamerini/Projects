@@ -1,0 +1,243 @@
+.nuke-cache-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nuke-cache-container h1 {
+    margin-bottom: 30px;
+    color: #1d2327;
+    font-size: 24px;
+}
+
+.nuke-cache-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.nuke-cache-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e4e7;
+}
+
+.nuke-cache-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.nuke-cache-card-header {
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e2e4e7;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nuke-cache-card-header .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #2271b1;
+}
+
+.nuke-cache-card-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.nuke-cache-card-content {
+    padding: 24px;
+}
+
+.nuke-cache-size {
+    font-size: 32px;
+    font-weight: 600;
+    color: #2271b1;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.nuke-cache-label {
+    font-size: 14px;
+    color: #646970;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.nuke-cache-status {
+    padding: 12px;
+    border-radius: 6px;
+    margin: 16px 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.nuke-cache-status.found {
+    background: #f0f6fc;
+    color: #2271b1;
+    border: 1px solid #c5d9ed;
+}
+
+.nuke-cache-status.empty {
+    background: #f0f6fc;
+    color: #646970;
+    border: 1px solid #e2e4e7;
+}
+
+.nuke-cache-button {
+    width: 100%;
+    text-align: center;
+    margin-top: 16px;
+    padding: 8px 16px;
+    height: auto;
+    line-height: 1.4;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nuke-cache-button.primary {
+    background: #2271b1;
+    color: #fff;
+}
+
+.nuke-cache-button.primary:hover {
+    background: #135e96;
+}
+
+.nuke-cache-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media screen and (max-width: 782px) {
+    .nuke-cache-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .nuke-cache-card {
+        margin-bottom: 0;
+    }
+    
+    .nuke-cache-size {
+        font-size: 28px;
+    }
+    
+    .nuke-cache-button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
+
+.nuke-cache-progress {
+    margin-top: 20px;
+    background: #f0f0f1;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 8px;
+}
+
+.nuke-cache-progress-bar {
+    height: 100%;
+    background: #2271b1;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+.nuke-cache-progress-text {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #50575e;
+}
+
+.nuke-cache-stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.nuke-cache-stat {
+    flex: 1;
+    text-align: center;
+}
+
+.nuke-cache-stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1d2327;
+    margin-bottom: 4px;
+}
+
+.nuke-cache-stat-label {
+    font-size: 14px;
+    color: #50575e;
+}
+
+.nuke-cache-divider {
+    height: 100%;
+    width: 1px;
+    background: #e2e4e7;
+}
+
+/* WordPress Admin Specific Styles */
+.wrap {
+    margin: 20px;
+}
+
+.wrap h1 {
+    margin-bottom: 30px;
+    color: #1d2327;
+    font-size: 24px;
+}
+
+/* Responsive Styles */
+@media (max-width: 782px) {
+    .nuke-cache-stats {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .nuke-cache-divider {
+        display: none;
+    }
+    
+    .nuke-cache-card-actions {
+        flex-direction: column;
+    }
+    
+    .nuke-cache-button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
+
+/* Admin Menu Icon Style */
+#adminmenu .toplevel_page_cache-folder-scanner .wp-menu-image img {
+    width: 20px;
+    height: 20px;
+    padding: 7px 0;
+    opacity: 0.6;
+}
+
+#adminmenu .toplevel_page_cache-folder-scanner:hover .wp-menu-image img,
+#adminmenu .toplevel_page_cache-folder-scanner.current .wp-menu-image img {
+    opacity: 1;
+} 
