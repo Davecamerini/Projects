@@ -154,12 +154,13 @@ The system uses the following tables:
 - name (VARCHAR)
 - slug (VARCHAR, UNIQUE)
 - description (TEXT)
+- parent_id (INT, references categories.id)
 - created_at (DATETIME)
 - updated_at (DATETIME)
 
 ### post_categories
-- post_id (INT)
-- category_id (INT)
+- post_id (INT, references posts.id)
+- category_id (INT, references categories.id)
 - created_at (DATETIME)
 
 ### media
@@ -168,20 +169,20 @@ The system uses the following tables:
 - filepath (VARCHAR)
 - filetype (VARCHAR)
 - filesize (INT)
-- uploaded_by (INT)
+- uploaded_by (INT, references users.id)
 - created_at (DATETIME)
 
 ### remember_tokens
 - id (INT, AUTO_INCREMENT)
-- user_id (INT)
-- token (VARCHAR)
+- user_id (INT, references users.id)
+- token (VARCHAR, UNIQUE)
 - expires_at (DATETIME)
 - created_at (DATETIME)
 
 ### password_resets
 - id (INT, AUTO_INCREMENT)
-- user_id (INT)
-- token (VARCHAR)
+- user_id (INT, references users.id)
+- token (VARCHAR, UNIQUE)
 - expires_at (DATETIME)
 - used (TINYINT)
 - created_at (DATETIME)
@@ -189,10 +190,10 @@ The system uses the following tables:
 ### newsletter
 - id (INT, AUTO_INCREMENT)
 - nome_cognome (VARCHAR)
-- email (VARCHAR, UNIQUE)
-- preferenza_invio (VARCHAR)
+- email (VARCHAR)
+- privacy (BOOLEAN)
 - url_invio (VARCHAR)
-- privacy (TINYINT)
+- preferenza_invio (VARCHAR)
 - created_at (DATETIME)
 
 ### contact_form
@@ -202,7 +203,7 @@ The system uses the following tables:
 - telefono (VARCHAR)
 - ragione_sociale (VARCHAR)
 - messaggio (TEXT)
-- privacy (TINYINT)
+- privacy (BOOLEAN)
 - url_invio (VARCHAR)
 - created_at (DATETIME)
 
