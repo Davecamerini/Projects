@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once '../config/database.php';
 
 // Function to ensure correct image path
@@ -38,7 +39,7 @@ $query = "SELECT m.*, u.username as uploader_name
           FROM media m 
           JOIN users u ON m.uploaded_by = u.id 
           WHERE m.uploaded_by = ? OR ? = 'admin'
-          ORDER BY m.upload_date DESC 
+          ORDER BY m.created_at DESC 
           LIMIT ? OFFSET ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("isii", $_SESSION['user_id'], $_SESSION['role'], $limit, $offset);
@@ -69,20 +70,20 @@ $db->closeConnection();
                 <?php while ($item = $media->fetch_assoc()): ?>
                 <div class="col-md-3">
                     <div class="card h-100">
-                        <img src="<?php echo htmlspecialchars(getImagePath($item['path'])); ?>" 
+                        <img src="<?php echo htmlspecialchars(getImagePath($item['filepath'])); ?>" 
                              class="card-img-top media-image" 
                              alt="<?php echo htmlspecialchars($item['filename']); ?>"
-                             data-full-src="<?php echo htmlspecialchars(getImagePath($item['path'])); ?>"
+                             data-full-src="<?php echo htmlspecialchars(getImagePath($item['filepath'])); ?>"
                              style="height: 200px; object-fit: cover; cursor: pointer;">
                         <div class="card-body">
                             <h6 class="card-title text-truncate"><?php echo htmlspecialchars($item['filename']); ?></h6>
                             <p class="card-text small text-muted">
                                 Uploaded by: <?php echo htmlspecialchars($item['uploader_name']); ?><br>
-                                Date: <?php echo date('M j, Y', strtotime($item['upload_date'])); ?>
+                                Date: <?php echo date('M j, Y', strtotime($item['created_at'])); ?>
                             </p>
                             <div class="btn-group w-100">
                                 <button type="button" class="btn btn-sm btn-outline-primary" 
-                                        onclick="copyToClipboard('<?php echo htmlspecialchars($item['path']); ?>')">
+                                        onclick="copyToClipboard('<?php echo htmlspecialchars($item['filepath']); ?>')">
                                     <i class="bi bi-link-45deg"></i> Copy URL
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-danger" 

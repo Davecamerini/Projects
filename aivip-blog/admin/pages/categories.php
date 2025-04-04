@@ -193,7 +193,7 @@ async function saveCategory() {
     if (!data.slug) delete data.slug;
     
     try {
-        const response = await fetch('../../api/categories/' + (id ? 'update.php' : 'create.php'), {
+        const response = await fetch('../api/categories/' + (id ? 'update.php' : 'create.php'), {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {
@@ -221,7 +221,7 @@ async function deleteCategory(id) {
     }
     
     try {
-        const response = await fetch('../../api/categories/delete.php', {
+        const response = await fetch('../api/categories/delete.php', {
             method: 'POST',
             body: JSON.stringify({ id: id }),
             headers: {

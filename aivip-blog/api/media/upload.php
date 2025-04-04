@@ -55,9 +55,9 @@ try {
     $conn = $db->getConnection();
 
     // Save file info to database
-    $stmt = $conn->prepare("INSERT INTO media (filename, path, type, uploaded_by, upload_date) VALUES (?, ?, ?, ?, NOW())");
+    $stmt = $conn->prepare("INSERT INTO media (filename, filepath, filetype, filesize, uploaded_by) VALUES (?, ?, ?, ?, ?)");
     $relativePath = '../uploads/images/' . $newFileName;
-    $stmt->bind_param("sssi", $fileName, $relativePath, $fileType, $_SESSION['user_id']);
+    $stmt->bind_param("sssii", $fileName, $relativePath, $fileType, $fileSize, $_SESSION['user_id']);
     
     if ($stmt->execute()) {
         $mediaId = $conn->insert_id;
@@ -68,7 +68,7 @@ try {
         $response['data'] = [
             'id' => $mediaId,
             'filename' => $fileName,
-            'path' => $relativePath
+            'filepath' => $relativePath
         ];
     } else {
         // Remove uploaded file if database insert fails

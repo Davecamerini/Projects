@@ -37,10 +37,24 @@ try {
 
     $media = $result->fetch_assoc();
     
-    // Get the physical file path
-    $filePath = '../../' . ltrim($media['path'], '../');
+    // Get the absolute path to the file
+    $filePath = realpath(dirname(__FILE__) . '/../../' . ltrim($media['filepath'], '../'));
     
-    // Delete the database record first
+    if (!$filePath) {
+        throw new Exception('Could not resolve file path');
+    }
+
+    // Verify the file exists and is within the uploads directory
+    if (!file_exists($filePath)) {
+        throw new Exception('File does not exist: ' . $filePath);
+    }
+
+    // Delete the physical file first
+    if (!unlink($filePath)) {
+        throw new Exception('Failed to delete physical file: ' . $filePath);
+    }
+
+    // If file deletion successful, delete the database record
     $deleteStmt = $conn->prepare("DELETE FROM media WHERE id = ?");
     $deleteStmt->bind_param("i", $mediaId);
     
@@ -48,19 +62,12 @@ try {
         throw new Exception('Failed to delete media record');
     }
 
-    // If database deletion successful, delete the physical file
-    if (file_exists($filePath)) {
-        if (!unlink($filePath)) {
-            // Log error but don't throw exception as DB record is already deleted
-            error_log("Failed to delete physical file: " . $filePath);
-        }
-    }
-
     $response['success'] = true;
     $response['message'] = 'Media deleted successfully';
 
 } catch (Exception $e) {
     $response['message'] = $e->getMessage();
+    error_log("Media deletion error: " . $e->getMessage());
 } finally {
     if (isset($db)) {
         $db->closeConnection();
