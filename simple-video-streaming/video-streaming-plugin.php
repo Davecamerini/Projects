@@ -1295,6 +1295,124 @@ function vsp_settings_page() {
             $('.vsp-video-overlay-content').html(img);
             $('.vsp-video-overlay').addClass('active');
         });
+
+        // Thumbnail generation
+        var isGeneratingThumbnails = false;
+        var thumbnailOffset = 0;
+        var totalImages = 0;
+        var totalProcessedThumbnails = 0;
+        var totalSkippedThumbnails = 0;
+
+        // Check if there's a thumbnail generation in progress
+        var savedThumbnailProgress = localStorage.getItem('vsp_thumbnail_progress');
+        if (savedThumbnailProgress) {
+            var progress = JSON.parse(savedThumbnailProgress);
+            if (!progress.is_complete) {
+                if (confirm('There is a thumbnail generation process in progress. Would you like to resume?')) {
+                    thumbnailOffset = progress.next_offset;
+                    totalImages = progress.total;
+                    totalProcessedThumbnails = progress.processed;
+                    totalSkippedThumbnails = progress.skipped;
+                    startThumbnailGeneration();
+                } else {
+                    localStorage.removeItem('vsp_thumbnail_progress');
+                }
+            }
+        }
+
+        $('#vsp-generate-thumbnails').on('click', function() {
+            if (!isGeneratingThumbnails) {
+                startThumbnailGeneration();
+            }
+        });
+
+        function startThumbnailGeneration() {
+            isGeneratingThumbnails = true;
+            var $button = $('#vsp-generate-thumbnails');
+            var $progressContainer = $('#vsp-progress-container');
+            var $progressBar = $progressContainer.find('.vsp-progress-fill');
+            var $progressText = $('#vsp-progress-text');
+            
+            $button.prop('disabled', true).text('Generating Thumbnails...');
+            $progressContainer.show();
+            
+            if (!savedThumbnailProgress) {
+                thumbnailOffset = 0;
+                totalProcessedThumbnails = 0;
+                totalSkippedThumbnails = 0;
+            }
+            
+            $(window).on('beforeunload', function() {
+                if (isGeneratingThumbnails) {
+                    return 'Thumbnail generation is in progress. Are you sure you want to leave?';
+                }
+            });
+            
+            processThumbnailBatch(thumbnailOffset, totalProcessedThumbnails, totalSkippedThumbnails);
+        }
+
+        function processThumbnailBatch(offset, processed, skipped) {
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'generate_thumbnails',
+                    offset: offset,
+                    nonce: vspNonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        processed += response.data.processed;
+                        skipped += response.data.skipped;
+                        totalImages = response.data.total;
+                        var progress = ((processed + skipped) / totalImages) * 100;
+                        $('#vsp-progress-container .vsp-progress-fill').css('width', progress + '%');
+                        $('#vsp-progress-text').text('Processing: ' + (processed + skipped) + '/' + totalImages + ' (Skipped: ' + skipped + ')');
+                        
+                        localStorage.setItem('vsp_thumbnail_progress', JSON.stringify({
+                            processed: processed,
+                            skipped: skipped,
+                            total: totalImages,
+                            next_offset: response.data.next_offset,
+                            is_complete: response.data.is_complete
+                        }));
+                        
+                        if (!response.data.is_complete) {
+                            processThumbnailBatch(response.data.next_offset, processed, skipped);
+                        } else {
+                            completeThumbnailGeneration();
+                        }
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while generating thumbnails. The process will resume from where it left off when you refresh the page.');
+                }
+            });
+        }
+
+        function completeThumbnailGeneration() {
+            isGeneratingThumbnails = false;
+            localStorage.removeItem('vsp_thumbnail_progress');
+            $('#vsp-generate-thumbnails').prop('disabled', false).text('Generate All Thumbnails');
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+        }
+
+        // Add cancel button for thumbnail generation
+        if (!$('#vsp-cancel-thumbnails').length) {
+            $('#vsp-generate-thumbnails').after(' <button id="vsp-cancel-thumbnails" class="button" style="display: none;">Cancel</button>');
+        }
+
+        $('#vsp-cancel-thumbnails').on('click', function() {
+            if (confirm('Are you sure you want to cancel the thumbnail generation process?')) {
+                isGeneratingThumbnails = false;
+                localStorage.removeItem('vsp_thumbnail_progress');
+                $('#vsp-generate-thumbnails').prop('disabled', false).text('Generate All Thumbnails');
+                $('#vsp-cancel-thumbnails').hide();
+                $('#vsp-progress-container').hide();
+            }
+        });
     });
     </script>
     <?php

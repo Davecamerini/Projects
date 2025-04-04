@@ -60,4 +60,4 @@ You should have received a copy of the GNU General Public License along with thi
 
 ## Author
 
-Developed by [Davecamerini](https://www.davecamerini.it) - [info@davecamerini.it](mailto:info@davecamerini.it) 
+Developed by [Davecamerini](https://www.davecamerini.com) - [info@davecamerini.com](mailto:info@davecamerini.com) 

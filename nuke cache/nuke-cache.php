@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name: Nuke Cache
- * Plugin URI: https://www.davecamerini.it/nuke-cache
+ * Plugin URI: https://www.davecamerini.com/nuke-cache
  * Description: Scans wp-content for cache folders and provides options to empty them.
  * Version: 1.0.0
  * Requires at least: 5.0
  * Requires PHP: 7.2
  * Author: Davecamerini
- * Author URI: https://www.davecamerini.it
+ * Author URI: https://www.davecamerini.com
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: nuke cache
