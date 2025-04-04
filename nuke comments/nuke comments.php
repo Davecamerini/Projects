@@ -6,7 +6,7 @@
  * Requires at least: 5.0
  * Requires PHP: 7.2
  * Author: Davecamerini
- * Author URI: https://www.davecamerini.it
+ * Author URI: https://www.davecamerini.com
  * License: MIT
  * License URI: https://opensource.org/licenses/MIT
  * Text Domain: nuke-comments
