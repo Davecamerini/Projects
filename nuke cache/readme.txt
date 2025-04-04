@@ -2,7 +2,7 @@
 Contributors: davecamerini
 Tags: cache, performance, optimization
 Requires at least: 5.0
-Tested up to: 6.7.2
+Tested up to: 6.7
 Stable tag: 1.0.0
 Requires PHP: 7.2
 License: GPLv2 or later
