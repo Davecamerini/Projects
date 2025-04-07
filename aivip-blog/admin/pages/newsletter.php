@@ -172,7 +172,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${sub.id}</td>
                 <td>${escapeHtml(sub.nome_cognome)}</td>
                 <td>${escapeHtml(sub.email)}</td>
-                <td>${escapeHtml(sub.preferenza_invio)}</td>
+                <td>
+                    <span class="badge bg-${sub.preferenza_invio ? 'success' : 'warning'}">
+                        ${sub.preferenza_invio ? 'Yes' : 'No'}
+                    </span>
+                </td>
                 <td>${escapeHtml(sub.url_invio)}</td>
                 <td>
                     <span class="badge bg-${sub.privacy ? 'success' : 'danger'}">

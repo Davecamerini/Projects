@@ -67,7 +67,7 @@ class Mail {
      * @return bool Whether the email was sent successfully
      */
     public function sendPasswordReset($to, $username, $token) {
-        $resetLink = "http://{$_SERVER['HTTP_HOST']}/admin/reset-password.php?token=" . $token;
+        $resetLink = "http://{$_SERVER['HTTP_HOST']}/backend/admin/reset-password.php?token=" . $token;
         
         $subject = "Reset Your Password - AIVIP Blog";
         

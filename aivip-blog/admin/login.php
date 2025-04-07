@@ -1,5 +1,7 @@
 <?php
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 // If already logged in, redirect to dashboard
 if (isset($_SESSION['user_id'])) {
@@ -40,6 +42,7 @@ if (isset($_COOKIE['remember_token'])) {
 // Initialize error message
 $error = '';
 $isLocked = false;
+$debug_info = '';
 
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -56,13 +59,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db = new Database();
             $conn = $db->getConnection();
             
+            if (!$conn) {
+                throw new Exception("Failed to connect to database");
+            }
+            
             // Check for too many failed attempts
             $ip = $_SERVER['REMOTE_ADDR'];
             $stmt = $conn->prepare("SELECT COUNT(*) as attempts FROM login_attempts 
                                   WHERE ip_address = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)");
             if (!$stmt) {
-                error_log("Prepare failed: " . $conn->error);
-                throw new Exception("Database error occurred");
+                throw new Exception("Prepare failed: " . $conn->error);
             }
             $stmt->bind_param("s", $ip);
             $stmt->execute();
@@ -74,6 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Check if input is email or username
                 $stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE (username = ? OR email = ?) AND status = 'active'");
+                if (!$stmt) {
+                    throw new Exception("Prepare failed: " . $conn->error);
+                }
                 $stmt->bind_param("ss", $username, $username);
                 $stmt->execute();
                 $result = $stmt->get_result();
@@ -132,6 +141,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch (Exception $e) {
         $error = 'An error occurred. Please try again later.';
+        $debug_info = $e->getMessage();
+        error_log("Login Error: " . $e->getMessage());
     }
 }
 ?>
@@ -197,6 +208,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if ($error): ?>
                 <div class="alert alert-danger" role="alert">
                     <i class="bi bi-exclamation-triangle me-2"></i><?php echo htmlspecialchars($error); ?>
+                    <?php if (!empty($debug_info)): ?>
+                    <div class="mt-2 small text-muted">
+                        <strong>Debug Info:</strong> <?php echo htmlspecialchars($debug_info); ?>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
                 

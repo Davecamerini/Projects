@@ -73,6 +73,8 @@ try {
     
     $subscriptions = [];
     while ($row = $result->fetch_assoc()) {
+        // Convert preferenza_invio to boolean
+        $row['preferenza_invio'] = (bool)$row['preferenza_invio'];
         $subscriptions[] = $row;
     }
 

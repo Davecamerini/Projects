@@ -128,10 +128,20 @@ CREATE TABLE IF NOT EXISTS newsletter (
     email VARCHAR(255) NOT NULL,
     privacy BOOLEAN NOT NULL DEFAULT FALSE,
     url_invio VARCHAR(255) NOT NULL,
-    preferenza_invio VARCHAR(255) NOT NULL,
+    preferenza_invio BOOLEAN NOT NULL DEFAULT FALSE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_email (email),
     INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create login_attempts table for tracking failed login attempts
+CREATE TABLE IF NOT EXISTS login_attempts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    ip_address VARCHAR(45) NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    attempt_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ip_time (ip_address, attempt_time),
+    INDEX idx_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert default admin user

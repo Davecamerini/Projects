@@ -180,9 +180,14 @@ passwordForm.addEventListener('submit', async (e) => {
     }
     
     try {
-        const response = await fetch('../../api/users/change-password.php', {
+        const formData = {
+            current_password: document.getElementById('current_password').value,
+            new_password: newPassword
+        };
+
+        const response = await fetch('../api/users/change-password.php', {
             method: 'POST',
-            body: JSON.stringify(Object.fromEntries(new FormData(passwordForm))),
+            body: JSON.stringify(formData),
             headers: {
                 'Content-Type': 'application/json'
             }

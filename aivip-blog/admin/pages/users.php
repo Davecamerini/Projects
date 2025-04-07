@@ -467,5 +467,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Handle reset password button click
+    document.querySelectorAll('.reset-password').forEach(button => {
+        button.addEventListener('click', async function() {
+            const userId = this.dataset.id;
+            const button = this;
+            
+            // Show confirmation dialog
+            if (confirm('Are you sure you want to reset this user\'s password? A new random password will be generated.')) {
+                // Disable button and show loading state
+                button.disabled = true;
+                button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+                
+                try {
+                    const response = await fetch('../api/users/reset-password.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: userId })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Show new password in alert
+                        alert('Password reset successful!\nNew password: ' + data.password);
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error resetting password');
+                } finally {
+                    // Re-enable button and restore icon
+                    button.disabled = false;
+                    button.innerHTML = '<i class="bi bi-key"></i>';
+                }
+            }
+        });
+    });
 });
 </script> 
