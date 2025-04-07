@@ -95,6 +95,285 @@ aivip-blog/
   - Submit contact form
   - List submissions
 
+## API Documentation
+
+### Authentication
+
+#### Login
+```
+POST /api/auth/login.php
+```
+Request body:
+```json
+{
+    "username": "string",
+    "password": "string"
+}
+```
+
+#### Logout
+```
+POST /api/auth/logout.php
+```
+
+### Posts
+
+#### List Posts
+```
+GET /api/posts/list.php
+```
+Query Parameters:
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10, max: 50)
+- `status` (optional): Filter by status (draft/published/archived)
+- `search` (optional): Search in title, content, and excerpt
+- `category` (optional): Filter by category ID
+- `author` (optional): Filter by author ID
+- `sort` (optional): Sort field (created_at/updated_at/published_at/title)
+- `order` (optional): Sort order (ASC/DESC)
+
+#### Create Post
+```
+POST /api/posts/create.php
+```
+Request body:
+```json
+{
+    "title": "string (required)",
+    "content": "string (required)",
+    "excerpt": "string (optional)",
+    "featured_image": "string (optional)",
+    "status": "string (optional: draft/published/archived)",
+    "categories": ["integer"] (optional)
+}
+```
+
+#### Update Post
+```
+POST /api/posts/update.php
+```
+Request body:
+```json
+{
+    "id": "integer (required)",
+    "title": "string (required)",
+    "content": "string (required)",
+    "excerpt": "string (optional)",
+    "featured_image": "string (optional)",
+    "status": "string (optional: draft/published/archived)",
+    "categories": ["integer"] (optional)
+}
+```
+
+#### Delete Post
+```
+POST /api/posts/delete.php
+```
+Request body:
+```json
+{
+    "id": "integer (required)"
+}
+```
+
+### Categories
+
+#### List Categories
+```
+GET /api/categories/list.php
+```
+Query Parameters:
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10, max: 50)
+- `search` (optional): Search in name
+- `sort` (optional): Sort field (name)
+- `order` (optional): Sort order (ASC/DESC)
+
+#### Create Category
+```
+POST /api/categories/create.php
+```
+Request body:
+```json
+{
+    "name": "string (required)",
+    "description": "string (optional)"
+}
+```
+
+#### Update Category
+```
+POST /api/categories/update.php
+```
+Request body:
+```json
+{
+    "id": "integer (required)",
+    "name": "string (required)",
+    "description": "string (optional)"
+}
+```
+
+#### Delete Category
+```
+POST /api/categories/delete.php
+```
+Request body:
+```json
+{
+    "id": "integer (required)"
+}
+```
+
+### Newsletter
+
+#### Subscribe
+```
+POST /api/newsletter/subscribe.php
+```
+Request body:
+```json
+{
+    "nome_cognome": "string (required)",
+    "email": "string (required)",
+    "preferenza_invio": "string (required)",
+    "privacy": "boolean (required)",
+    "url_invio": "string (required)"
+}
+```
+
+#### List Subscribers
+```
+GET /api/newsletter/list.php
+```
+Query Parameters:
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10, max: 50)
+- `search` (optional): Search in name and email
+- `sort` (optional): Sort field (created_at/email/nome_cognome)
+- `order` (optional): Sort order (ASC/DESC)
+
+### Contact Form
+
+#### Submit Contact Form
+```
+POST /api/contact/submit.php
+```
+Request body:
+```json
+{
+    "nome_cognome": "string (required)",
+    "email": "string (required)",
+    "telefono": "string (optional)",
+    "ragione_sociale": "string (optional)",
+    "messaggio": "string (required)",
+    "privacy": "boolean (required)",
+    "url_invio": "string (required)"
+}
+```
+
+#### List Submissions
+```
+GET /api/contact/list.php
+```
+Query Parameters:
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10, max: 50)
+- `search` (optional): Search in name, email, and company
+- `sort` (optional): Sort field (created_at/email/nome_cognome/ragione_sociale)
+- `order` (optional): Sort order (ASC/DESC)
+
+### Media
+
+#### Upload Media
+```
+POST /api/media/upload.php
+```
+- Method: POST
+- Content-Type: multipart/form-data
+- Field name: "image"
+- Supported types: JPG, PNG, GIF
+- Max size: 5MB
+
+#### List Media
+```
+GET /api/media/list.php
+```
+Query Parameters:
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10, max: 50)
+- `search` (optional): Search in filename
+- `sort` (optional): Sort field (created_at/filename)
+- `order` (optional): Sort order (ASC/DESC)
+
+#### Delete Media
+```
+POST /api/media/delete.php
+```
+Request body:
+```json
+{
+    "id": "integer (required)"
+}
+```
+
+### Users
+
+#### Create User
+```
+POST /api/users/create.php
+```
+Request body:
+```json
+{
+    "username": "string (required)",
+    "email": "string (required)",
+    "password": "string (required)",
+    "first_name": "string (required)",
+    "last_name": "string (required)",
+    "role": "string (required: admin|author)"
+}
+```
+
+#### Update User
+```
+POST /api/users/update.php
+```
+Request body:
+```json
+{
+    "id": "integer (required)",
+    "username": "string (required)",
+    "email": "string (required)",
+    "first_name": "string (required)",
+    "last_name": "string (required)",
+    "role": "string (required)",
+    "status": "string (required)"
+}
+```
+
+#### Delete User
+```
+POST /api/users/delete.php
+```
+Request body:
+```json
+{
+    "id": "integer (required)"
+}
+```
+
+#### Reset Password
+```
+POST /api/users/reset-password.php
+```
+Request body:
+```json
+{
+    "id": "integer (required)"
+}
+```
+
 ## Installation
 
 1. Clone the repository
