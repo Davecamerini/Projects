@@ -67,13 +67,26 @@ $db->closeConnection();
     <div class="card">
         <div class="card-body">
             <div class="row g-4">
+                <?php if ($media->num_rows === 0): ?>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="bi bi-image text-muted mb-3" style="font-size: 3rem;"></i>
+                                <h5 class="text-muted mb-2">No Media Files</h5>
+                                <p class="text-muted mb-0">Upload your first media file to get started</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php else: ?>
                 <?php while ($item = $media->fetch_assoc()): ?>
                 <div class="col-md-3">
                     <div class="card h-100">
-                        <img src="<?php echo htmlspecialchars(getImagePath($item['filepath'])); ?>" 
+                        <img src="<?php echo htmlspecialchars($item['filepath']); ?>" 
                              class="card-img-top media-image" 
                              alt="<?php echo htmlspecialchars($item['filename']); ?>"
-                             data-full-src="<?php echo htmlspecialchars(getImagePath($item['filepath'])); ?>"
+                             data-full-src="<?php echo htmlspecialchars($item['filepath']); ?>"
                              style="height: 200px; object-fit: cover; cursor: pointer;">
                         <div class="card-body">
                             <h6 class="card-title text-truncate"><?php echo htmlspecialchars($item['filename']); ?></h6>
@@ -95,6 +108,7 @@ $db->closeConnection();
                     </div>
                 </div>
                 <?php endwhile; ?>
+                <?php endif; ?>
             </div>
 
             <!-- Pagination -->
@@ -245,6 +259,38 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Escape' && overlay.style.display === 'block') {
             overlay.style.display = 'none';
         }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Delete media item
+    document.querySelectorAll('.delete-media').forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this media item?')) {
+                const mediaId = this.dataset.id;
+                
+                fetch('../api/media/delete.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: mediaId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.closest('.media-item').remove();
+                        alert('Media deleted successfully');
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the media');
+                });
+            }
+        });
     });
 });
 </script> 

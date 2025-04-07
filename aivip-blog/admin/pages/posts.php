@@ -11,7 +11,7 @@ $sort_column = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
 $sort_direction = isset($_GET['direction']) ? $_GET['direction'] : 'desc';
 
 // Validate sort column
-$allowed_columns = ['title', 'author_name', 'status', 'created_at', 'categories'];
+$allowed_columns = ['title', 'author_name', 'status', 'created_at', 'categories', 'featured_image'];
 if (!in_array($sort_column, $allowed_columns)) {
     $sort_column = 'created_at';
 }
@@ -87,15 +87,19 @@ $countStmt->execute();
 $totalResult = $countStmt->get_result()->fetch_assoc();
 $total = $totalResult['total'];
 
-// Add pagination and sorting
-$offset = ($page - 1) * $limit;
+// Add sorting
 if ($sort_column === 'categories') {
-    $query .= " GROUP BY p.id ORDER BY MIN(c.name) " . $sort_direction . " LIMIT ? OFFSET ?";
+    $query .= " GROUP BY p.id ORDER BY MIN(c.name) " . $sort_direction;
+} elseif ($sort_column === 'featured_image') {
+    $query .= " GROUP BY p.id ORDER BY CASE WHEN p.featured_image IS NULL OR p.featured_image = '' THEN 1 ELSE 0 END " . $sort_direction . ", p.featured_image " . $sort_direction;
 } else {
-    $query .= " GROUP BY p.id ORDER BY " . $sort_column . " " . $sort_direction . " LIMIT ? OFFSET ?";
+    $query .= " GROUP BY p.id ORDER BY p." . $sort_column . " " . $sort_direction;
 }
+
+// Add pagination
+$query .= " LIMIT ? OFFSET ?";
 $params[] = $limit;
-$params[] = $offset;
+$params[] = ($page - 1) * $limit;
 $types .= "ii";
 
 // Get posts
@@ -195,6 +199,12 @@ $db->closeConnection();
                                     <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
                                 <?php endif; ?>
                             </th>
+                            <th class="sortable" data-column="featured_image">
+                                Featured Image
+                                <?php if ($sort_column === 'featured_image'): ?>
+                                    <i class="bi bi-sort-<?php echo $sort_direction === 'asc' ? 'up' : 'down'; ?>"></i>
+                                <?php endif; ?>
+                            </th>
                             <th class="sortable" data-column="created_at">
                                 Created
                                 <?php if ($sort_column === 'created_at'): ?>
@@ -205,6 +215,17 @@ $db->closeConnection();
                         </tr>
                     </thead>
                     <tbody>
+                        <?php if (empty($posts)): ?>
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="d-flex flex-column align-items-center">
+                                    <i class="bi bi-journal-text text-muted mb-3" style="font-size: 3rem;"></i>
+                                    <h5 class="text-muted mb-2">No Posts Found</h5>
+                                    <p class="text-muted mb-0">Create your first post to get started</p>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php else: ?>
                         <?php while ($post = $posts->fetch_assoc()): ?>
                         <tr data-post-id="<?php echo $post['id']; ?>" data-content="<?php echo htmlspecialchars($post['content']); ?>">
                             <td>
@@ -265,6 +286,13 @@ $db->closeConnection();
                                     </ul>
                                 </div>
                             </td>
+                            <td>
+                                <?php if (!empty($post['featured_image'])): ?>
+                                    <span class="badge bg-success">Yes</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary">No</span>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo date('M j, Y', strtotime($post['created_at'])); ?></td>
                             <td>
                                 <a href="?page=new-post&action=edit&id=<?php echo $post['id']; ?>" 
@@ -274,7 +302,7 @@ $db->closeConnection();
                                    title="Edit Post">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="/post.php?id=<?php echo $post['id']; ?>" 
+                                <a href="/blog/<?php echo $post['slug']; ?>" 
                                    target="_blank" 
                                    class="btn btn-sm btn-info"
                                    data-bs-toggle="tooltip"
@@ -292,6 +320,7 @@ $db->closeConnection();
                             </td>
                         </tr>
                         <?php endwhile; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -339,183 +368,181 @@ $db->closeConnection();
 </div>
 
 <style>
-/* Fix dropdown menu visibility */
-.card {
-    position: relative;
-    z-index: 1;
-    overflow: visible;
-}
+    /* Table column width styles */
+    .table th:nth-child(1), .table td:nth-child(1) { width: 20%; } /* Title column */
+    .table th:nth-child(2), .table td:nth-child(2) { width: 10%; } /* Author column */
+    .table th:nth-child(3), .table td:nth-child(3) { width: 25%; } /* Categories column */
+    .table th:nth-child(4), .table td:nth-child(4) { width: 10%; } /* Status column */
+    .table th:nth-child(5), .table td:nth-child(5) { width: 10%; } /* Featured Image column */
+    .table th:nth-child(6), .table td:nth-child(6) { width: 15%; } /* Created column */
+    .table th:nth-child(7), .table td:nth-child(7) { width: 10%; } /* Actions column */
 
-.card-body {
-    position: relative;
-    z-index: 1;
-    overflow: visible;
-}
+    /* Ensure table cells don't wrap */
+    .table td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-.table-responsive {
-    position: relative;
-    z-index: 1;
-    overflow: visible;
-}
+    /* Allow title to wrap if needed */
+    .table td:nth-child(1) {
+        white-space: normal;
+    }
 
-/* Status dropdown specific styles */
-td .dropdown {
-    position: static;
-}
+    /* Fix dropdown menu visibility */
+    .card {
+        position: relative;
+        overflow: visible;
+    }
 
-td .dropdown-menu {
-    position: absolute;
-    z-index: 1060;
-    min-width: 8rem;
-    padding: 0.5rem 0;
-    margin: 0;
-    font-size: 1rem;
-    color: #212529;
-    text-align: left;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid rgba(0,0,0,.15);
-    border-radius: 0.25rem;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
-}
+    .card-body {
+        position: relative;
+        overflow: visible;
+    }
 
-td .dropdown-menu .dropdown-item {
-    display: block;
-    width: 100%;
-    padding: 0.25rem 1rem;
-    clear: both;
-    font-weight: 400;
-    color: #212529;
-    text-align: inherit;
-    text-decoration: none;
-    white-space: nowrap;
-    background-color: transparent;
-    border: 0;
-    cursor: pointer;
-}
+    .table-responsive {
+        position: relative;
+        overflow: visible;
+    }
 
-td .dropdown-menu .dropdown-item:hover {
-    color: #1e2125;
-    background-color: #f8f9fa;
-}
+    /* Status dropdown specific styles */
+    td .dropdown {
+        position: relative;
+    }
 
-td .dropdown button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.25rem 0.5rem;
-}
+    td .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        min-width: 8rem;
+        padding: 0.5rem 0;
+        margin: 0;
+        font-size: 1rem;
+        color: #212529;
+        text-align: left;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0,0,0,.15);
+        border-radius: 0.25rem;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+    }
 
-td .dropdown button::after {
-    margin-left: 6px;
-}
+    /* Pagination styles */
+    .pagination {
+        margin-top: 1rem;
+    }
 
-/* Action buttons styles */
-td .btn-group,
-td .btn {
-    position: relative;
-    z-index: 1050;
-}
+    /* Action buttons styles */
+    td .btn-group,
+    td .btn {
+        position: relative;
+    }
 
-/* User dropdown specific styles */
-#dropdownUser1 + .dropdown-menu {
-    position: absolute;
-    z-index: 1035;
-    min-width: 10rem;
-    margin-top: 0.125rem;
-}
+    /* Table cell styles */
+    td {
+        position: relative;
+    }
 
-#dropdownUser1 + .dropdown-menu .dropdown-item {
-    display: block;
-    width: 100%;
-    padding: 0.25rem 1rem;
-    clear: both;
-    font-weight: 400;
-    color: #fff;
-    text-align: inherit;
-    text-decoration: none;
-    white-space: nowrap;
-    background-color: transparent;
-    border: 0;
-    cursor: pointer;
-}
+    /* User dropdown specific styles */
+    #dropdownUser1 + .dropdown-menu {
+        position: absolute;
+        z-index: 1035;
+        min-width: 10rem;
+        margin-top: 0.125rem;
+    }
 
-#dropdownUser1 + .dropdown-menu .dropdown-item:hover {
-    color: #fff;
-    background-color: rgba(255,255,255,.1);
-}
+    #dropdownUser1 + .dropdown-menu .dropdown-item {
+        display: block;
+        width: 100%;
+        padding: 0.25rem 1rem;
+        clear: both;
+        font-weight: 400;
+        color: #fff;
+        text-align: inherit;
+        text-decoration: none;
+        white-space: nowrap;
+        background-color: transparent;
+        border: 0;
+        cursor: pointer;
+    }
 
-#dropdownUser1 + .dropdown-menu .dropdown-divider {
-    border-top-color: rgba(255,255,255,.1);
-}
+    #dropdownUser1 + .dropdown-menu .dropdown-item:hover {
+        color: #fff;
+        background-color: rgba(255,255,255,.1);
+    }
 
-/* Category badge styles */
-.category-badge {
-    display: inline-block;
-    margin: 0.1rem;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: 0.25rem;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-    cursor: pointer;
-    text-decoration: none;
-}
+    #dropdownUser1 + .dropdown-menu .dropdown-divider {
+        border-top-color: rgba(255,255,255,.1);
+    }
 
-.category-badge:hover {
-    opacity: 0.9;
-}
+    /* Category badge styles */
+    .category-badge {
+        display: inline-block;
+        margin: 0.1rem;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+        cursor: pointer;
+        text-decoration: none;
+    }
 
-/* Category colors based on name hash */
-<?php
-foreach ($allCategories as $cat) {
-    $hash = substr(md5($cat['name']), 0, 6);
-    $r = hexdec(substr($hash, 0, 2));
-    $g = hexdec(substr($hash, 2, 2));
-    $b = hexdec(substr($hash, 4, 2));
-    
-    // Ensure text is readable by adjusting background lightness
-    $lightness = ($r * 299 + $g * 587 + $b * 114) / 1000;
-    $textColor = $lightness > 128 ? '#000' : '#fff';
-    
-    echo ".category-{$cat['id']} { background-color: #{$hash}; color: {$textColor}; }\n";
-}
-?>
+    .category-badge:hover {
+        opacity: 0.9;
+    }
 
-/* Ensure text is visible for all status types */
-.btn-outline-secondary {
-    color: #6c757d;
-}
+    /* Category colors based on name hash */
+    <?php
+    foreach ($allCategories as $cat) {
+        $hash = substr(md5($cat['name']), 0, 6);
+        $r = hexdec(substr($hash, 0, 2));
+        $g = hexdec(substr($hash, 2, 2));
+        $b = hexdec(substr($hash, 4, 2));
+        
+        // Ensure text is readable by adjusting background lightness
+        $lightness = ($r * 299 + $g * 587 + $b * 114) / 1000;
+        $textColor = $lightness > 128 ? '#000' : '#fff';
+        
+        echo ".category-{$cat['id']} { background-color: #{$hash}; color: {$textColor}; }\n";
+    }
+    ?>
 
-.btn-outline-success {
-    color: #198754;
-}
+    /* Ensure text is visible for all status types */
+    .btn-outline-secondary {
+        color: #6c757d;
+    }
 
-.btn-outline-warning {
-    color: #ffc107;
-}
+    .btn-outline-success {
+        color: #198754;
+    }
 
-.sortable {
-    cursor: pointer;
-    position: relative;
-    white-space: nowrap;
-}
-.sortable:hover {
-    background-color: rgba(0,0,0,.075);
-}
-.sortable i {
-    margin-left: 5px;
-    display: none;
-    vertical-align: middle;
-}
-.sortable:hover i,
-.sortable i[class*="bi-sort-"] {
-    display: inline-block;
-}
+    .btn-outline-warning {
+        color: #ffc107;
+    }
+
+    .sortable {
+        cursor: pointer;
+        position: relative;
+        white-space: nowrap;
+    }
+    .sortable:hover {
+        background-color: rgba(0,0,0,.075);
+    }
+    .sortable i {
+        margin-left: 5px;
+        display: none;
+        vertical-align: middle;
+    }
+    .sortable:hover i,
+    .sortable i[class*="bi-sort-"] {
+        display: inline-block;
+    }
 </style>
 
 <script>

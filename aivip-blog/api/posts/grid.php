@@ -3,6 +3,17 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Allow access from all origins
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 header('Content-Type: application/json');
 require_once '../../config/database.php';
 
@@ -30,6 +41,7 @@ try {
 
     // Build base query
     $query = "SELECT 
+                p.id,
                 p.slug,
                 p.featured_image,
                 p.published_at,

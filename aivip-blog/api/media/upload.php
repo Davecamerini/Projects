@@ -56,8 +56,12 @@ try {
 
     // Save file info to database
     $stmt = $conn->prepare("INSERT INTO media (filename, filepath, filetype, filesize, uploaded_by) VALUES (?, ?, ?, ?, ?)");
-    $relativePath = '../uploads/images/' . $newFileName;
-    $stmt->bind_param("sssii", $fileName, $relativePath, $fileType, $fileSize, $_SESSION['user_id']);
+    
+    // Generate full URL instead of relative path
+    $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
+    $fullUrl = $baseUrl . '/backend/uploads/images/' . $newFileName;
+    
+    $stmt->bind_param("sssii", $fileName, $fullUrl, $fileType, $fileSize, $_SESSION['user_id']);
     
     if ($stmt->execute()) {
         $mediaId = $conn->insert_id;
@@ -68,7 +72,7 @@ try {
         $response['data'] = [
             'id' => $mediaId,
             'filename' => $fileName,
-            'filepath' => $relativePath
+            'filepath' => $fullUrl
         ];
     } else {
         // Remove uploaded file if database insert fails
