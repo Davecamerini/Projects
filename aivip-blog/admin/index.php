@@ -76,53 +76,59 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                     <hr class="text-white">
                     <ul class="nav nav-pills flex-column mb-auto">
                         <li class="nav-item">
-                            <a href="?page=dashboard" class="nav-link <?php echo $current_page === 'dashboard' ? 'active' : ''; ?>">
+                            <a class="nav-link <?php echo $current_page === 'dashboard' ? 'active' : ''; ?>" href="?page=dashboard">
                                 <i class="bi bi-speedometer2 me-2"></i>
                                 Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="?page=posts" class="nav-link <?php echo $current_page === 'posts' ? 'active' : ''; ?>">
-                                <i class="bi bi-file-text me-2"></i>
+                            <a class="nav-link <?php echo $current_page === 'posts' ? 'active' : ''; ?>" href="?page=posts">
+                                <i class="bi bi-file-earmark-text me-2"></i>
                                 Posts
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="?page=new-post" class="nav-link <?php echo $current_page === 'new-post' ? 'active' : ''; ?>">
+                            <a class="nav-link <?php echo $current_page === 'new-post' ? 'active' : ''; ?>" href="?page=new-post">
                                 <i class="bi bi-plus-circle me-2"></i>
                                 New Post
                             </a>
                         </li>
                         <?php if ($_SESSION['role'] === 'admin'): ?>
                         <li class="nav-item">
-                            <a href="?page=users" class="nav-link <?php echo $current_page === 'users' ? 'active' : ''; ?>">
-                                <i class="bi bi-people me-2"></i>
-                                Users
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="?page=categories" class="nav-link <?php echo $current_page === 'categories' ? 'active' : ''; ?>">
+                            <a class="nav-link <?php echo $current_page === 'categories' ? 'active' : ''; ?>" href="?page=categories">
                                 <i class="bi bi-tags me-2"></i>
                                 Categories
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="?page=newsletter" class="nav-link <?php echo $current_page === 'newsletter' ? 'active' : ''; ?>">
+                            <a class="nav-link <?php echo $current_page === 'newsletter' ? 'active' : ''; ?>" href="?page=newsletter">
                                 <i class="bi bi-envelope me-2"></i>
                                 Newsletter
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="?page=contact-form" class="nav-link <?php echo $current_page === 'contact-form' ? 'active' : ''; ?>">
+                            <a class="nav-link <?php echo $current_page === 'contact-form' ? 'active' : ''; ?>" href="?page=contact-form">
                                 <i class="bi bi-chat-dots me-2"></i>
                                 Contact Form
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $current_page === 'digital_analysis' ? 'active' : ''; ?>" href="?page=digital_analysis">
+                                <i class="bi bi-graph-up me-2"></i>
+                                Digital Analysis
+                            </a>
+                        </li>
                         <?php endif; ?>
                         <li class="nav-item">
-                            <a href="?page=media" class="nav-link <?php echo $current_page === 'media' ? 'active' : ''; ?>">
-                                <i class="bi bi-images me-2"></i>
+                            <a class="nav-link <?php echo $current_page === 'media' ? 'active' : ''; ?>" href="?page=media">
+                                <i class="bi bi-image me-2"></i>
                                 Media
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $current_page === 'users' ? 'active' : ''; ?>" href="?page=users">
+                                <i class="bi bi-people me-2"></i>
+                                Users
                             </a>
                         </li>
                     </ul>
@@ -178,6 +184,11 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                     case 'contact-form':
                         if ($_SESSION['role'] === 'admin') {
                             include 'pages/contact-form.php';
+                        }
+                        break;
+                    case 'digital_analysis':
+                        if ($_SESSION['role'] === 'admin') {
+                            include 'pages/digital_analysis.php';
                         }
                         break;
                     default:

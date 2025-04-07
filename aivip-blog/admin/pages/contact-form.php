@@ -115,13 +115,47 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     display: none;
     vertical-align: middle;
 }
-.sortable:hover i {
+/* Remove hover display rule */
+/* .sortable:hover i {
     display: inline-block;
-}
-/* Add fixed width for ID column */
+} */
+/* Fixed widths for all columns */
 th[data-sort="id"],
-td:first-child {
-    width: 80px;
+td:nth-child(1) {
+    width: 5%;
+}
+th[data-sort="nome_cognome"],
+td:nth-child(2) {
+    width: 15%;
+}
+th[data-sort="email"],
+td:nth-child(3) {
+    width: 15%;
+}
+th[data-sort="telefono"],
+td:nth-child(4) {
+    width: 10%;
+}
+th[data-sort="ragione_sociale"],
+td:nth-child(5) {
+    width: 15%;
+}
+th[data-sort="messaggio"],
+td:nth-child(6) {
+    width: 20%;
+}
+th[data-sort="privacy"],
+td:nth-child(7) {
+    width: 5%;
+    text-align: center;
+}
+th[data-sort="url_invio"],
+td:nth-child(8) {
+    width: 10%;
+}
+th[data-sort="created_at"],
+td:nth-child(9) {
+    width: 5%;
 }
 </style>
 
@@ -292,18 +326,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Helper functions
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     }
 
     function formatDate(dateString) {
         const date = new Date(dateString);
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
     }
 
     // Initial load

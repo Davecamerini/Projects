@@ -144,6 +144,15 @@ CREATE TABLE IF NOT EXISTS login_attempts (
     INDEX idx_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Digital Analysis Table
+CREATE TABLE IF NOT EXISTS `digital_analysis` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `website` VARCHAR(255) NOT NULL,
+    `email` VARCHAR(255) NOT NULL,
+    `privacy` BOOLEAN NOT NULL DEFAULT FALSE,
+    `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Insert default admin user
 INSERT INTO users (username, email, password, first_name, last_name, role) 
 VALUES ('admin', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin')

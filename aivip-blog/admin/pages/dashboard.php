@@ -145,7 +145,7 @@ $db->closeConnection();
                                    title="Edit Post">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="/post.php?id=<?php echo $post['id']; ?>" 
+                                <a href="/blog/<?php echo $post['slug']; ?>" 
                                    target="_blank" 
                                    class="btn btn-sm btn-info"
                                    data-bs-toggle="tooltip"
