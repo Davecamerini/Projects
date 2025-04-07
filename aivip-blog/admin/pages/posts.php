@@ -368,114 +368,89 @@ $db->closeConnection();
 </div>
 
 <style>
-    /* Table column width styles */
-    .table th:nth-child(1), .table td:nth-child(1) { width: 20%; } /* Title column */
-    .table th:nth-child(2), .table td:nth-child(2) { width: 10%; } /* Author column */
-    .table th:nth-child(3), .table td:nth-child(3) { width: 25%; } /* Categories column */
-    .table th:nth-child(4), .table td:nth-child(4) { width: 10%; } /* Status column */
-    .table th:nth-child(5), .table td:nth-child(5) { width: 10%; } /* Featured Image column */
-    .table th:nth-child(6), .table td:nth-child(6) { width: 15%; } /* Created column */
-    .table th:nth-child(7), .table td:nth-child(7) { width: 10%; } /* Actions column */
-
-    /* Ensure table cells don't wrap */
+    /* Base table styles */
+    .table-responsive {
+        overflow: visible;
+    }
+    
     .table td {
+        position: relative;
+        overflow: visible;
+        vertical-align: middle;
+    }
+    
+    .table th {
         white-space: nowrap;
+    }
+    
+    /* Column widths - consolidated */
+    .table th:nth-child(1), .table td:nth-child(1) { width: 25%; } /* Title */
+    .table th:nth-child(2), .table td:nth-child(2) { width: 10%; } /* Author */
+    .table th:nth-child(3), .table td:nth-child(3) { width: 25%; } /* Categories */
+    .table th:nth-child(4), .table td:nth-child(4) { width: 10%; } /* Status */
+    .table th:nth-child(5), .table td:nth-child(5) { width: 10%; } /* Featured Image */
+    .table th:nth-child(6), .table td:nth-child(6) { width: 10%; } /* Created */
+    .table th:nth-child(7), .table td:nth-child(7) { width: 10%; } /* Actions */
+    
+    /* Text overflow handling */
+    .table td:nth-child(1) { 
+        white-space: normal;
+        max-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
-    /* Allow title to wrap if needed */
-    .table td:nth-child(1) {
-        white-space: normal;
+    
+    .table td:nth-child(2),
+    .table td:nth-child(3),
+    .table td:nth-child(4),
+    .table td:nth-child(5),
+    .table td:nth-child(6),
+    .table td:nth-child(7) { 
+        white-space: nowrap;
     }
-
-    /* Fix dropdown menu visibility */
-    .card {
-        position: relative;
-        overflow: visible;
-    }
-
-    .card-body {
-        position: relative;
-        overflow: visible;
-    }
-
-    .table-responsive {
-        position: relative;
-        overflow: visible;
-    }
-
-    /* Status dropdown specific styles */
-    td .dropdown {
+    
+    /* Dropdown specific styles */
+    .dropdown {
         position: relative;
     }
-
-    td .dropdown-menu {
+    
+    .dropdown-menu {
         position: absolute;
         top: 100%;
         left: 0;
         z-index: 1000;
         min-width: 8rem;
-        padding: 0.5rem 0;
-        margin: 0;
-        font-size: 1rem;
-        color: #212529;
-        text-align: left;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid rgba(0,0,0,.15);
-        border-radius: 0.25rem;
-        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
     }
-
+    
+    /* Status dropdown specific styles */
+    .status-dropdown .dropdown-menu {
+        z-index: 1001;
+    }
+    
+    /* Card and card-body styles */
+    .card {
+        position: relative;
+        overflow: visible;
+    }
+    
+    .card-body {
+        position: relative;
+        overflow: visible;
+    }
+    
     /* Pagination styles */
     .pagination {
         margin-top: 1rem;
+        position: relative;
+        z-index: 1;
     }
-
+    
     /* Action buttons styles */
-    td .btn-group,
-    td .btn {
+    .btn-group,
+    .btn {
         position: relative;
     }
-
-    /* Table cell styles */
-    td {
-        position: relative;
-    }
-
-    /* User dropdown specific styles */
-    #dropdownUser1 + .dropdown-menu {
-        position: absolute;
-        z-index: 1035;
-        min-width: 10rem;
-        margin-top: 0.125rem;
-    }
-
-    #dropdownUser1 + .dropdown-menu .dropdown-item {
-        display: block;
-        width: 100%;
-        padding: 0.25rem 1rem;
-        clear: both;
-        font-weight: 400;
-        color: #fff;
-        text-align: inherit;
-        text-decoration: none;
-        white-space: nowrap;
-        background-color: transparent;
-        border: 0;
-        cursor: pointer;
-    }
-
-    #dropdownUser1 + .dropdown-menu .dropdown-item:hover {
-        color: #fff;
-        background-color: rgba(255,255,255,.1);
-    }
-
-    #dropdownUser1 + .dropdown-menu .dropdown-divider {
-        border-top-color: rgba(255,255,255,.1);
-    }
-
+    
     /* Category badge styles */
     .category-badge {
         display: inline-block;
@@ -492,9 +467,44 @@ $db->closeConnection();
         cursor: pointer;
         text-decoration: none;
     }
-
+    
     .category-badge:hover {
         opacity: 0.9;
+    }
+    
+    /* Status button colors */
+    .btn-outline-secondary {
+        color: #6c757d;
+    }
+    
+    .btn-outline-success {
+        color: #198754;
+    }
+    
+    .btn-outline-warning {
+        color: #ffc107;
+    }
+    
+    /* Sortable columns */
+    .sortable {
+        cursor: pointer;
+        position: relative;
+        white-space: nowrap;
+    }
+    
+    .sortable:hover {
+        background-color: rgba(0,0,0,.075);
+    }
+    
+    .sortable i {
+        margin-left: 5px;
+        display: none;
+        vertical-align: middle;
+    }
+    
+    .sortable:hover i,
+    .sortable i[class*="bi-sort-"] {
+        display: inline-block;
     }
 
     /* Category colors based on name hash */
@@ -512,37 +522,6 @@ $db->closeConnection();
         echo ".category-{$cat['id']} { background-color: #{$hash}; color: {$textColor}; }\n";
     }
     ?>
-
-    /* Ensure text is visible for all status types */
-    .btn-outline-secondary {
-        color: #6c757d;
-    }
-
-    .btn-outline-success {
-        color: #198754;
-    }
-
-    .btn-outline-warning {
-        color: #ffc107;
-    }
-
-    .sortable {
-        cursor: pointer;
-        position: relative;
-        white-space: nowrap;
-    }
-    .sortable:hover {
-        background-color: rgba(0,0,0,.075);
-    }
-    .sortable i {
-        margin-left: 5px;
-        display: none;
-        vertical-align: middle;
-    }
-    .sortable:hover i,
-    .sortable i[class*="bi-sort-"] {
-        display: inline-block;
-    }
 </style>
 
 <script>
