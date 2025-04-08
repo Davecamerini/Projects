@@ -111,12 +111,12 @@ $db->closeConnection();
                                 Email
                                 <i class="bi bi-sort-up"></i>
                             </th>
-                            <th class="sortable" data-sort="timestamp">
-                                Date
-                                <i class="bi bi-sort-down"></i>
-                            </th>
                             <th class="sortable" data-sort="privacy">
                                 Privacy
+                                <i class="bi bi-sort-up"></i>
+                            </th>
+                            <th class="sortable" data-sort="timestamp">
+                                Date
                                 <i class="bi bi-sort-up"></i>
                             </th>
                         </tr>
@@ -134,12 +134,12 @@ $db->closeConnection();
                                 <tr>
                                     <td><?php echo htmlspecialchars($analysis['website']); ?></td>
                                     <td><?php echo htmlspecialchars($analysis['email']); ?></td>
-                                    <td><?php echo date('M j, Y', strtotime($analysis['timestamp'])); ?></td>
                                     <td>
                                         <span class="badge bg-<?php echo $analysis['privacy'] ? 'success' : 'danger'; ?>">
                                             <?php echo $analysis['privacy'] ? 'Accepted' : 'Not Accepted'; ?>
                                         </span>
                                     </td>
+                                    <td><?php echo date('M j, Y', strtotime($analysis['timestamp'])); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -194,24 +194,15 @@ $db->closeConnection();
     display: none;
     vertical-align: middle;
 }
-/* Fixed widths for all columns */
-th[data-sort="website"],
-td:nth-child(1) {
-    width: 40%;
-}
-th[data-sort="email"],
-td:nth-child(2) {
-    width: 30%;
-}
-th[data-sort="timestamp"],
-td:nth-child(3) {
-    width: 20%;
-}
-th[data-sort="privacy"],
-td:nth-child(4) {
-    width: 10%;
-    text-align: center;
-}
+/* Fixed width percentages for columns */
+.table th:nth-child(1),
+.table td:nth-child(1) { width: 60%; }
+.table th:nth-child(2),
+.table td:nth-child(2) { width: 20%; }
+.table th:nth-child(3),
+.table td:nth-child(3) { width: 10%; }
+.table th:nth-child(4),
+.table td:nth-child(4) { width: 10%; }
 </style>
 
 <script>
