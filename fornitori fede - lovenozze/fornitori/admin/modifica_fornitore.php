@@ -160,13 +160,20 @@ $conn->close();
                        <label class="mt-4">Gallery</label>
                        <div class="gallery-images" style="display: flex;align-items: flex-end;">
                            <?php
-                           $gallery = explode(',', $fornitore['gallery']); // Assume le immagini sono separate da virgole
-                           foreach ($gallery as $image) { ?>
-                               <div class="remove-image">
-                                 <div class="remove-icon" onclick="removeImage('<?php echo trim($image); ?>')" style="padding: 0 19px;margin-bottom: -30px;text-align: right;color: red;font-weight: 900;position:relative;z-index:9">X</div>
-                                   <img style="width: 90px!important; height: auto; border: 1px solid #cdcdcd;margin: 2px 10px;border-radius: 10px;" src="process/uploads/<?php echo trim($image); ?>" alt="Gallery Image" />
-                               </div>
-                           <?php } ?>
+                           $gallery = array_filter(explode(',', $fornitore['gallery'])); // Remove empty values
+                           if (!empty($gallery)) {
+                               foreach ($gallery as $image) { 
+                                   if (!empty(trim($image))) { ?>
+                                       <div class="remove-image">
+                                         <div class="remove-icon" onclick="removeImage('<?php echo trim($image); ?>')" style="padding: 0 19px;margin-bottom: -30px;text-align: right;color: red;font-weight: 900;position:relative;z-index:9">X</div>
+                                           <img style="width: 90px!important; height: auto; border: 1px solid #cdcdcd;margin: 2px 10px;border-radius: 10px;" src="process/uploads/<?php echo trim($image); ?>" alt="Gallery Image" />
+                                       </div>
+                                   <?php }
+                               }
+                           } else {
+                               echo '<p>No images in gallery</p>';
+                           }
+                           ?>
                        </div>
                        <input type="file" name="gallery[]" multiple class="form-control" style="margin-top: 10px;">
 
@@ -247,6 +254,8 @@ $conn->close();
          function removeImage(imagePath) {
              // Esegui la logica per rimuovere l'immagine dalla gallery
              if (confirm('Sei sicuro di voler rimuovere questa immagine?')) {
+                 console.log('Attempting to remove image:', imagePath); // Debug log
+                 
                  // Invia una richiesta AJAX o reindirizza a un endpoint per rimuovere l'immagine
                  const form = new FormData();
                  form.append('action', 'remove_image');
@@ -257,15 +266,24 @@ $conn->close();
                      method: 'POST',
                      body: form
                  })
-                 .then(response => response.json())
+                 .then(response => {
+                     if (!response.ok) {
+                         throw new Error('Network response was not ok');
+                     }
+                     return response.json();
+                 })
                  .then(data => {
+                     console.log('Response data:', data); // Debug log
                      if (data.success) {
                          location.reload(); // Ricarica la pagina per aggiornare le immagini
                      } else {
-                         alert('Errore nella rimozione dell\'immagine.');
+                         alert('Errore: ' + (data.message || 'Errore nella rimozione dell\'immagine.'));
                      }
                  })
-                 .catch(error => console.error('Errore:', error));
+                 .catch(error => {
+                     console.error('Error:', error); // Debug log
+                     alert('Errore nella comunicazione con il server. Controlla la console per i dettagli.');
+                 });
              }
          }
      </script>

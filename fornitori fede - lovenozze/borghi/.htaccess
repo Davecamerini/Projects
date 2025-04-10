@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# Rimuove il .php dagli URL per tutti i file esistenti
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^/]+)$ $1.php [L]
+
+# Regola per URL dinamico: /borghi/scheda/mondored diventa /borghi/scheda.php?slug=mondored
+RewriteRule ^scheda/([^/]+)/?$ scheda.php?slug=$1 [L,QSA]
+
+# Regola per URL pulito per tutti i borghi: /borghi/tutti diventa /borghi/tutti-borghi.php
+RewriteRule ^tutti/?$ tutti-borghi.php [L,QSA]

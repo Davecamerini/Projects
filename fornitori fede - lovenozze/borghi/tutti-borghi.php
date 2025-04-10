@@ -39,7 +39,7 @@ $places = "";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutti i borghi</title>
+    <title>Tutti i borghi - Lovenozze</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome per l'icona dei filtri -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
@@ -88,7 +88,7 @@ $places = "";
         }
 
     </style>
-    <link href="style/style.css" rel="stylesheet">
+    <link href="https://www.lovenozze.it/borghi/style/style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -158,11 +158,11 @@ $places = "";
             <?php while ($borgo = $result_borghi->fetch_assoc()): ?>
               <div class="col-md-3 borgo-card" data-category="<?= htmlspecialchars($borgo['categoria_id']) ?>" data-region="<?= htmlspecialchars($borgo['regione']) ?>">
                   <div class="card category-card">
-                      <a href="<?php echo "scheda.php?id=" . urlencode($borgo['id']) . "&slug=" . urlencode($borgo['slug']); ?>">
+                      <a href="<?php echo "/borghi/scheda/" . urlencode($borgo['slug']); ?>">
                           <img src="<?php echo "/fornitori/admin/process/uploads/". $borgo['img_copertina']; ?>" class="card-img-top" alt="<?php echo esc_attr($borgo['ragione_sociale']); ?>">
                           <div class="card-body">
-                              <h2 class="card-title"><?php echo esc_html($borgo['ragione_sociale']); ?></h2>
-                              <p class="card-text"><?php echo esc_html($borgo['descrizione']); ?></p>
+                              <h2 class="card-title"><?php echo esc_html(stripslashes($borgo['ragione_sociale'])); ?></h2>
+                              <p class="card-text"><?php echo esc_html(stripslashes($borgo['descrizione'])); ?></p>
                           </div>
                       </a>
                   </div>

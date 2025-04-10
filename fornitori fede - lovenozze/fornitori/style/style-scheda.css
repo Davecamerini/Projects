@@ -37,6 +37,7 @@ body, #qodef-page-wrapper {
 .left-column {
     flex: 0 0 400px;
     margin-bottom: 20px;
+    margin-right: 20px;
 }
 
 /* Right column */

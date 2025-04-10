@@ -29,7 +29,7 @@ if (empty($slug_borgo)) {
 }
 
 // Query per ottenere i dettagli del borgo usando lo slug
-$sql = "SELECT img_copertina, ragione_sociale, slug, latitudine, longitudine, tag, telefono, whatsapp, indirizzo, email, descrizione, descrizione_due, citazione, gallery
+$sql = "SELECT id, img_copertina, ragione_sociale, slug, latitudine, longitudine, tag, telefono, whatsapp, indirizzo, email, descrizione, descrizione_due, citazione, gallery
         FROM borghi_scheda WHERE slug = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('s', $slug_borgo);
@@ -47,6 +47,7 @@ if ($result->num_rows > 0) {
 }
 
 // Recupero campi
+$id_borgo = $borgo['id'];
 $img_copertina = !empty($borgo['img_copertina']) ? 'https://www.lovenozze.it/fornitori/admin/process/uploads/' . $borgo['img_copertina'] : 'https://via.placeholder.com/400x600';
 $ragione_sociale = $borgo['ragione_sociale'];
 $slug = $borgo['slug'];
@@ -75,7 +76,7 @@ $longitudine = $borgo['longitudine'];
   <link rel="canonical" href="https://www.lovenozze.it/borghi/<?php echo $slug; ?>/">
     <title><?php echo esc_html($titolo); ?> - Dettaglio borgo</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style/style-scheda.css" rel="stylesheet">
+    <link href="https://www.lovenozze.it/borghi/style/style-scheda.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <!-- Lightbox2 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
@@ -114,14 +115,17 @@ $longitudine = $borgo['longitudine'];
 
           <!-- Colonna destra: Informazioni borgo -->
           <div class="right-column" style="width: 60%;">
-              <h1><?php echo esc_html($ragione_sociale); ?></h1>
+              <h1><?php echo esc_html(stripslashes($ragione_sociale)); ?></h1>
 
-              <!-- Tag -->
-              <div class="tags mt-2 mb-3">
-                  <?php foreach ($tag as $single_tag): ?>
-                      <span class="tag"><?php echo esc_html(trim($single_tag)); ?></span>
-                  <?php endforeach; ?>
-              </div>
+              <?php if (!empty($tag)): ?>
+                  <!-- Tag -->
+                  <div class="tags mt-2 mb-3">
+                      <?php foreach ($tag as $single_tag): ?>
+                          <span class="tag"><?php echo esc_html(trim($single_tag)); ?></span>
+                      <?php endforeach; ?>
+                  </div>
+              <?php endif; ?>
+
 
               <!-- Descrizione -->
               <div class="description mb-4">
@@ -264,7 +268,7 @@ $longitudine = $borgo['longitudine'];
     // Funzione generica per inviare una richiesta AJAX
     function inviaStatistiche(id_borgo, azione) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "admin/invia_statistiche.php", true); // Cambia con il percorso corretto del tuo file PHP
+        xhr.open("POST", "https://www.lovenozze.it/borghi/admin/invia_statistiche.php", true); // Cambia con il percorso corretto del tuo file PHP
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.send("id_borgo=" + id_borgo + "&azione=" + azione);
     }

@@ -27,7 +27,7 @@ if (empty($slug_fornitore)) {
 }
 
 // Query per ottenere i dettagli del fornitore usando lo slug
-$sql = "SELECT img_copertina, ragione_sociale, slug, latitudine, longitudine, tag, telefono, whatsapp, indirizzo, email, descrizione, descrizione_due, citazione, gallery
+$sql = "SELECT id, img_copertina, ragione_sociale, slug, latitudine, longitudine, tag, telefono, whatsapp, indirizzo, email, descrizione, descrizione_due, citazione, gallery
         FROM fornitori_scheda WHERE slug = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('s', $slug_fornitore);
@@ -60,6 +60,7 @@ $citazione = $fornitore['citazione'];
 $gallery = explode(',', $fornitore['gallery']);
 $latitudine = $fornitore['latitudine'];
 $longitudine = $fornitore['longitudine'];
+$id_fornitore = $fornitore['id'];
 
 ?>
 
@@ -69,11 +70,10 @@ $longitudine = $fornitore['longitudine'];
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="<?php echo esc_html(mb_strimwidth($descrizione, 0, 160, '...')); ?>">
-  <title><?php echo esc_html($titolo); ?></title>
   <link rel="canonical" href="https://www.lovenozze.it/fornitori/<?php echo $slug; ?>/">
-    <title><?php echo esc_html($titolo); ?> - Dettaglio Fornitore</title>
+    <title><?php echo esc_html($ragione_sociale); ?> - Fornitore</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style/style-scheda.css" rel="stylesheet">
+    <link href="https://www.lovenozze.it/fornitori/style/style-scheda.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <!-- Lightbox2 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
@@ -224,11 +224,19 @@ $longitudine = $fornitore['longitudine'];
 
     <!-- Galleria con stile masonry -->
     <div class="gallery">
-        <?php foreach ($gallery as $image): ?>
-            <a href="<?php echo esc_url('https://www.lovenozze.it/fornitori/admin/process/uploads/' . trim($image)); ?>" data-lightbox="fornitore-gallery" data-title="<?php echo esc_attr($ragione_sociale); ?>">
-                <img src="<?php echo esc_url('https://www.lovenozze.it/fornitori/admin/process/uploads/' . trim($image)); ?>" alt="Gallery Image">
-            </a>
-        <?php endforeach; ?>
+        <?php 
+        $gallery = array_filter(explode(',', $fornitore['gallery'])); // Remove empty values
+        if (empty($gallery)): ?>
+            <p>No images in gallery</p>
+        <?php else: ?>
+            <?php foreach ($gallery as $image): 
+                if (!empty(trim($image))): ?>
+                    <a href="<?php echo esc_url('https://www.lovenozze.it/fornitori/admin/process/uploads/' . trim($image)); ?>" data-lightbox="fornitore-gallery" data-title="<?php echo esc_attr($ragione_sociale); ?>">
+                        <img src="<?php echo esc_url('https://www.lovenozze.it/fornitori/admin/process/uploads/' . trim($image)); ?>" alt="Gallery Image">
+                    </a>
+                <?php endif;
+            endforeach; ?>
+        <?php endif; ?>
     </div>
 
 

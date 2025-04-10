@@ -141,7 +141,7 @@ $places = "";
             <?php while ($fornitore = $result_fornitori->fetch_assoc()): ?>
               <div class="col-md-3 fornitore-card" data-category="<?= htmlspecialchars($fornitore['categoria_id']) ?>" data-region="<?= htmlspecialchars($fornitore['regione']) ?>">
                   <div class="card category-card">
-                      <a href="<?php echo "scheda.php?slug=" . urlencode($fornitore['slug']); ?>">
+                      <a href="<?php echo "https://www.lovenozze.it/fornitori/" . urlencode($fornitore['slug']); ?>">
                           <img src="<?php echo "/fornitori/admin/process/uploads/". $fornitore['img_copertina']; ?>" class="card-img-top" alt="<?php echo esc_attr($fornitore['ragione_sociale']); ?>">
                           <div class="card-body">
                               <h2 class="card-title"><?php echo esc_html($fornitore['ragione_sociale']); ?></h2>
