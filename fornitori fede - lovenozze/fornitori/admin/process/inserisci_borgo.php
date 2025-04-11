@@ -43,6 +43,36 @@ if (isset($_FILES['img_copertina']) && $_FILES['img_copertina']['error'] == 0) {
     }
 }
 
+// Gestione dei video
+$video_files = [];
+if (!empty($_FILES['video_files']['name'][0])) {
+    // Crea la directory per i video se non esiste
+    $video_dir = 'uploads/videos';
+    if (!file_exists($video_dir)) {
+        mkdir($video_dir, 0777, true);
+    }
+
+    // Processa ogni video
+    foreach ($_FILES['video_files']['tmp_name'] as $key => $tmp_name) {
+        $video_name = $_FILES['video_files']['name'][$key];
+        $video_path = $video_dir . '/' . $video_name;
+        
+        // Verifica se il video esiste già
+        if (file_exists($video_path)) {
+            // Se il video esiste, usa quello esistente
+            $video_files[] = $video_name;
+        } else {
+            // Se il video non esiste, caricalo
+            if (move_uploaded_file($tmp_name, $video_path)) {
+                $video_files[] = $video_name;
+            } else {
+                $errori[] = "Errore nel caricamento del video: " . $video_name;
+            }
+        }
+    }
+}
+$video_files_str = implode(',', $video_files);
+
 // Gestione della galleria (multiple file upload)
 $gallery = '';
 if (isset($_FILES['gallery']) && count($_FILES['gallery']['name']) > 0) {
@@ -63,8 +93,8 @@ if (isset($_FILES['gallery']) && count($_FILES['gallery']['name']) > 0) {
 }
 
 // Inserimento dati nel database
-$sql = "INSERT INTO borghi_scheda (ragione_sociale, slug, descrizione, citazione, descrizione_due, categoria_id, img_copertina, gallery, tag, indirizzo, email, telefono, whatsapp, votazione_complessiva, latitudine, longitudine, regione, video_links)
-VALUES ('$ragione_sociale', '$slug', '$descrizione', '$citazione', '$descrizione_due', '$categoria', '$name_copertina', '$gallery', '$tag', '$indirizzo', '$email', '$telefono', '$whatsapp', '$votazione_complessiva', '$latitudine', '$longitudine', '$regione', '$video_links')";
+$sql = "INSERT INTO borghi_scheda (ragione_sociale, slug, descrizione, citazione, descrizione_due, categoria_id, img_copertina, gallery, tag, indirizzo, email, telefono, whatsapp, votazione_complessiva, latitudine, longitudine, regione, video_links, video_files)
+VALUES ('$ragione_sociale', '$slug', '$descrizione', '$citazione', '$descrizione_due', '$categoria', '$name_copertina', '$gallery', '$tag', '$indirizzo', '$email', '$telefono', '$whatsapp', '$votazione_complessiva', '$latitudine', '$longitudine', '$regione', '$video_links', '$video_files_str')";
 
 if ($conn->query($sql) === TRUE) {
     // Reindirizzamento alla pagina di successo o lista borghi

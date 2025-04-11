@@ -224,8 +224,32 @@ $conn->close();
                         <input type="number" name="votazione_complessiva" value="<?php echo $fornitore['votazione_complessiva']; ?>" class="form-control" min="0" max="5">
 
                         <label class="mt-4">Link Video (uno per riga)</label>
-                        <textarea name="video_links" class="form-control" rows="3" placeholder="Inserisci i link dei video, uno per riga"><?php echo htmlspecialchars($fornitore['video_links']); ?></textarea>
+                        <textarea name="video_links" class="form-control" rows="3" placeholder="Inserisci i link dei video, uno per riga"><?php echo htmlspecialchars($fornitore['video_links'] ?? ''); ?></textarea>
                         <small class="form-text text-muted">Inserisci i link dei video che vuoi incorporare, uno per riga. Esempio: https://www.youtube.com/watch?v=...</small>
+
+                        <label class="mt-4">Carica Video</label>
+                        <div class="video-files" style="display: flex;align-items: flex-end;">
+                            <?php
+                            $videos = array_filter(explode(',', $fornitore['video_files'] ?? '')); // Remove empty values
+                            if (!empty($videos)) {
+                                foreach ($videos as $video) { 
+                                    if (!empty(trim($video))) { ?>
+                                        <div class="remove-video">
+                                            <div class="remove-icon" onclick="removeVideo('<?php echo trim($video); ?>')" style="padding: 0 19px;margin-bottom: -30px;text-align: right;color: red;font-weight: 900;position:relative;z-index:9">X</div>
+                                            <video style="width: 90px!important; height: auto; border: 1px solid #cdcdcd;margin: 2px 10px;border-radius: 10px;" controls>
+                                                <source src="process/uploads/videos/<?php echo trim($video); ?>" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                    <?php }
+                                }
+                            } else {
+                                echo '<p>No videos uploaded</p>';
+                            }
+                            ?>
+                        </div>
+                        <input type="file" name="video_files[]" multiple accept="video/*" class="form-control" style="margin-top: 10px;">
+                        <small class="form-text text-muted">Puoi caricare più video contemporaneamente. Formati supportati: MP4, WebM, Ogg.</small>
 
                         <button type="submit" class="btn btn-primary mt-4">Salva Modifiche</button>
                     </form>
@@ -282,6 +306,40 @@ $conn->close();
                  })
                  .catch(error => {
                      console.error('Error:', error); // Debug log
+                     alert('Errore nella comunicazione con il server. Controlla la console per i dettagli.');
+                 });
+             }
+         }
+
+         function removeVideo(videoPath) {
+             if (confirm('Sei sicuro di voler rimuovere questo video?')) {
+                 console.log('Attempting to remove video:', videoPath);
+                 
+                 const form = new FormData();
+                 form.append('action', 'remove_video');
+                 form.append('video', videoPath);
+                 form.append('id', '<?php echo $fornitore['id']; ?>');
+
+                 fetch('process/remove_video.php', {
+                     method: 'POST',
+                     body: form
+                 })
+                 .then(response => {
+                     if (!response.ok) {
+                         throw new Error('Network response was not ok');
+                     }
+                     return response.json();
+                 })
+                 .then(data => {
+                     console.log('Response data:', data);
+                     if (data.success) {
+                         location.reload();
+                     } else {
+                         alert('Errore: ' + (data.message || 'Errore nella rimozione del video.'));
+                     }
+                 })
+                 .catch(error => {
+                     console.error('Error:', error);
                      alert('Errore nella comunicazione con il server. Controlla la console per i dettagli.');
                  });
              }

@@ -213,6 +213,18 @@ $categories_result = $conn->query($category_query);
                     </div>
 
                     <div class="form-group">
+                        <label for="video_files">Video (carica file)</label>
+                        <input type="file" class="form-control" id="video_files" name="video_files[]" multiple accept="video/*">
+                        <small class="form-text text-muted">Puoi caricare più video contemporaneamente.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="video_links">Link Video (separati da virgola)</label>
+                        <textarea class="form-control" id="video_links" name="video_links" rows="3"></textarea>
+                        <small class="form-text text-muted">Inserisci i link dei video da incorporare, separati da virgola.</small>
+                    </div>
+
+                    <div class="form-group">
                         <label for="tag">Tag (separati da virgola)</label>
                         <input type="text" class="form-control" id="tag" name="tag">
                     </div>
@@ -272,12 +284,6 @@ $categories_result = $conn->query($category_query);
                     <div class="form-group">
                         <label for="votazione_complessiva">Votazione Complessiva</label>
                         <input type="number" class="form-control" id="votazione_complessiva" min="0" max="5" name="votazione_complessiva">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="video_links">Link Video (uno per riga)</label>
-                        <textarea class="form-control" id="video_links" name="video_links" rows="3" placeholder="Inserisci i link dei video, uno per riga"></textarea>
-                        <small class="form-text text-muted">Inserisci i link dei video che vuoi incorporare, uno per riga. Esempio: https://www.youtube.com/watch?v=...</small>
                     </div>
 
                     <button type="submit" class="btn btn-primary">Inserisci borgo</button>

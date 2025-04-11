@@ -169,6 +169,29 @@ $conn->close();
                        </div>
                        <input type="file" name="gallery[]" multiple class="form-control" style="margin-top: 10px;">
 
+                        <label class="mt-4">Video (carica file)</label>
+                        <div class="video-files" style="display: flex;align-items: flex-end;">
+                            <?php
+                            $videos = explode(',', $borgo['video_files'] ?? ''); // Assume i video sono separati da virgole
+                            foreach ($videos as $video) {
+                                if (!empty(trim($video))) { ?>
+                                    <div class="remove-video">
+                                        <div class="remove-icon" onclick="removeVideo('<?php echo trim($video); ?>')" style="padding: 0 19px;margin-bottom: -30px;text-align: right;color: red;font-weight: 900;position:relative;z-index:9">X</div>
+                                        <video style="width: 90px!important; height: auto; border: 1px solid #cdcdcd;margin: 2px 10px;border-radius: 10px;" controls>
+                                            <source src="process/uploads/videos/<?php echo trim($video); ?>" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                            <?php }
+                            } ?>
+                        </div>
+                        <input type="file" name="video_files[]" multiple accept="video/*" class="form-control" style="margin-top: 10px;">
+                        <small class="form-text text-muted">Puoi caricare più video contemporaneamente.</small>
+
+                        <label class="mt-4">Link Video (separati da virgola)</label>
+                        <textarea name="video_links" class="form-control" rows="3" placeholder="Inserisci i link dei video, separati da virgola"><?php echo htmlspecialchars($borgo['video_links'] ?? ''); ?></textarea>
+                        <small class="form-text text-muted">Inserisci i link dei video da incorporare, separati da virgola.</small>
+
                         <label class="mt-4">Tag</label>
                         <input type="text" name="tag" value="<?php echo $borgo['tag']; ?>" class="form-control" required>
 
@@ -212,10 +235,6 @@ $conn->close();
                         <label class="mt-4">Votazione Complessiva</label>
                         <input type="number" name="votazione_complessiva" value="<?php echo $borgo['votazione_complessiva']; ?>" class="form-control" min="0" max="5">
 
-                        <label class="mt-4">Link Video (uno per riga)</label>
-                        <textarea name="video_links" class="form-control" rows="3" placeholder="Inserisci i link dei video, uno per riga"><?php echo htmlspecialchars($borgo['video_links']); ?></textarea>
-                        <small class="form-text text-muted">Inserisci i link dei video che vuoi incorporare, uno per riga. Esempio: https://www.youtube.com/watch?v=...</small>
-
                         <button type="submit" class="btn btn-primary mt-4">Salva Modifiche</button>
                     </form>
                 <?php } ?>
@@ -242,6 +261,30 @@ $conn->close();
                          location.reload(); // Ricarica la pagina per aggiornare le immagini
                      } else {
                          alert('Errore nella rimozione dell\'immagine.');
+                     }
+                 })
+                 .catch(error => console.error('Errore:', error));
+             }
+         }
+
+         function removeVideo(videoPath) {
+             if (confirm('Sei sicuro di voler rimuovere questo video?')) {
+                 const form = new FormData();
+                 form.append('action', 'remove_video');
+                 form.append('video', videoPath);
+                 form.append('id', '<?php echo $borgo['id']; ?>');
+                 form.append('type', 'borgo');
+
+                 fetch('process/remove_video.php', {
+                     method: 'POST',
+                     body: form
+                 })
+                 .then(response => response.json())
+                 .then(data => {
+                     if (data.success) {
+                         location.reload();
+                     } else {
+                         alert('Errore nella rimozione del video.');
                      }
                  })
                  .catch(error => console.error('Errore:', error));

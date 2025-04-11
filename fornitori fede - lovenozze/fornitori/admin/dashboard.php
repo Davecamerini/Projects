@@ -116,13 +116,6 @@ if (!is_user_logged_in() || !current_user_can('administrator')) {
         </div>
     </div>
 
-    <!-- Link per tornare a WordPress Admin -->
-    <div style="position: fixed; bottom: 20px; left: 20px;">
-        <a href="<?php echo admin_url(); ?>" class="btn btn-primary">
-            <i class="fas fa-arrow-left"></i> Torna a WordPress
-        </a>
-    </div>
-
     <!-- Script per Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>

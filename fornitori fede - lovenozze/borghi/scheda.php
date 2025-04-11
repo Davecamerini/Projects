@@ -29,7 +29,7 @@ if (empty($slug_borgo)) {
 }
 
 // Query per ottenere i dettagli del borgo usando lo slug
-$sql = "SELECT id, img_copertina, ragione_sociale, slug, latitudine, longitudine, tag, telefono, whatsapp, indirizzo, email, descrizione, descrizione_due, citazione, gallery
+$sql = "SELECT id, img_copertina, ragione_sociale, slug, latitudine, longitudine, tag, telefono, whatsapp, indirizzo, email, descrizione, descrizione_due, citazione, gallery, video_links, video_files
         FROM borghi_scheda WHERE slug = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('s', $slug_borgo);
@@ -63,6 +63,8 @@ $citazione = $borgo['citazione'];
 $gallery = explode(',', $borgo['gallery']);
 $latitudine = $borgo['latitudine'];
 $longitudine = $borgo['longitudine'];
+$video_links = $borgo['video_links'] ?? '';
+$video_files = $borgo['video_files'] ?? '';
 
 ?>
 
@@ -227,17 +229,56 @@ $longitudine = $borgo['longitudine'];
           </div>
       </div>
 
+    <!-- Sezione Video -->
+    <?php 
+    $video_links = array_filter(explode(',', $video_links));
+    $video_files = array_filter(explode(',', $video_files));
+    if (!empty($video_links) || !empty($video_files)): ?>
+    <div class="video-section mt-5">
+        <div class="video-container">
+            <?php 
+            // Mostra video da link
+            if (!empty($video_links)): 
+                foreach ($video_links as $link): 
+                    if (!empty(trim($link))): ?>
+                        <div class="video-item mb-4">
+                            <iframe width="100%" height="315" src="<?php echo esc_url(trim($link)); ?>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    <?php endif;
+                endforeach;
+            endif;
+
+            // Mostra video caricati
+            if (!empty($video_files)): 
+                foreach ($video_files as $video): 
+                    if (!empty(trim($video))): ?>
+                        <div class="video-item mb-4">
+                            <video width="100%" controls>
+                                <source src="<?php echo esc_url('https://www.lovenozze.it/fornitori/admin/process/uploads/videos/' . trim($video)); ?>" type="video/mp4">
+                                Il tuo browser non supporta il tag video.
+                            </video>
+                        </div>
+                    <?php endif;
+                endforeach;
+            endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- Galleria con stile masonry -->
+    <?php 
+    $gallery = array_filter(explode(',', $borgo['gallery'])); // Remove empty values
+    if (!empty($gallery)): ?>
     <div class="gallery">
-        <?php foreach ($gallery as $image): ?>
-            <a href="<?php echo esc_url('https://www.lovenozze.it/fornitori/admin/process/uploads/' . trim($image)); ?>" data-lightbox="borgo-gallery" data-title="<?php echo esc_attr($ragione_sociale); ?>">
-                <img src="<?php echo esc_url('https://www.lovenozze.it/fornitori/admin/process/uploads/' . trim($image)); ?>" alt="Gallery Image">
-            </a>
-        <?php endforeach; ?>
+        <?php foreach ($gallery as $image): 
+            if (!empty(trim($image))): ?>
+                <a href="<?php echo esc_url('https://www.lovenozze.it/fornitori/admin/process/uploads/' . trim($image)); ?>" data-lightbox="borgo-gallery" data-title="<?php echo esc_attr($ragione_sociale); ?>">
+                    <img src="<?php echo esc_url('https://www.lovenozze.it/fornitori/admin/process/uploads/' . trim($image)); ?>" alt="Gallery Image">
+                </a>
+            <?php endif;
+        endforeach; ?>
     </div>
-
-
+    <?php endif; ?>
 
     <!-- per mappa -->
     <?php if (!empty($borgo['latitudine']) && !empty($borgo['longitudine'])): ?>

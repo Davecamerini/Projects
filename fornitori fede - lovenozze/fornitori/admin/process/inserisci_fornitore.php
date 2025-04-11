@@ -62,9 +62,34 @@ if (isset($_FILES['gallery']) && count($_FILES['gallery']['name']) > 0) {
     $gallery = implode(',', $gallery_files);
 }
 
+// Gestione dell'upload dei video
+$video_files = '';
+if (isset($_FILES['video_files']) && count($_FILES['video_files']['name']) > 0) {
+    // Crea la directory videos se non esiste
+    $videos_dir = __DIR__ . '/uploads/videos';
+    if (!file_exists($videos_dir)) {
+        mkdir($videos_dir, 0777, true);
+    }
+
+    $video_files_array = [];
+    foreach ($_FILES['video_files']['name'] as $index => $video_name) {
+        if ($_FILES['video_files']['error'][$index] == 0) {
+            $video_titolo = basename($video_name);
+            $video_path = 'uploads/videos/' . basename($video_name);
+            if (move_uploaded_file($_FILES['video_files']['tmp_name'][$index], __DIR__ . '/' . $video_path)) {
+                $video_files_array[] = $video_titolo;
+            } else {
+                echo "Errore nel caricamento del video: " . $video_name;
+            }
+        }
+    }
+    // Concatena tutti i percorsi dei video come una stringa separata da virgole
+    $video_files = implode(',', $video_files_array);
+}
+
 // Inserimento dati nel database
-$sql = "INSERT INTO fornitori_scheda (ragione_sociale, slug, descrizione, citazione, descrizione_due, categoria_id, img_copertina, gallery, tag, indirizzo, email, telefono, whatsapp, votazione_complessiva, latitudine, longitudine, regione, video_links)
-VALUES ('$ragione_sociale', '$slug', '$descrizione', '$citazione', '$descrizione_due', '$categoria', '$name_copertina', '$gallery', '$tag', '$indirizzo', '$email', '$telefono', '$whatsapp', '$votazione_complessiva', '$latitudine', '$longitudine', '$regione', '$video_links')";
+$sql = "INSERT INTO fornitori_scheda (ragione_sociale, slug, descrizione, citazione, descrizione_due, categoria_id, img_copertina, gallery, tag, indirizzo, email, telefono, whatsapp, votazione_complessiva, latitudine, longitudine, regione, video_links, video_files)
+VALUES ('$ragione_sociale', '$slug', '$descrizione', '$citazione', '$descrizione_due', '$categoria', '$name_copertina', '$gallery', '$tag', '$indirizzo', '$email', '$telefono', '$whatsapp', '$votazione_complessiva', '$latitudine', '$longitudine', '$regione', '$video_links', '$video_files')";
 
 if ($conn->query($sql) === TRUE) {
     // Reindirizzamento alla pagina di successo o lista fornitori

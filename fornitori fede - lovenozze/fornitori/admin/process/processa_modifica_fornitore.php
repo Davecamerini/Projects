@@ -97,6 +97,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $final_gallery = $current_gallery;
     }
 
+    // Gestione dell'upload dei video
+    $video_files = '';
+    if (isset($_FILES['video_files']) && count($_FILES['video_files']['name']) > 0) {
+        // Crea la directory videos se non esiste
+        $videos_dir = __DIR__ . '/uploads/videos';
+        if (!file_exists($videos_dir)) {
+            mkdir($videos_dir, 0777, true);
+        }
+
+        $video_files_array = [];
+        foreach ($_FILES['video_files']['name'] as $index => $video_name) {
+            if ($_FILES['video_files']['error'][$index] == 0) {
+                $video_titolo = basename($video_name);
+                $video_path = 'uploads/videos/' . basename($video_name);
+                if (move_uploaded_file($_FILES['video_files']['tmp_name'][$index], __DIR__ . '/' . $video_path)) {
+                    $video_files_array[] = $video_titolo;
+                } else {
+                    echo "Errore nel caricamento del video: " . $video_name;
+                }
+            }
+        }
+        // Concatena tutti i percorsi dei video come una stringa separata da virgole
+        $video_files = implode(',', $video_files_array);
+    }
+
+    // Recupera i video esistenti dal database
+    $query = "SELECT video_files FROM fornitori_scheda WHERE id=$fornitore_id";
+    $result = $conn->query($query);
+    if ($result->num_rows > 0) {
+        $fornitore = $result->fetch_assoc();
+        $current_video_files = $fornitore['video_files'];
+        if (!empty($current_video_files) && !empty($video_files)) {
+            $video_files = $current_video_files . ',' . $video_files;
+        } elseif (empty($video_files)) {
+            $video_files = $current_video_files;
+        }
+    }
+
     // Query per aggiornare il fornitore nel database
     $update_query = "UPDATE fornitori_scheda SET
         ragione_sociale='$ragione_sociale',
@@ -113,7 +151,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         votazione_complessiva='$votazione_complessiva',
         categoria_id='$categoria_id',
         regione='$regione',
-        video_links='$video_links'
+        video_links='$video_links',
+        video_files='$video_files'
         WHERE id=$fornitore_id";
 
     if ($conn->query($update_query) === TRUE) {

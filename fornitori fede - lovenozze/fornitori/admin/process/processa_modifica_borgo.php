@@ -39,12 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $video_links = $conn->real_escape_string($_POST['video_links']);
 
     // Recupera la gallery attuale dal database
-    $query = "SELECT img_copertina, gallery FROM borghi_scheda WHERE id=$borgo_id";
+    $query = "SELECT img_copertina, gallery, video_files FROM borghi_scheda WHERE id=$borgo_id";
     $result = $conn->query($query);
     if ($result->num_rows > 0) {
         $borgo = $result->fetch_assoc();
         $current_gallery = $borgo['gallery'];
         $current_img_copertina = $borgo['img_copertina'];
+        $current_video_files = $borgo['video_files'];
     }
 
     // Gestione dell'immagine di copertina
@@ -97,6 +98,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $final_gallery = $current_gallery;
     }
 
+    // Gestione dei video
+    $video_files = [];
+    if (!empty($_FILES['video_files']['name'][0])) {
+        // Crea la directory per i video se non esiste
+        $video_dir = 'uploads/videos';
+        if (!file_exists($video_dir)) {
+            mkdir($video_dir, 0777, true);
+        }
+
+        // Processa ogni video
+        foreach ($_FILES['video_files']['tmp_name'] as $key => $tmp_name) {
+            $video_name = $_FILES['video_files']['name'][$key];
+            $video_path = $video_dir . '/' . $video_name;
+            
+            // Verifica se il video esiste già
+            if (file_exists($video_path)) {
+                // Se il video esiste, usa quello esistente
+                $video_files[] = $video_name;
+            } else {
+                // Se il video non esiste, caricalo
+                if (move_uploaded_file($tmp_name, $video_path)) {
+                    $video_files[] = $video_name;
+                } else {
+                    $errori[] = "Errore nel caricamento del video: " . $video_name;
+                }
+            }
+        }
+    }
+
+    // Combina i video esistenti con i nuovi
+    $existing_videos = explode(',', $borgo['video_files'] ?? '');
+    $all_videos = array_merge($existing_videos, $video_files);
+    $all_videos = array_filter($all_videos); // Rimuovi elementi vuoti
+    $video_files_str = implode(',', $all_videos);
+
     // Query per aggiornare il borgo nel database
     $update_query = "UPDATE borghi_scheda SET
         ragione_sociale='$ragione_sociale',
@@ -113,7 +149,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         votazione_complessiva='$votazione_complessiva',
         categoria_id='$categoria_id',
         regione='$regione',
-        video_links='$video_links'
+        video_links='$video_links',
+        video_files='$video_files_str'
         WHERE id=$borgo_id";
 
     if ($conn->query($update_query) === TRUE) {
