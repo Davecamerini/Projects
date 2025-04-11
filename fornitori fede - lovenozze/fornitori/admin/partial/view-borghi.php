@@ -75,3 +75,34 @@ $result = $conn->query($query);
 <?php
 $conn->close();
 ?>
+
+<style>
+    /* Stile del container principale */
+    .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        position: relative;
+    }
+
+    /* Barra laterale */
+    .sidebar {
+        width: 250px;
+        background-color: #1c1c1c;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        padding: 30px 20px;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+    }
+
+    /* Stile del contenuto principale */
+    .main-content {
+        flex-grow: 1;
+        padding: 40px;
+        background-color: #f3f3f3;
+        margin-left: 250px; /* Same as sidebar width */
+        min-height: 100vh;
+    }
+</style>

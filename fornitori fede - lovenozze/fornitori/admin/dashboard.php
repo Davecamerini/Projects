@@ -28,7 +28,8 @@ if (!is_user_logged_in() || !current_user_can('administrator')) {
         /* Stile del container principale */
         .dashboard-container {
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
+            position: relative;
         }
 
         /* Barra laterale */
@@ -39,6 +40,9 @@ if (!is_user_logged_in() || !current_user_can('administrator')) {
             display: flex;
             flex-direction: column;
             padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
         }
         .sidebar a {
             color: white;
@@ -59,7 +63,8 @@ if (!is_user_logged_in() || !current_user_can('administrator')) {
             flex-grow: 1;
             padding: 40px;
             background-color: #f3f3f3;
-            overflow-y: auto;
+            margin-left: 250px; /* Same as sidebar width */
+            min-height: 100vh;
         }
         h1 {
             color: #444;

@@ -157,25 +157,44 @@ $conn->close();
                             <img src="process/uploads/<?php echo $fornitore['img_copertina']; ?>" alt="Copertina" style="width: 110px; height: auto; margin-bottom: 10px;border: 1px solid #d8d7d7;border-radius: 10px;" />
                             <input type="file" name="img_copertina" class="form-control">
                         </div>
-                       <label class="mt-4">Gallery</label>
-                       <div class="gallery-images" style="display: flex;align-items: flex-end;">
-                           <?php
-                           $gallery = array_filter(explode(',', $fornitore['gallery'])); // Remove empty values
-                           if (!empty($gallery)) {
-                               foreach ($gallery as $image) { 
-                                   if (!empty(trim($image))) { ?>
-                                       <div class="remove-image">
-                                         <div class="remove-icon" onclick="removeImage('<?php echo trim($image); ?>')" style="padding: 0 19px;margin-bottom: -30px;text-align: right;color: red;font-weight: 900;position:relative;z-index:9">X</div>
-                                           <img style="width: 90px!important; height: auto; border: 1px solid #cdcdcd;margin: 2px 10px;border-radius: 10px;" src="process/uploads/<?php echo trim($image); ?>" alt="Gallery Image" />
-                                       </div>
-                                   <?php }
-                               }
-                           } else {
-                               echo '<p>No images in gallery</p>';
-                           }
-                           ?>
-                       </div>
-                       <input type="file" name="gallery[]" multiple class="form-control" style="margin-top: 10px;">
+
+                        <label class="mt-4">Gallery</label>
+                        <div class="gallery-images" style="display: flex;align-items: flex-end;flex-wrap: wrap;gap: 20px;">
+                            <?php
+                            $gallery = explode(',', $fornitore['gallery'] ?? ''); // Assume le immagini sono separate da virgole
+                            foreach ($gallery as $image) {
+                                if (!empty(trim($image))) { ?>
+                                    <div class="remove-image" style="position: relative;width: 180px;">
+                                        <div class="remove-icon" onclick="removeImage('<?php echo trim($image); ?>')" style="position: absolute;top: -10px;right: -10px;z-index: 9;background: white;border-radius: 50%;width: 25px;height: 25px;display: flex;align-items: center;justify-content: center;cursor: pointer;box-shadow: 0 0 5px rgba(0,0,0,0.2);">X</div>
+                                        <img style="width: 180px; height: auto; border: 1px solid #cdcdcd;border-radius: 10px;" src="process/uploads/<?php echo trim($image); ?>" alt="Gallery Image" />
+                                    </div>
+                            <?php }
+                            } ?>
+                        </div>
+                        <input type="file" name="gallery[]" multiple class="form-control" style="margin-top: 10px;">
+
+                        <label class="mt-4">Video (carica file)</label>
+                        <div class="video-files" style="display: flex;align-items: flex-end;flex-wrap: wrap;gap: 20px;">
+                            <?php
+                            $videos = explode(',', $fornitore['video_files'] ?? ''); // Assume i video sono separati da virgole
+                            foreach ($videos as $video) {
+                                if (!empty(trim($video))) { ?>
+                                    <div class="remove-video" style="position: relative;width: 180px;">
+                                        <div class="remove-icon" onclick="removeVideo('<?php echo trim($video); ?>')" style="position: absolute;top: -10px;right: -10px;z-index: 9;background: white;border-radius: 50%;width: 25px;height: 25px;display: flex;align-items: center;justify-content: center;cursor: pointer;box-shadow: 0 0 5px rgba(0,0,0,0.2);">X</div>
+                                        <video style="width: 180px; height: auto; border: 1px solid #cdcdcd;border-radius: 10px;" controls>
+                                            <source src="process/uploads/videos/<?php echo trim($video); ?>" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                            <?php }
+                            } ?>
+                        </div>
+                        <input type="file" name="video_files[]" multiple accept="video/*" class="form-control" style="margin-top: 10px;">
+                        <small class="form-text text-muted">Puoi caricare più video contemporaneamente.</small>
+
+                        <label class="mt-4">Link Video (separati da virgola)</label>
+                        <textarea name="video_links" class="form-control" rows="3" placeholder="Inserisci i link dei video, separati da virgola"><?php echo htmlspecialchars($fornitore['video_links'] ?? ''); ?></textarea>
+                        <small class="form-text text-muted">Inserisci i link dei video da incorporare, separati da virgola.</small>
 
                         <label class="mt-4">Tag</label>
                         <input type="text" name="tag" value="<?php echo $fornitore['tag']; ?>" class="form-control" required>
@@ -222,34 +241,6 @@ $conn->close();
 
                         <label class="mt-4">Votazione Complessiva</label>
                         <input type="number" name="votazione_complessiva" value="<?php echo $fornitore['votazione_complessiva']; ?>" class="form-control" min="0" max="5">
-
-                        <label class="mt-4">Link Video (uno per riga)</label>
-                        <textarea name="video_links" class="form-control" rows="3" placeholder="Inserisci i link dei video, uno per riga"><?php echo htmlspecialchars($fornitore['video_links'] ?? ''); ?></textarea>
-                        <small class="form-text text-muted">Inserisci i link dei video che vuoi incorporare, uno per riga. Esempio: https://www.youtube.com/watch?v=...</small>
-
-                        <label class="mt-4">Carica Video</label>
-                        <div class="video-files" style="display: flex;align-items: flex-end;">
-                            <?php
-                            $videos = array_filter(explode(',', $fornitore['video_files'] ?? '')); // Remove empty values
-                            if (!empty($videos)) {
-                                foreach ($videos as $video) { 
-                                    if (!empty(trim($video))) { ?>
-                                        <div class="remove-video">
-                                            <div class="remove-icon" onclick="removeVideo('<?php echo trim($video); ?>')" style="padding: 0 19px;margin-bottom: -30px;text-align: right;color: red;font-weight: 900;position:relative;z-index:9">X</div>
-                                            <video style="width: 90px!important; height: auto; border: 1px solid #cdcdcd;margin: 2px 10px;border-radius: 10px;" controls>
-                                                <source src="process/uploads/videos/<?php echo trim($video); ?>" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div>
-                                    <?php }
-                                }
-                            } else {
-                                echo '<p>No videos uploaded</p>';
-                            }
-                            ?>
-                        </div>
-                        <input type="file" name="video_files[]" multiple accept="video/*" class="form-control" style="margin-top: 10px;">
-                        <small class="form-text text-muted">Puoi caricare più video contemporaneamente. Formati supportati: MP4, WebM, Ogg.</small>
 
                         <button type="submit" class="btn btn-primary mt-4">Salva Modifiche</button>
                     </form>

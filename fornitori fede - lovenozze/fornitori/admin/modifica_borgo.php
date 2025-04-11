@@ -70,7 +70,8 @@ $conn->close();
         /* Stile del container principale */
         .dashboard-container {
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
+            position: relative;
         }
 
         /* Barra laterale */
@@ -81,6 +82,9 @@ $conn->close();
             display: flex;
             flex-direction: column;
             padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
         }
         .sidebar a {
             color: white;
@@ -101,6 +105,8 @@ $conn->close();
             flex-grow: 1;
             padding: 40px;
             background-color: #f3f3f3;
+            margin-left: 250px; /* Same as sidebar width */
+            min-height: 100vh;
         }
         h1 {
             color: #444;
@@ -170,14 +176,14 @@ $conn->close();
                        <input type="file" name="gallery[]" multiple class="form-control" style="margin-top: 10px;">
 
                         <label class="mt-4">Video (carica file)</label>
-                        <div class="video-files" style="display: flex;align-items: flex-end;">
+                        <div class="video-files" style="display: flex;align-items: flex-end;flex-wrap: wrap;gap: 20px;">
                             <?php
                             $videos = explode(',', $borgo['video_files'] ?? ''); // Assume i video sono separati da virgole
                             foreach ($videos as $video) {
                                 if (!empty(trim($video))) { ?>
-                                    <div class="remove-video">
-                                        <div class="remove-icon" onclick="removeVideo('<?php echo trim($video); ?>')" style="padding: 0 19px;margin-bottom: -30px;text-align: right;color: red;font-weight: 900;position:relative;z-index:9">X</div>
-                                        <video style="width: 90px!important; height: auto; border: 1px solid #cdcdcd;margin: 2px 10px;border-radius: 10px;" controls>
+                                    <div class="remove-video" style="position: relative;width: 180px;">
+                                        <div class="remove-icon" onclick="removeVideo('<?php echo trim($video); ?>')" style="position: absolute;top: -10px;right: -10px;z-index: 9;background: white;border-radius: 50%;width: 25px;height: 25px;display: flex;align-items: center;justify-content: center;cursor: pointer;box-shadow: 0 0 5px rgba(0,0,0,0.2);">X</div>
+                                        <video style="width: 180px; height: auto; border: 1px solid #cdcdcd;border-radius: 10px;" controls>
                                             <source src="process/uploads/videos/<?php echo trim($video); ?>" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
