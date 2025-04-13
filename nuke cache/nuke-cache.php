@@ -227,7 +227,7 @@ function cache_folder_scanner_page() {
             <div class="nuke-cache-card">
                 <div class="nuke-cache-card-header">
                     <span class="dashicons dashicons-performance"></span>
-                    <h2><?php echo esc_html__('WordPress Cache', 'nuke cache'); ?></h2>
+                    <h2><?php echo esc_html__('W3TC Cache', 'nuke cache'); ?></h2>
                 </div>
                 <div class="nuke-cache-card-content">
                     <?php if ($cache_size > 0): ?>

@@ -169,8 +169,8 @@ function db_backup_downloader_page() {
     ?>
     <div class="wrap">
         <h1 style="margin-bottom: 30px; color: #1d2327; font-size: 24px;">Database Backup Downloader</h1>
-        <div class="nuke-cache-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 20px;">
-            <div class="nuke-cache-card" style="background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden; transition: all 0.3s ease; border: 1px solid #e2e4e7;">
+        <div class="nuke-cache-grid" style="display: grid; grid-template-columns: 600px; gap: 24px; margin-top: 20px;">
+            <div class="nuke-cache-card" style="background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden; transition: all 0.3s ease; border: 1px solid #e2e4e7; min-height: 300px;">
                 <div class="nuke-card-header" style="background: #f8f9fa; padding: 16px 20px; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; gap: 12px;">
                     <span class="dashicons dashicons-database" style="font-size: 24px; width: 24px; height: 24px; color: #2271b1; display: flex; align-items: center; justify-content: center;"></span>
                     <h2 style="margin: 0; font-size: 16px; font-weight: 600; color: #1d2327;">Download Database Backup</h2>
