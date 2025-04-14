@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS posts (
     slug VARCHAR(255) NOT NULL UNIQUE,
     content TEXT NOT NULL,
     excerpt TEXT,
+    meta_title VARCHAR(255) DEFAULT NULL,
+    meta_description TEXT DEFAULT NULL,
     featured_image VARCHAR(255),
     author_id INT NOT NULL,
     status ENUM('draft', 'published', 'archived') NOT NULL DEFAULT 'draft',
