@@ -1,7 +1,0 @@
-RewriteEngine On
-
-# Riscrive URL con nome del fornitore
-RewriteRule ^([a-zA-Z0-9\-]+)/?$ scheda.php?slug=$1 [L,QSA]
-
-# Riscrive URL con categoria e nome fornitore
-RewriteRule ^([a-zA-Z0-9\-]+)/([a-zA-Z0-9\-]+)/?$ scheda.php?categoria=$1&slug=$2 [L,QSA]
