@@ -82,6 +82,8 @@ try {
             $content = $data['content'];
             $slug = isset($data['slug']) ? htmlspecialchars(strip_tags($data['slug'])) : strtolower(str_replace(' ', '-', $title));
             $excerpt = isset($data['excerpt']) ? htmlspecialchars(strip_tags($data['excerpt'])) : substr(strip_tags($content), 0, 200);
+            $metaTitle = isset($data['meta_title']) ? htmlspecialchars(strip_tags($data['meta_title'])) : null;
+            $metaDescription = isset($data['meta_description']) ? htmlspecialchars(strip_tags($data['meta_description'])) : null;
             $featuredImage = isset($data['featured_image']) ? htmlspecialchars(strip_tags($data['featured_image'])) : null;
             $status = isset($data['status']) ? $data['status'] : $post['status'];
             
@@ -93,8 +95,8 @@ try {
                 $publishedAt = null;
             }
 
-            $stmt = $conn->prepare("UPDATE posts SET title = ?, slug = ?, content = ?, excerpt = ?, featured_image = ?, status = ?, published_at = ?, updated_at = NOW() WHERE id = ?");
-            $stmt->bind_param("sssssssi", $title, $slug, $content, $excerpt, $featuredImage, $status, $publishedAt, $id);
+            $stmt = $conn->prepare("UPDATE posts SET title = ?, slug = ?, content = ?, excerpt = ?, meta_title = ?, meta_description = ?, featured_image = ?, status = ?, published_at = ?, updated_at = NOW() WHERE id = ?");
+            $stmt->bind_param("sssssssssi", $title, $slug, $content, $excerpt, $metaTitle, $metaDescription, $featuredImage, $status, $publishedAt, $id);
         }
         
         if (!$stmt->execute()) {

@@ -26,6 +26,8 @@ try {
     $content = $data['content']; // Allow HTML in content
     $slug = isset($data['slug']) ? htmlspecialchars(strip_tags($data['slug'])) : strtolower(str_replace(' ', '-', $title));
     $excerpt = isset($data['excerpt']) ? htmlspecialchars(strip_tags($data['excerpt'])) : substr(strip_tags($content), 0, 200);
+    $metaTitle = isset($data['meta_title']) ? htmlspecialchars(strip_tags($data['meta_title'])) : null;
+    $metaDescription = isset($data['meta_description']) ? htmlspecialchars(strip_tags($data['meta_description'])) : null;
     $featuredImage = isset($data['featured_image']) ? htmlspecialchars(strip_tags($data['featured_image'])) : null;
     $authorId = $_SESSION['user_id'];
     $status = isset($data['status']) ? $data['status'] : 'draft';
@@ -45,12 +47,12 @@ try {
 
     try {
         // Insert post
-        $stmt = $conn->prepare("INSERT INTO posts (title, slug, content, excerpt, featured_image, author_id, status, published_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        $stmt = $conn->prepare("INSERT INTO posts (title, slug, content, excerpt, meta_title, meta_description, featured_image, author_id, status, published_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
         
         // Set published_at to NOW() if status is published, otherwise NULL
         $publishedAt = $status === 'published' ? date('Y-m-d H:i:s') : null;
         
-        $stmt->bind_param("ssssssss", $title, $slug, $content, $excerpt, $featuredImage, $authorId, $status, $publishedAt);
+        $stmt->bind_param("ssssssssss", $title, $slug, $content, $excerpt, $metaTitle, $metaDescription, $featuredImage, $authorId, $status, $publishedAt);
         
         if (!$stmt->execute()) {
             throw new Exception('Failed to create post');
