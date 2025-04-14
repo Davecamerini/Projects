@@ -280,7 +280,7 @@ $video_files = $borgo['video_files'] ?? '';
     </div>
     <?php endif; ?>
 
-    <!-- per mappa -->
+    <!-- Mappa -->
     <?php if (!empty($borgo['latitudine']) && !empty($borgo['longitudine'])): ?>
         <div class="map-container mt-5">
             <div id="map" class="map-overlay">
@@ -293,6 +293,66 @@ $video_files = $borgo['video_files'] ?? '';
                 </div>
             </div>
         </div>
+
+        <!-- Blog Posts Section -->
+        <?php
+        // Get WordPress tags that match borgo tags
+        $wp_tags = array();
+        foreach ($tag as $borgo_tag) {
+            $wp_tag = get_term_by('name', trim($borgo_tag), 'post_tag');
+            if ($wp_tag) {
+                $wp_tags[] = $wp_tag->term_id;
+            }
+        }
+
+        if (!empty($wp_tags)) {
+            // Query posts with matching tags
+            $args = array(
+                'post_type' => 'post',
+                'posts_per_page' => 6,
+                'tag__in' => $wp_tags,
+                'orderby' => 'date',
+                'order' => 'DESC'
+            );
+
+            $blog_query = new WP_Query($args);
+
+            if ($blog_query->have_posts()) {
+                echo '<div class="blog-posts-section mb-5">';
+                echo '<h2 class="text-center mb-4">Articoli correlati</h2>';
+                echo '<div class="row">';
+                
+                while ($blog_query->have_posts()) {
+                    $blog_query->the_post();
+                    ?>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <?php if (has_post_thumbnail()) : ?>
+                                <a href="<?php the_permalink(); ?>">
+                                    <?php the_post_thumbnail('medium', array('class' => 'card-img-top')); ?>
+                                </a>
+                            <?php endif; ?>
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                                </h5>
+                                <p class="card-text"><?php echo wp_trim_words(get_the_excerpt(), 20); ?></p>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-muted"><?php echo get_the_date(); ?></small>
+                            </div>
+                        </div>
+                    </div>
+                    <?php
+                }
+                
+                echo '</div>'; // Close row
+                echo '</div>'; // Close blog-posts-section
+                
+                wp_reset_postdata();
+            }
+        }
+        ?>
     <?php endif; ?>
 
   </div>

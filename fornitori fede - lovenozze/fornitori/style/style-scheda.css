@@ -219,6 +219,7 @@ background-color: #f2f2f2;
 display: flex;
 align-items: center;
 justify-content: center;
+margin-bottom: 4rem;
 }
 
 .map-overlay {
@@ -295,4 +296,59 @@ width: 100%!important;
 .contact-item {
     margin-bottom: 10px;
 }
+}
+
+/* Blog Posts Section */
+.blog-posts-section {
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+.blog-posts-section .card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.blog-posts-section .card:hover {
+    transform: translateY(-5px);
+}
+
+.blog-posts-section .card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.blog-posts-section .card-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.blog-posts-section .card-title a:hover {
+    color: #8b7780;
+}
+
+.blog-posts-section .pagination {
+    margin-top: 2rem;
+}
+
+.blog-posts-section .pagination .page-numbers {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #333;
+}
+
+.blog-posts-section .pagination .page-numbers.current {
+    background-color: #8b7780;
+    color: white;
+    border-color: #8b7780;
+}
+
+.blog-posts-section .pagination .page-numbers:hover:not(.current) {
+    background-color: #f8f9fa;
+    border-color: #8b7780;
 }
