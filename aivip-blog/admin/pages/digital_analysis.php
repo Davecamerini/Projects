@@ -116,15 +116,21 @@ $db->closeConnection();
                                 <i class="bi bi-sort-up"></i>
                             </th>
                             <th class="sortable" data-sort="timestamp">
-                                Date
+                                Submitted
                                 <i class="bi bi-sort-up"></i>
                             </th>
+                            <th class="sortable" data-sort="last_update">
+                                Last Update
+                                <i class="bi bi-sort-up"></i>
+                            </th>
+                            <th>Check</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($analysisData)): ?>
                             <tr>
-                                <td colspan="4" class="text-center py-5">
+                                <td colspan="6" class="text-center py-5">
                                     <i class="bi bi-file-earmark-text text-muted" style="font-size: 3rem;"></i>
                                     <p class="mt-3 text-muted">No digital analysis requests found</p>
                                 </td>
@@ -140,6 +146,20 @@ $db->closeConnection();
                                         </span>
                                     </td>
                                     <td><?php echo date('M j, Y', strtotime($analysis['timestamp'])); ?></td>
+                                    <td><?php echo $analysis['last_update'] ? date('M j, Y', strtotime($analysis['last_update'])) : '-'; ?></td>
+                                    <td>
+                                        <i class="bi bi-<?php echo $analysis['check'] ? 'check-circle-fill text-success' : 'x-circle-fill text-danger'; ?>" style="font-size: 1.5rem;"></i>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-success check-btn" data-id="<?php echo $analysis['id']; ?>" <?php echo $analysis['check'] ? 'disabled' : ''; ?>>
+                                                <i class="bi bi-check-lg"></i> Inviato
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger reset-btn" data-id="<?php echo $analysis['id']; ?>" <?php echo !$analysis['check'] ? 'disabled' : ''; ?>>
+                                                <i class="bi bi-x-lg"></i> Reset
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -196,13 +216,19 @@ $db->closeConnection();
 }
 /* Fixed width percentages for columns */
 .table th:nth-child(1),
-.table td:nth-child(1) { width: 60%; }
+.table td:nth-child(1) { width: 40%; }
 .table th:nth-child(2),
 .table td:nth-child(2) { width: 20%; }
 .table th:nth-child(3),
 .table td:nth-child(3) { width: 10%; }
 .table th:nth-child(4),
 .table td:nth-child(4) { width: 10%; }
+.table th:nth-child(5),
+.table td:nth-child(5) { width: 10%; }
+.table th:nth-child(6),
+.table td:nth-child(6) { width: 5%; }
+.table th:nth-child(7),
+.table td:nth-child(7) { width: 5%; }
 </style>
 
 <script>
@@ -248,11 +274,44 @@ document.addEventListener('DOMContentLoaded', function() {
         const sort = th.dataset.sort;
         const icon = th.querySelector('i');
         if (sort === currentSort) {
-            icon.className = `bi bi-sort-${currentOrder === 'ASC' ? 'up' : 'down'}`;
             icon.style.display = 'inline-block';
+            icon.className = `bi bi-sort-${currentOrder === 'ASC' ? 'up' : 'down'}`;
         } else {
             icon.style.display = 'none';
         }
+    });
+
+    // Check/Reset functionality
+    document.querySelectorAll('.check-btn, .reset-btn').forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            const action = this.classList.contains('check-btn') ? 'check' : 'reset';
+            
+            try {
+                const response = await fetch('../api/digital_analysis/update.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        action: action
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Reload the page to show updated status
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating the status');
+            }
+        });
     });
 });
 </script> 

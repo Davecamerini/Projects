@@ -152,7 +152,9 @@ CREATE TABLE IF NOT EXISTS `digital_analysis` (
     `website` VARCHAR(255) NOT NULL,
     `email` VARCHAR(255) NOT NULL,
     `privacy` BOOLEAN NOT NULL DEFAULT FALSE,
-    `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    `check` BOOLEAN NOT NULL DEFAULT FALSE,
+    `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `last_update` TIMESTAMP NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert default admin user
