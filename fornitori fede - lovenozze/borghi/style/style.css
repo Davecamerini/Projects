@@ -23,6 +23,24 @@ div.card.category-card a:hover{
   text-decoration: none!important;
 }
 
+/* Menu hover override */
+#menu-lovenozze-main a:hover {
+    text-decoration: line-through !important;
+    text-decoration-line: line-through !important;
+    text-decoration-style: solid !important;
+    text-decoration-color: currentColor !important;
+    text-decoration-thickness: auto !important;
+    text-underline-offset: unset !important;
+    text-underline-position: unset !important;
+}
+
+/* Fix for the grid clear issue affecting footer */
+@media only screen and (min-width: 1441px) {
+    .qodef-grid.qodef-layout--columns.qodef-col-num--3.qodef-responsive--custom > .qodef-grid-inner > .qodef-grid-item:nth-child(3n+1) {
+        clear: none !important;
+    }
+}
+
 @media only screen and (max-width:980px){
   .borghi-title{
   font-size: 30px!important;

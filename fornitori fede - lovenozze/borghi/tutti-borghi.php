@@ -95,8 +95,10 @@ $places = "";
 <?php get_header(); ?>
 
 <div class="content-page-borghi">
-    <h1 class="text-center mb-3 pb-3 borghi-title">Tutti i borghi</h1>
-    <p style="max-width:850px; margin:auto;" class="text-center mb-5">La tua dose di ispirazione, bellezza e romanticismo. Il mondo del matrimonio e del destination wedding in Italia, declinato sotto la lente della bellezza fine art e senza tempo.</p>
+    <h1 class="text-center mb-3 pb-3 borghi-title">I Borghi più belli d’Italia in evidenza 
+    </h1>
+    <p style="max-width:850px; margin:auto;" class="text-center mb-5">Un viaggio alla scoperta dei Borghi più belli d’Italia, quelli perfetti per un matrimonio intimo ed autentico, tra paesaggi da sogno, tradizioni da scoprire, residenze storiche e luoghi d’altri tempi. <br>
+    Scopri la nostra selezione dei Borghi più belli: racconti, tradizione e innovazione si fondono per regalarvi un matrimonio unico, di quelli che non hanno eguali.</p>
 
     <!-- Bottone per aprire i filtri -->
   <div class="text-right mb-5">

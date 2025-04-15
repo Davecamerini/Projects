@@ -102,26 +102,12 @@ get_header();
 </head>
 
 <body>
-<!-- Sezione contenuti -->
 <div class="content-page-borghi">
-    <h1 class="text-center mb-3 borghi-title"><?php echo stripslashes("I Borghi Più Belli d’Italia:"); ?></br> Destination Wedding Nei Borghi </h1>
-    <p style="max-width:850px; margin:auto;" class="text-center mb-5"><?php echo stripslashes("L’associazione dei Borghi più belli d’Italia in collaborazione con LoveNozze seleziona e racconta i migliori Borghi d'Italia per matrimoni da sogno ed esperienze di soggiorno uniche.<br> Per vivere emozioni straordinarie e collezionare ricordi indelebili."); ?></p>
+    <h1 class="text-center mb-3 borghi-title"><?php echo stripslashes("I Borghi Più Belli d'Italia:"); ?></br> Destination Wedding Nei Borghi </h1>
+    <p style="max-width:850px; margin:auto;" class="text-center mb-5"><?php echo stripslashes("L'associazione dei Borghi più belli d'Italia in collaborazione con LoveNozze seleziona e racconta i migliori Borghi d'Italia per matrimoni da sogno ed esperienze di soggiorno uniche.<br> Per vivere emozioni straordinarie e collezionare ricordi indelebili."); ?></p>
 
     <!-- Sezione con le tre immagini affiancate -->
     <div id="row-selection-index" class="row-custom">
-        <!-- Categorie -->
-    <!--    <div class="col-custom">
-            <div class="category-section">
-                <a href="categorie.php">
-                    <img src="https://www.lovenozze.it/fornitori/admin/process/uploads/matrimonio.jpg" alt="Categorie">
-                    <div class="overlay">
-                        <h2>Categorie</h2>
-                        <p>Stai cercando qualcosa in particolare? Filtra direttamente la ricerca per una delle categorie di borghi. </p>
-                    </div>
-                </a>
-            </div>
-        </div>-->
-
         <!-- Luoghi -->
         <div class="col-custom">
             <div class="category-section">
@@ -129,7 +115,7 @@ get_header();
                     <img src="https://www.lovenozze.it/fornitori/admin/process/uploads/medieval.jpg" alt="Luoghi" style="filter:grayscale(0);">
                     <div class="overlay">
                         <h2>Destinazione Borghi</h2>
-                        <p>Scopri l’Italia autentica, quella dei Borghi più belli e del romanticismo assoluto.  Clicca sulla mappa e scopri i migliori borghi d’Italia.</p>
+                        <p>Scopri l'Italia autentica, quella dei Borghi più belli e del romanticismo assoluto.  Clicca sulla mappa e scopri i migliori borghi d'Italia.</p>
                     </div>
                 </a>
             </div>
@@ -148,10 +134,9 @@ get_header();
             </div>
         </div>
     </div>
-    <p style="max-width:850px; margin:auto;" class="text-center mb-5">Vuoi organizzare il tuo matrimonio in uno dei Borghi più belli con il supporto delle migliori agenzie e Wedding Planner d’Italia?Hai una location o sei un fornitore di matrimonio e vuoi collaborare con LoveNozze? <a target="_blank" href="https://www.lovenozze.it/contatti/">Contattaci.</p>
+    <p style="max-width:850px; margin:auto;" class="text-center mb-5">Vuoi organizzare il tuo matrimonio in uno dei Borghi più belli con il supporto delle migliori agenzie e Wedding Planner d'Italia? Hai una location o sei un fornitore di matrimonio e vuoi collaborare con LoveNozze? <a target="_blank" href="https://www.lovenozze.it/contatti/">Contattaci.</p>
 </div>
 
-<!-- Footer -->
 <?php
 get_footer();
 ?>

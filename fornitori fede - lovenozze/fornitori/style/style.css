@@ -22,3 +22,14 @@ line-height: normal!important;
 div.card.category-card a:hover{
   text-decoration: none!important;
 }
+
+/* Menu hover override */
+#menu-lovenozze-main a:hover {
+    text-decoration: line-through !important;
+    text-decoration-line: line-through !important;
+    text-decoration-style: solid !important;
+    text-decoration-color: currentColor !important;
+    text-decoration-thickness: auto !important;
+    text-underline-offset: unset !important;
+    text-underline-position: unset !important;
+}
