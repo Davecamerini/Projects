@@ -691,7 +691,7 @@ function vsp_generate_thumbnails() {
     }
 
     $offset = isset($_POST['offset']) ? intval($_POST['offset']) : 0;
-    $batch_size = 10;
+    $batch_size = 20;
     $images = vsp_get_all_images(VIDEO_UPLOAD_DIR);
     $total = count($images);
     $processed = 0;
@@ -775,7 +775,7 @@ function vsp_calculate_durations() {
     }
 
     $offset = isset($_POST['offset']) ? intval($_POST['offset']) : 0;
-    $batch_size = 5; // Process 5 videos at a time
+    $batch_size = 10;
     $videos = vsp_get_all_videos(VIDEO_UPLOAD_DIR);
     $total = count($videos);
     $processed = 0;
