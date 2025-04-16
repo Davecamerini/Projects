@@ -351,8 +351,23 @@ function vsp_delete_video() {
     $full_path = VIDEO_UPLOAD_DIR . '/' . $video_path;
 
     if (file_exists($full_path)) {
+        // Delete the main file
         if (unlink($full_path)) {
-            wp_send_json_success('Video deleted successfully.');
+            // Delete associated thumbnail if it exists
+            $thumbnail_dir = dirname($full_path) . '/thumbnails';
+            $thumbnail_path = $thumbnail_dir . '/' . md5($full_path . filemtime($full_path)) . '.' . pathinfo($video_name, PATHINFO_EXTENSION);
+            if (file_exists($thumbnail_path)) {
+                unlink($thumbnail_path);
+            }
+
+            // Delete associated duration file if it exists
+            $duration_dir = dirname($full_path) . '/duration';
+            $duration_path = $duration_dir . '/' . $video_name . '.duration';
+            if (file_exists($duration_path)) {
+                unlink($duration_path);
+            }
+
+            wp_send_json_success('Video and associated files deleted successfully.');
         } else {
             wp_send_json_error('Error deleting video.');
         }

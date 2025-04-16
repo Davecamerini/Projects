@@ -131,19 +131,19 @@ $video_files = $borgo['video_files'] ?? '';
 
               <!-- Descrizione -->
               <div class="description mb-4">
-                  <p><?php echo esc_html($descrizione); ?></p>
+                  <p><?php echo wp_kses_post($descrizione); ?></p>
               </div>
 
               <!-- Citazione -->
               <?php if (!empty($citazione)): ?>
                   <blockquote class="blockquote">
-                      <p class="mb-4">"<?php echo esc_html($citazione); ?>"</p>
+                      <p class="mb-4">"<?php echo wp_kses_post($citazione); ?>"</p>
                   </blockquote>
               <?php endif; ?>
 
               <!-- Descrizione ripetuta -->
               <div class="description mb-4">
-                  <p><?php echo esc_html($descrizione_due); ?></p>
+                  <p><?php echo wp_kses_post($descrizione_due); ?></p>
               </div>
 
               <!-- Tabella per le icone di contatto con ID univoco (mantenuta) -->
