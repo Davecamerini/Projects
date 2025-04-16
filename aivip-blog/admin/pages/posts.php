@@ -92,6 +92,8 @@ if ($sort_column === 'categories') {
     $query .= " GROUP BY p.id ORDER BY MIN(c.name) " . $sort_direction;
 } elseif ($sort_column === 'featured_image') {
     $query .= " GROUP BY p.id ORDER BY CASE WHEN p.featured_image IS NULL OR p.featured_image = '' THEN 1 ELSE 0 END " . $sort_direction . ", p.featured_image " . $sort_direction;
+} elseif ($sort_column === 'author_name') {
+    $query .= " GROUP BY p.id ORDER BY u.username " . $sort_direction;
 } else {
     $query .= " GROUP BY p.id ORDER BY p." . $sort_column . " " . $sort_direction;
 }
@@ -114,6 +116,11 @@ $db->closeConnection();
 ?>
 
 <div class="container-fluid">
+    <!-- Notification Banner -->
+    <div id="notification" class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="display: none; z-index: 9999;">
+        <span id="notification-message"></span>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3">Posts</h1>
         <a href="?page=new-post" class="btn btn-primary">
@@ -383,7 +390,7 @@ $db->closeConnection();
         white-space: nowrap;
     }
     
-    /* Column widths - consolidated */
+    /* Column widths */
     .table th:nth-child(1), .table td:nth-child(1) { width: 25%; } /* Title */
     .table th:nth-child(2), .table td:nth-child(2) { width: 10%; } /* Author */
     .table th:nth-child(3), .table td:nth-child(3) { width: 25%; } /* Categories */
@@ -393,20 +400,12 @@ $db->closeConnection();
     .table th:nth-child(7), .table td:nth-child(7) { width: 10%; } /* Actions */
     
     /* Text overflow handling */
-    .table td:nth-child(1) { 
-        white-space: normal;
-        max-width: 0;
+    .table td:nth-child(1),
+    .table td:nth-child(2),
+    .table td:nth-child(3) { 
+        white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-    
-    .table td:nth-child(2),
-    .table td:nth-child(3),
-    .table td:nth-child(4),
-    .table td:nth-child(5),
-    .table td:nth-child(6),
-    .table td:nth-child(7) { 
-        white-space: nowrap;
     }
     
     /* Dropdown specific styles */
@@ -451,7 +450,7 @@ $db->closeConnection();
         position: relative;
     }
     
-    /* Category badge styles */
+    /* Category badge specific styles */
     .category-badge {
         display: inline-block;
         margin: 0.1rem;
@@ -522,6 +521,23 @@ $db->closeConnection();
         echo ".category-{$cat['id']} { background-color: #{$hash}; color: {$textColor}; }\n";
     }
     ?>
+
+    /* Notification styles */
+    #notification {
+        min-width: 300px;
+        text-align: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* Animation for fade out */
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    .fade-out {
+        animation: fadeOut 0.5s ease-out forwards;
+    }
 </style>
 
 <script>
@@ -565,7 +581,7 @@ function changePostStatus(postId, newStatus) {
     const validStatuses = ['draft', 'published', 'archived'];
     if (!validStatuses.includes(newStatus)) {
         console.error('Invalid status:', newStatus);
-        alert('Invalid status value');
+        showNotification('Invalid status value');
         return;
     }
 
@@ -596,18 +612,17 @@ function changePostStatus(postId, newStatus) {
             // Verify the returned status matches what we sent
             if (data.data.status !== newStatus) {
                 console.error('Status mismatch:', { sent: newStatus, received: data.data.status });
-                alert('Warning: The returned status does not match the requested status');
+                showNotification('Warning: The returned status does not match the requested status');
+            } else {
+                showNotification('Post status updated successfully');
             }
-            
-            // Refresh the page to show updated status
-            location.reload();
         } else {
-            alert('Error updating status: ' + (data.message || 'Unknown error'));
+            showNotification('Error updating status: ' + (data.message || 'Unknown error'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error updating status: ' + error.message);
+        showNotification('Error updating status: ' + error.message);
     });
 }
 
@@ -636,6 +651,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function showNotification(message) {
+    const notification = document.getElementById('notification');
+    const messageSpan = document.getElementById('notification-message');
+    
+    // Set message and show notification
+    messageSpan.textContent = message;
+    notification.style.display = 'block';
+    
+    // Hide after 2 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            notification.style.display = 'none';
+            notification.classList.remove('fade-out');
+            // Reload page after notification disappears
+            window.location.reload();
+        }, 500); // Wait for fade out animation to complete
+    }, 2000);
+}
 </script>
 
 <?php

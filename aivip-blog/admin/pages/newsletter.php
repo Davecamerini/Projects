@@ -106,8 +106,38 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     margin-left: 5px;
     display: none;
 }
-.sortable:hover i {
+/* Remove hover display rule */
+/* .sortable:hover i {
     display: inline-block;
+} */
+/* Fixed widths for all columns */
+th[data-sort="id"],
+td:nth-child(1) {
+    width: 5%;
+}
+th[data-sort="nome_cognome"],
+td:nth-child(2) {
+    width: 15%;
+}
+th[data-sort="email"],
+td:nth-child(3) {
+    width: 20%;
+}
+th[data-sort="preferenza_invio"],
+td:nth-child(4) {
+    width: 10%;
+}
+th[data-sort="url_invio"],
+td:nth-child(5) {
+    width: 20%;
+}
+th[data-sort="privacy"],
+td:nth-child(6) {
+    width: 10%;
+}
+th[data-sort="created_at"],
+td:nth-child(7) {
+    width: 10%;
 }
 </style>
 

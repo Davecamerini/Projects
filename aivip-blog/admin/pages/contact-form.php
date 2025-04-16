@@ -102,6 +102,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 </div>
 
 <style>
+.table {
+    table-layout: fixed;
+}
 .sortable {
     cursor: pointer;
     position: relative;
@@ -113,7 +116,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 .sortable i {
     margin-left: 5px;
     display: none;
-    vertical-align: middle;
 }
 /* Remove hover display rule */
 /* .sortable:hover i {
@@ -146,8 +148,7 @@ td:nth-child(6) {
 }
 th[data-sort="privacy"],
 td:nth-child(7) {
-    width: 5%;
-    text-align: center;
+    width: 10%;
 }
 th[data-sort="url_invio"],
 td:nth-child(8) {
@@ -155,7 +156,7 @@ td:nth-child(8) {
 }
 th[data-sort="created_at"],
 td:nth-child(9) {
-    width: 5%;
+    width: 10%;
 }
 </style>
 

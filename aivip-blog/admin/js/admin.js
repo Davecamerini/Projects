@@ -1,3 +1,53 @@
+// Add notification banner to the page if it doesn't exist
+if (!document.getElementById('notification')) {
+    const notificationDiv = document.createElement('div');
+    notificationDiv.id = 'notification';
+    notificationDiv.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+    notificationDiv.style.cssText = 'display: none; z-index: 9999; min-width: 300px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);';
+    notificationDiv.innerHTML = '<span id="notification-message"></span>';
+    document.body.insertBefore(notificationDiv, document.body.firstChild);
+}
+
+// Add notification styles if they don't exist
+if (!document.getElementById('notification-styles')) {
+    const styleElement = document.createElement('style');
+    styleElement.id = 'notification-styles';
+    styleElement.textContent = `
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+    `;
+    document.head.appendChild(styleElement);
+}
+
+function showNotification(message, redirectUrl = null) {
+    const notification = document.getElementById('notification');
+    const messageSpan = document.getElementById('notification-message');
+    
+    // Set message and show notification
+    messageSpan.textContent = message;
+    notification.style.display = 'block';
+    
+    // Hide after 2 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            notification.style.display = 'none';
+            notification.classList.remove('fade-out');
+            // Redirect or reload based on parameter
+            if (redirectUrl) {
+                window.location.replace(redirectUrl);
+            } else {
+                window.location.reload();
+            }
+        }, 500); // Wait for fade out animation to complete
+    }, 2000);
+}
+
 // Initialize TinyMCE for post content
 if (document.querySelector('#content')) {
     tinymce.init({
@@ -40,41 +90,12 @@ if (postForm) {
             const data = await response.json();
             
             if (data.success) {
-                alert('Post saved successfully!');
-                window.location.href = '?page=posts';
+                showNotification('Post saved successfully!');
             } else {
-                alert('Error: ' + data.message);
+                showNotification('Error: ' + data.message);
             }
         } catch (error) {
-            alert('Error saving post: ' + error.message);
-        }
-    });
-}
-
-// Handle media upload
-const mediaForm = document.querySelector('#media-form');
-if (mediaForm) {
-    mediaForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(mediaForm);
-
-        try {
-            const response = await fetch('../api/media/upload.php', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                alert('File uploaded successfully!');
-                location.reload();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        } catch (error) {
-            alert('Error uploading file: ' + error.message);
+            showNotification('Error saving post: ' + error.message);
         }
     });
 }
@@ -97,13 +118,12 @@ async function deletePost(postId) {
         const data = await response.json();
         
         if (data.success) {
-            alert('Post deleted successfully!');
-            location.reload();
+            showNotification('Post deleted successfully!');
         } else {
-            alert('Error: ' + data.message);
+            showNotification('Error: ' + data.message);
         }
     } catch (error) {
-        alert('Error deleting post: ' + error.message);
+        showNotification('Error deleting post: ' + error.message);
     }
 }
 
@@ -124,13 +144,12 @@ async function changePostStatus(postId, status) {
         const data = await response.json();
         
         if (data.success) {
-            alert('Post status updated successfully!');
-            location.reload();
+            showNotification('Post status updated successfully');
         } else {
-            alert('Error: ' + data.message);
+            showNotification('Error: ' + data.message);
         }
     } catch (error) {
-        alert('Error updating post status: ' + error.message);
+        showNotification('Error updating post status: ' + error.message);
     }
 }
 
@@ -152,13 +171,12 @@ async function deleteMedia(mediaId) {
         const data = await response.json();
         
         if (data.success) {
-            alert('Media deleted successfully!');
-            location.reload();
+            showNotification('Media deleted successfully!');
         } else {
-            alert('Error: ' + data.message);
+            showNotification('Error: ' + data.message);
         }
     } catch (error) {
-        alert('Error deleting media: ' + error.message);
+        showNotification('Error deleting media: ' + error.message);
     }
 }
 

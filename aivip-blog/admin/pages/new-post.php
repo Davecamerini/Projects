@@ -118,6 +118,11 @@ if ($isEditing) {
 </script>
 
 <div class="container-fluid">
+    <!-- Notification Banner -->
+    <div id="notification" class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="display: none; z-index: 9999;">
+        <span id="notification-message"></span>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3"><?php echo $isEditing ? 'Edit Post' : 'New Post'; ?></h1>
         <a href="?page=posts" class="btn btn-secondary">
@@ -227,6 +232,26 @@ if ($isEditing) {
 </div>
 
 <script>
+function showNotification(message, redirect) {
+    const notification = document.getElementById('notification');
+    const messageSpan = document.getElementById('notification-message');
+    
+    // Set message and show notification
+    messageSpan.textContent = message;
+    notification.style.display = 'block';
+    
+    // Hide after 2 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            notification.style.display = 'none';
+            notification.classList.remove('fade-out');
+            // Redirect to posts page after notification disappears
+            window.location.replace(redirect);
+        }, 500); // Wait for fade out animation to complete
+    }, 2000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('post-form');
     
@@ -266,15 +291,33 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             
             if (result.success) {
-                alert('Post <?php echo $isEditing ? 'updated' : 'created'; ?> successfully!');
-                window.location.href = '?page=posts';
+                showNotification('Post <?php echo $isEditing ? 'updated' : 'created'; ?> successfully', '?page=posts');
             } else {
-                alert('Error: ' + result.message);
+                showNotification('Error: ' + result.message);
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error saving post: ' + error.message);
+            showNotification('Error saving post: ' + error.message);
         }
     });
 });
-</script> 
+</script>
+
+<style>
+/* Add to existing styles */
+#notification {
+    min-width: 300px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Add animation for fade out */
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+}
+</style> 

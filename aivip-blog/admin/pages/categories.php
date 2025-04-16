@@ -28,6 +28,11 @@ $db->closeConnection();
 ?>
 
 <div class="container-fluid">
+    <!-- Notification Banner -->
+    <div id="notificationBanner" class="alert alert-success alert-dismissible fade show d-none" role="alert">
+        <span id="notificationMessage"></span>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3">Categories</h1>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal">
@@ -162,6 +167,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Show notification and reload page
+function showNotification(message) {
+    const banner = document.getElementById('notificationBanner');
+    const messageSpan = document.getElementById('notificationMessage');
+    
+    messageSpan.textContent = message;
+    banner.classList.remove('d-none');
+    
+    setTimeout(() => {
+        banner.classList.add('d-none');
+        location.reload();
+    }, 2000);
+}
+
 // Edit category
 function editCategory(category) {
     document.getElementById('categoryId').value = category.id;
@@ -204,7 +223,11 @@ async function saveCategory() {
         const result = await response.json();
         
         if (result.success) {
-            location.reload();
+            // Close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('categoryModal'));
+            modal.hide();
+            // Show notification
+            showNotification(result.message);
         } else {
             alert('Error: ' + result.message);
         }
@@ -232,7 +255,7 @@ async function deleteCategory(id) {
         const result = await response.json();
         
         if (result.success) {
-            location.reload();
+            showNotification(result.message);
         } else {
             alert('Error: ' + result.message);
         }

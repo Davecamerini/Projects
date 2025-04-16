@@ -50,6 +50,11 @@ $db->closeConnection();
 ?>
 
 <div class="container-fluid">
+    <!-- Notification Banner -->
+    <div id="notificationBanner" class="alert alert-success alert-dismissible fade show d-none" role="alert">
+        <span id="notificationMessage"></span>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3">Media Library</h1>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
@@ -219,9 +224,23 @@ $db->closeConnection();
 </style>
 
 <script>
+// Show notification and reload page
+function showNotification(message) {
+    const banner = document.getElementById('notificationBanner');
+    const messageSpan = document.getElementById('notificationMessage');
+    
+    messageSpan.textContent = message;
+    banner.classList.remove('d-none');
+    
+    setTimeout(() => {
+        banner.classList.add('d-none');
+        location.reload();
+    }, 2000);
+}
+
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
-        alert('URL copied to clipboard!');
+        showNotification('URL copied to clipboard!');
     }).catch(err => {
         console.error('Failed to copy URL:', err);
     });
@@ -279,8 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        this.closest('.media-item').remove();
-                        alert('Media deleted successfully');
+                        showNotification(data.message);
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -292,5 +310,36 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Handle media upload
+    const mediaForm = document.getElementById('media-form');
+    if (mediaForm) {
+        mediaForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(mediaForm);
+
+            try {
+                const response = await fetch('../api/media/upload.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Close the modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
+                    modal.hide();
+                    // Show notification
+                    showNotification(data.message);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error uploading file: ' + error.message);
+            }
+        });
+    }
 });
 </script> 

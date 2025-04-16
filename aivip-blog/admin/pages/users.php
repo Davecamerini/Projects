@@ -353,9 +353,77 @@ $db->closeConnection();
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* Table styles */
+.table-responsive {
+    overflow: visible;
+}
+
+.table td {
+    position: relative;
+    overflow: visible;
+    vertical-align: middle;
+}
+
+.table th {
+    white-space: nowrap;
+}
+
+/* Column widths */
+.table th:nth-child(1), .table td:nth-child(1) { width: 5%; } /* ID */
+.table th:nth-child(2), .table td:nth-child(2) { width: 15%; } /* Username */
+.table th:nth-child(3), .table td:nth-child(3) { width: 20%; } /* Name */
+.table th:nth-child(4), .table td:nth-child(4) { width: 20%; } /* Email */
+.table th:nth-child(5), .table td:nth-child(5) { width: 10%; } /* Role */
+.table th:nth-child(6), .table td:nth-child(6) { width: 10%; } /* Status */
+.table th:nth-child(7), .table td:nth-child(7) { width: 10%; } /* Created */
+.table th:nth-child(8), .table td:nth-child(8) { width: 10%; } /* Actions */
+
+/* Text overflow handling */
+.table td:nth-child(2),
+.table td:nth-child(3),
+.table td:nth-child(4) { 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Dropdown specific styles */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    min-width: 8rem;
+}
 </style>
 
 <script>
+// Local showNotification function for users page
+function showNotification(message) {
+    const notification = document.getElementById('notification');
+    const messageSpan = document.getElementById('notification-message');
+    
+    // Set message and show notification
+    messageSpan.textContent = message;
+    notification.style.display = 'block';
+    
+    // Hide after 2 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            notification.style.display = 'none';
+            notification.classList.remove('fade-out');
+            // Reload the current page
+            window.location.reload();
+        }, 500); // Wait for fade out animation to complete
+    }, 2000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Handle sortable columns
     document.querySelectorAll('.sortable').forEach(header => {
@@ -393,14 +461,17 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                // Close the modal
+                bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                // Show success notification
+                showNotification('User created successfully!');
             } else {
-                alert(data.message || 'Error creating user');
+                showNotification('Error: ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error creating user');
+            showNotification('Error creating user');
         });
     });
 
@@ -434,14 +505,17 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                // Close the modal
+                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                // Show success notification
+                showNotification('User updated successfully!');
             } else {
-                alert(data.message || 'Error updating user');
+                showNotification('Error: ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error updating user');
+            showNotification('Error updating user');
         });
     });
 
@@ -461,14 +535,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        location.reload();
+                        showNotification('User deleted successfully!');
                     } else {
-                        alert(data.message || 'Error deleting user');
+                        showNotification('Error: ' + data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error deleting user');
+                    showNotification('Error deleting user');
                 });
             }
         });
@@ -498,14 +572,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     const data = await response.json();
                     
                     if (data.success) {
-                        // Show new password in alert
-                        alert('Password reset successful!\nNew password: ' + data.password);
+                        showNotification('Password reset successful! New password: ' + data.password);
                     } else {
-                        alert('Error: ' + data.message);
+                        showNotification('Error: ' + data.message);
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error resetting password');
+                    showNotification('Error resetting password');
                 } finally {
                     // Re-enable button and restore icon
                     button.disabled = false;

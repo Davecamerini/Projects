@@ -34,10 +34,66 @@ $recentPosts = $recentStmt->get_result();
 $db->closeConnection();
 ?>
 
+<script>
+function showNotification(message) {
+    const notification = document.getElementById('notification');
+    const messageSpan = document.getElementById('notification-message');
+    
+    // Set message and show notification
+    messageSpan.textContent = message;
+    notification.style.display = 'block';
+    
+    // Hide after 2 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            notification.style.display = 'none';
+            notification.classList.remove('fade-out');
+            // Reload page after notification disappears
+            window.location.reload();
+        }, 500); // Wait for fade out animation to complete
+    }, 2000);
+}
+
+function deletePost(postId) {
+    if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+        fetch('/backend/api/posts/delete.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: postId })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message || 'Post deleted successfully');
+            } else {
+                showNotification(data.message || 'Error deleting post');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error deleting post: ' + error.message);
+        });
+    }
+}
+</script>
+
 <!-- Add Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <div class="container-fluid">
+    <!-- Notification Banner -->
+    <div id="notification" class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="display: none; z-index: 9999;">
+        <span id="notification-message"></span>
+    </div>
+
     <h1 class="h3 mb-4">Dashboard</h1>
 
     <!-- Statistics -->
@@ -138,7 +194,7 @@ $db->closeConnection();
                             </td>
                             <td><?php echo date('M j, Y', strtotime($post['created_at'])); ?></td>
                             <td>
-                                <a href="?page=posts&action=edit&id=<?php echo $post['id']; ?>" 
+                                <a href="?page=new-post&action=edit&id=<?php echo $post['id']; ?>" 
                                    class="btn btn-sm btn-primary"
                                    data-bs-toggle="tooltip"
                                    data-bs-placement="top"
@@ -258,6 +314,23 @@ foreach ($allCategories as $cat) {
 
 .table td .dropdown button::after {
     margin-left: 6px;
+}
+
+/* Add to existing styles */
+#notification {
+    min-width: 300px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Add animation for fade out */
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
 }
 </style>
 

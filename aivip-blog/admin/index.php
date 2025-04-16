@@ -27,8 +27,10 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
         .sidebar {
             min-height: 100vh;
             background: #343a40;
-            position: relative;
+            position: fixed;
             z-index: 1030;
+            width: 250px;
+            overflow-y: auto;
         }
         .nav-link {
             color: rgba(255,255,255,.75);
@@ -43,6 +45,8 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
         .main-content {
             min-height: 100vh;
             background: #f8f9fa;
+            margin-left: 250px;
+            width: calc(100% - 250px);
         }
         /* Dropdown styles */
         .dropdown {
