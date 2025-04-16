@@ -300,6 +300,7 @@ function vsp_video_page() {
             echo '<td>' . esc_html($formatted_size) . '</td>';
             echo '<td class="vsp-video-actions">';
             echo '<button class="vsp-rename-video" data-video-name="' . esc_attr($file['name']) . '">Rename</button>';
+            echo '<button class="vsp-move-video" data-video-name="' . esc_attr($file['name']) . '">Move</button>';
             echo '<button class="vsp-delete-video" data-video-name="' . esc_attr($file['name']) . '">Delete</button>';
             echo '</td>';
             echo '</tr>';
@@ -930,7 +931,10 @@ function vsp_settings_page() {
                 </div>
                 <div class="vsp-card-content">
                     <p>Generate thumbnails for all images in the videos folder.</p>
-                    <button id="vsp-generate-thumbnails" class="button button-primary">Generate All Thumbnails</button>
+                    <div class="vsp-thumbnail-actions">
+                        <button id="vsp-generate-thumbnails" class="button button-primary">Generate All Thumbnails</button>
+                        <button id="vsp-clear-thumbnails" class="button button-secondary">Clear All Thumbnails</button>
+                    </div>
                     <div id="vsp-progress-container" style="display: none;">
                         <div class="vsp-progress-bar">
                             <div class="vsp-progress-fill"></div>
@@ -958,13 +962,19 @@ function vsp_settings_page() {
                     <p>Calculate durations for all videos in the videos folder.</p>
                     <div class="vsp-button-group">
                         <button id="vsp-calculate-durations" class="button button-primary">Calculate All Durations</button>
-                        <button id="vsp-clear-durations" class="button">Clear Duration Cache</button>
+                        <button id="vsp-clear-durations" class="button button-secondary">Clear Duration Cache</button>
                     </div>
                     <div id="vsp-duration-progress" style="display: none;">
                         <div class="vsp-progress-bar">
                             <div class="vsp-progress-fill"></div>
                         </div>
                         <p id="vsp-duration-progress-text">Processing: 0/0</p>
+                    </div>
+                    <div id="vsp-clear-duration-progress" style="display: none;">
+                        <div class="vsp-progress-bar">
+                            <div class="vsp-progress-fill"></div>
+                        </div>
+                        <p id="vsp-clear-duration-progress-text">Processing: 0/0</p>
                     </div>
                 </div>
             </div>
@@ -998,6 +1008,21 @@ function vsp_settings_page() {
     jQuery(document).ready(function($) {
         // Add nonce for AJAX requests
         const vspNonce = '<?php echo wp_create_nonce("vsp_nonce"); ?>';
+
+        // Define showNotification function
+        function showNotification(message) {
+            var $notification = $('<div class="vsp-notification"><span class="vsp-notification-message">' + message + '</span></div>');
+            $('body').append($notification);
+            setTimeout(function() {
+                $notification.addClass('show');
+            }, 100);
+            setTimeout(function() {
+                $notification.removeClass('show');
+                setTimeout(function() {
+                    $notification.remove();
+                }, 300);
+            }, 3000);
+        }
 
         // Duration calculation
         var isCalculatingDurations = false;
@@ -1121,7 +1146,12 @@ function vsp_settings_page() {
         $('#vsp-clear-durations').on('click', function() {
             if (confirm('Are you sure you want to clear all cached durations? This will require recalculating durations for all videos.')) {
                 var $button = $(this);
+                var $progressContainer = $('#vsp-clear-duration-progress');
+                var $progressBar = $progressContainer.find('.vsp-progress-fill');
+                var $progressText = $('#vsp-clear-duration-progress-text');
+                
                 $button.prop('disabled', true).text('Clearing Cache...');
+                $progressContainer.show();
                 
                 $.ajax({
                     url: ajaxurl,
@@ -1132,8 +1162,17 @@ function vsp_settings_page() {
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert('Successfully cleared ' + response.data.cleared + ' cached durations.');
-                            location.reload();
+                            // Update progress bar to 100%
+                            $progressBar.css('width', '100%');
+                            $progressText.text('Processing: ' + response.data.cleared + '/' + response.data.total);
+                            
+                            // Show admin notice
+                            var notice = $('<div class="notice notice-success is-dismissible"><p>Successfully cleared ' + response.data.cleared + ' cached durations.</p></div>');
+                            $('.wrap').prepend(notice);
+                            
+                            setTimeout(function() {
+                                location.reload();
+                            }, 3000);
                         } else {
                             alert('Error clearing duration cache: ' + response.data);
                         }
@@ -1428,6 +1467,33 @@ function vsp_settings_page() {
                 $('#vsp-progress-container').hide();
             }
         });
+
+        // Add AJAX handler for clearing thumbnails
+        $('#vsp-clear-thumbnails').on('click', function() {
+            if (confirm('Are you sure you want to clear all cached thumbnails? This will require regenerating thumbnails for all images.')) {
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'clear_thumbnails',
+                        nonce: vspNonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showNotification('Successfully cleared all cached thumbnails.');
+                            setTimeout(function() {
+                                location.reload();
+                            }, 3000);
+                        } else {
+                            alert('Error clearing thumbnails: ' + response.data);
+                        }
+                    },
+                    error: function() {
+                        alert('Error clearing thumbnails. Please try again.');
+                    }
+                });
+            }
+        });
     });
     </script>
     <?php
@@ -1567,4 +1633,126 @@ function vsp_count_media_files($dir) {
     }
     
     return $count;
+}
+
+// Add function to handle video moving
+function vsp_move_video() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Permission denied.');
+        return;
+    }
+
+    $video_name = sanitize_text_field($_POST['video_name']);
+    $current_folder = isset($_POST['current_folder']) ? sanitize_text_field($_POST['current_folder']) : '';
+    $destination_folder = isset($_POST['destination_folder']) ? sanitize_text_field($_POST['destination_folder']) : '';
+    
+    // Construct the full paths
+    $current_path = $current_folder ? $current_folder . '/' . $video_name : $video_name;
+    $destination_path = $destination_folder ? $destination_folder . '/' . $video_name : $video_name;
+    
+    $current_full_path = VIDEO_UPLOAD_DIR . '/' . $current_path;
+    $destination_full_path = VIDEO_UPLOAD_DIR . '/' . $destination_path;
+
+    if (!file_exists($current_full_path)) {
+        wp_send_json_error('File not found.');
+        return;
+    }
+
+    // Create destination directory if it doesn't exist
+    $destination_dir = dirname($destination_full_path);
+    if (!file_exists($destination_dir)) {
+        wp_mkdir_p($destination_dir);
+    }
+
+    // Move the main file
+    if (rename($current_full_path, $destination_full_path)) {
+        // Move associated thumbnail if it exists
+        $current_thumb_dir = dirname($current_full_path) . '/thumbnails';
+        $current_thumb_path = $current_thumb_dir . '/' . md5($current_full_path . filemtime($current_full_path)) . '.' . pathinfo($video_name, PATHINFO_EXTENSION);
+        
+        if (file_exists($current_thumb_path)) {
+            $destination_thumb_dir = dirname($destination_full_path) . '/thumbnails';
+            if (!file_exists($destination_thumb_dir)) {
+                wp_mkdir_p($destination_thumb_dir);
+            }
+            $destination_thumb_path = $destination_thumb_dir . '/' . md5($destination_full_path . filemtime($destination_full_path)) . '.' . pathinfo($video_name, PATHINFO_EXTENSION);
+            rename($current_thumb_path, $destination_thumb_path);
+        }
+
+        // Move associated duration file if it exists
+        $current_duration_dir = dirname($current_full_path) . '/duration';
+        $current_duration_path = $current_duration_dir . '/' . $video_name . '.duration';
+        
+        if (file_exists($current_duration_path)) {
+            $destination_duration_dir = dirname($destination_full_path) . '/duration';
+            if (!file_exists($destination_duration_dir)) {
+                wp_mkdir_p($destination_duration_dir);
+            }
+            $destination_duration_path = $destination_duration_dir . '/' . $video_name . '.duration';
+            rename($current_duration_path, $destination_duration_path);
+        }
+
+        wp_send_json_success('File moved successfully.');
+    } else {
+        wp_send_json_error('Error moving file.');
+    }
+}
+add_action('wp_ajax_move_video', 'vsp_move_video');
+
+// Add AJAX handler for clearing thumbnails
+add_action('wp_ajax_clear_thumbnails', 'vsp_clear_thumbnails');
+
+function vsp_clear_thumbnails() {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Permission denied.');
+        return;
+    }
+
+    check_ajax_referer('vsp_nonce', 'nonce');
+
+    $total_deleted = 0;
+    $total_errors = 0;
+
+    // Function to recursively delete thumbnails
+    function delete_thumbnails_recursive($path) {
+        global $total_deleted, $total_errors;
+        
+        if (!is_dir($path)) return;
+        
+        $files = scandir($path);
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..') continue;
+            
+            $file_path = $path . '/' . $file;
+            if (is_dir($file_path)) {
+                if ($file === 'thumbnails') {
+                    // Delete all files in the thumbnails directory
+                    $thumb_files = scandir($file_path);
+                    foreach ($thumb_files as $thumb_file) {
+                        if ($thumb_file === '.' || $thumb_file === '..') continue;
+                        if (unlink($file_path . '/' . $thumb_file)) {
+                            $total_deleted++;
+                        } else {
+                            $total_errors++;
+                        }
+                    }
+                    // Remove the thumbnails directory
+                    if (rmdir($file_path)) {
+                        $total_deleted++;
+                    } else {
+                        $total_errors++;
+                    }
+                } else {
+                    delete_thumbnails_recursive($file_path);
+                }
+            }
+        }
+    }
+
+    delete_thumbnails_recursive(VIDEO_UPLOAD_DIR);
+
+    wp_send_json_success([
+        'deleted' => $total_deleted,
+        'errors' => $total_errors
+    ]);
 }
