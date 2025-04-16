@@ -95,6 +95,12 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                         </li>
                         <?php if ($_SESSION['role'] === 'admin'): ?>
                         <li class="nav-item">
+                            <a class="nav-link <?php echo $current_page === 'users' ? 'active' : ''; ?>" href="?page=users">
+                                <i class="bi bi-people me-2"></i>
+                                Users
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link <?php echo $current_page === 'categories' ? 'active' : ''; ?>" href="?page=categories">
                                 <i class="bi bi-tags me-2"></i>
                                 Categories
@@ -123,12 +129,6 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
                             <a class="nav-link <?php echo $current_page === 'media' ? 'active' : ''; ?>" href="?page=media">
                                 <i class="bi bi-image me-2"></i>
                                 Media
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page === 'users' ? 'active' : ''; ?>" href="?page=users">
-                                <i class="bi bi-people me-2"></i>
-                                Users
                             </a>
                         </li>
                     </ul>

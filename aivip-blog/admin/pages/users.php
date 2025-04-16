@@ -1,6 +1,12 @@
 <?php
 require_once '../config/database.php';
 
+// Check if user is admin
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header('Location: ../index.php');
+    exit;
+}
+
 // Get query parameters
 $page = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
 $limit = 10;
