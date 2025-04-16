@@ -59,6 +59,42 @@ $conn->close();
     <title>Modifica Fornitore</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyi2qjyYB4_WUBAW-2KXVgPL8zhRvAFOI&libraries=places"></script>
+    <!-- TinyMCE -->
+    <script src="../data/tinymce/js/tinymce/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#descrizione, #descrizione_due',
+            height: 300,
+            menubar: true,
+            plugins: [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table paste code help wordcount',
+                'emoticons template paste textpattern'
+            ],
+            toolbar: 'undo redo | formatselect | bold italic underline strikethrough | \
+                     alignleft aligncenter alignright alignjustify | \
+                     bullist numlist outdent indent | \
+                     forecolor backcolor removeformat | \
+                     link image media table | \
+                     fontselect fontsizeselect | \
+                     charmap emoticons | \
+                     code fullscreen preview',
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+            language: 'it',
+            skin: 'oxide',
+            branding: false,
+            font_family_formats: 'Arial=arial,helvetica,sans-serif; \
+                                Times New Roman=times new roman,times; \
+                                Verdana=verdana,geneva; \
+                                Tahoma=tahoma,arial,helvetica,sans-serif; \
+                                Trebuchet MS=trebuchet ms,geneva; \
+                                Georgia=georgia,times new roman,times,serif; \
+                                Courier New=courier new,courier,monospace; \
+                                Comic Sans MS=comic sans ms,sans-serif',
+            font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt'
+        });
+    </script>
 <style>
         /* Stile generale */
         body {
@@ -71,7 +107,8 @@ $conn->close();
         /* Stile del container principale */
         .dashboard-container {
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
+            position: relative;
         }
 
         /* Barra laterale */
@@ -82,6 +119,9 @@ $conn->close();
             display: flex;
             flex-direction: column;
             padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
         }
         .sidebar a {
             color: white;
@@ -102,6 +142,8 @@ $conn->close();
             flex-grow: 1;
             padding: 40px;
             background-color: #f3f3f3;
+            margin-left: 250px; /* Same as sidebar width */
+            min-height: 100vh;
         }
         h1 {
             color: #444;
@@ -135,13 +177,13 @@ $conn->close();
                         <input type="text" name="ragione_sociale" value="<?php echo $fornitore['ragione_sociale']; ?>" class="form-control" required>
 
                         <label class="mt-4">Descrizione</label>
-                        <textarea id="descrizione" name="descrizione" class="form-control" required><?php echo htmlspecialchars($fornitore['descrizione']); ?></textarea>
+                        <textarea id="descrizione" name="descrizione" class="form-control" required><?php echo $fornitore['descrizione']; ?></textarea>
 
                         <label class="mt-4">Citazione</label>
                         <input type="text" name="citazione" value="<?php echo $fornitore['citazione']; ?>" class="form-control" required>
 
                         <label class="mt-4">Descrizione dopo la citazione</label>
-                        <textarea id="descrizione_due" name="descrizione_due" class="form-control" required><?php echo htmlspecialchars($fornitore['descrizione_due']); ?></textarea>
+                        <textarea id="descrizione_due" name="descrizione_due" class="form-control" required><?php echo $fornitore['descrizione_due']; ?></textarea>
 
                         <label class="mt-4">Categoria</label>
                         <select name="categoria" class="form-control" required>

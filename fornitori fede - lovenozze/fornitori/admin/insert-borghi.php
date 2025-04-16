@@ -128,6 +128,42 @@ $categories_result = $conn->query($category_query);
         document.getElementById('slug').value = slug; // Popola il campo slug
     }
 </script>
+    <!-- TinyMCE -->
+    <script src="../data/tinymce/js/tinymce/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#descrizione, #descrizione_due',
+            height: 300,
+            menubar: true,
+            plugins: [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table paste code help wordcount',
+                'emoticons template paste textpattern'
+            ],
+            toolbar: 'undo redo | formatselect | bold italic underline strikethrough | \
+                     alignleft aligncenter alignright alignjustify | \
+                     bullist numlist outdent indent | \
+                     forecolor backcolor removeformat | \
+                     link image media table | \
+                     fontselect fontsizeselect | \
+                     charmap emoticons | \
+                     code fullscreen preview',
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+            language: 'it',
+            skin: 'oxide',
+            branding: false,
+            font_family_formats: 'Arial=arial,helvetica,sans-serif; \
+                                Times New Roman=times new roman,times; \
+                                Verdana=verdana,geneva; \
+                                Tahoma=tahoma,arial,helvetica,sans-serif; \
+                                Trebuchet MS=trebuchet ms,geneva; \
+                                Georgia=georgia,times new roman,times,serif; \
+                                Courier New=courier new,courier,monospace; \
+                                Comic Sans MS=comic sans ms,sans-serif',
+            font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt'
+        });
+    </script>
 </head>
 <body>
 
@@ -152,17 +188,7 @@ $categories_result = $conn->query($category_query);
 
                     <div class="form-group">
                         <label for="descrizione">Descrizione</label>
-                        <?php
-                        // Usa l'editor di WordPress per la descrizione
-                        $settings = array(
-                            'textarea_name' => 'descrizione',
-                            'media_buttons' => false,
-                            'textarea_rows' => 10,
-                            'teeny' => true,
-                            'quicktags' => false
-                        );
-                        wp_editor('', 'descrizione', $settings);
-                        ?>
+                        <textarea id="descrizione" name="descrizione" class="form-control"></textarea>
                     </div>
 
                     <div class="form-group">
@@ -172,17 +198,7 @@ $categories_result = $conn->query($category_query);
 
                     <div class="form-group">
                         <label for="descrizione_due">Descrizione Due</label>
-                        <?php
-                        // Usa l'editor di WordPress per la descrizione due
-                        $settings_descrizione_due = array(
-                            'textarea_name' => 'descrizione_due',
-                            'media_buttons' => false,
-                            'textarea_rows' => 10,
-                            'teeny' => true,
-                            'quicktags' => false
-                        );
-                        wp_editor('', 'descrizione_due', $settings_descrizione_due);
-                        ?>
+                        <textarea id="descrizione_due" name="descrizione_due" class="form-control"></textarea>
                     </div>
 
                     <div class="form-group">

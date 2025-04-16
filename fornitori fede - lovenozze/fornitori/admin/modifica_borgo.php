@@ -58,6 +58,42 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifica borgo</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- TinyMCE -->
+    <script src="../data/tinymce/js/tinymce/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#descrizione, #descrizione_due',
+            height: 300,
+            menubar: true,
+            plugins: [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table paste code help wordcount',
+                'emoticons template paste textpattern'
+            ],
+            toolbar: 'undo redo | formatselect | bold italic underline strikethrough | \
+                     alignleft aligncenter alignright alignjustify | \
+                     bullist numlist outdent indent | \
+                     forecolor backcolor removeformat | \
+                     link image media table | \
+                     fontselect fontsizeselect | \
+                     charmap emoticons | \
+                     code fullscreen preview',
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+            language: 'it',
+            skin: 'oxide',
+            branding: false,
+            font_family_formats: 'Arial=arial,helvetica,sans-serif; \
+                                Times New Roman=times new roman,times; \
+                                Verdana=verdana,geneva; \
+                                Tahoma=tahoma,arial,helvetica,sans-serif; \
+                                Trebuchet MS=trebuchet ms,geneva; \
+                                Georgia=georgia,times new roman,times,serif; \
+                                Courier New=courier new,courier,monospace; \
+                                Comic Sans MS=comic sans ms,sans-serif',
+            font_size_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt'
+        });
+    </script>
     <style>
         /* Stile generale */
         body {
