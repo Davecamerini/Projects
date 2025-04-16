@@ -95,10 +95,9 @@ jQuery(document).ready(function($) {
                 folder: currentFolder
             }, function(response) {
                 if (response.success) {
-                    alert(response.data);
-                    location.reload(); // Reload the page to see changes
+                    showNotification('File deleted successfully');
                 } else {
-                    alert(response.data);
+                    showNotification('Error: ' + response.data);
                 }
             });
         }
@@ -118,10 +117,9 @@ jQuery(document).ready(function($) {
                 folder: currentFolder
             }, function(response) {
                 if (response.success) {
-                    alert(response.data);
-                    location.reload(); // Reload the page to see changes
+                    showNotification('File renamed successfully');
                 } else {
-                    alert(response.data);
+                    showNotification('Error: ' + response.data);
                 }
             });
         }
