@@ -113,11 +113,14 @@ CREATE TABLE IF NOT EXISTS contact_form (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nome_cognome VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255),
     telefono VARCHAR(255) NOT NULL,
     ragione_sociale VARCHAR(255) NOT NULL,
     messaggio VARCHAR(255) NOT NULL,
     privacy BOOLEAN NOT NULL DEFAULT FALSE,
     url_invio VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_email (email),
     INDEX idx_created_at (created_at)
@@ -131,6 +134,8 @@ CREATE TABLE IF NOT EXISTS newsletter (
     privacy BOOLEAN NOT NULL DEFAULT FALSE,
     url_invio VARCHAR(255) NOT NULL,
     preferenza_invio BOOLEAN NOT NULL DEFAULT FALSE,
+    status ENUM('active', 'unsubscribed', 'bounced') NOT NULL DEFAULT 'active',
+    last_sent_at DATETIME NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_email (email),
     INDEX idx_created_at (created_at)
@@ -151,10 +156,14 @@ CREATE TABLE IF NOT EXISTS `digital_analysis` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `website` VARCHAR(255) NOT NULL,
     `email` VARCHAR(255) NOT NULL,
+    `url_invio` VARCHAR(255) NOT NULL,
     `privacy` BOOLEAN NOT NULL DEFAULT FALSE,
     `check` BOOLEAN NOT NULL DEFAULT FALSE,
     `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `last_update` TIMESTAMP NULL DEFAULT NULL
+    `last_update` TIMESTAMP NULL DEFAULT NULL,
+    INDEX idx_website (website),
+    INDEX idx_email (email),
+    INDEX idx_timestamp (timestamp)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert default admin user

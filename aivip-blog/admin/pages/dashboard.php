@@ -240,7 +240,7 @@ function deletePost(postId) {
                         <i class="bi bi-images me-2"></i>Upload Media
                     </a>
                     <?php if ($_SESSION['role'] === 'admin'): ?>
-                    <a href="?page=users" class="btn btn-info">
+                    <a href="?page=users" class="btn btn-info text-white">
                         <i class="bi bi-people me-2"></i>Manage Users
                     </a>
                     <?php endif; ?>

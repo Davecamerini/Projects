@@ -299,9 +299,9 @@ function vsp_video_page() {
             echo '<td>' . ($file['type'] === 'video' ? esc_html(vsp_get_cached_duration($full_path) ?: 'N/A') : '-') . '</td>';
             echo '<td>' . esc_html($formatted_size) . '</td>';
             echo '<td class="vsp-video-actions">';
-            echo '<button class="vsp-rename-video" data-video-name="' . esc_attr($file['name']) . '">Rename</button>';
-            echo '<button class="vsp-move-video" data-video-name="' . esc_attr($file['name']) . '">Move</button>';
-            echo '<button class="vsp-delete-video" data-video-name="' . esc_attr($file['name']) . '">Delete</button>';
+            echo '<button class="vsp-rename-video" data-video-name="' . esc_attr($file['name']) . '" title="Rename video"><span class="dashicons dashicons-edit"></span></button>';
+            echo '<button class="vsp-move-video" data-video-name="' . esc_attr($file['name']) . '" title="Move video"><span class="dashicons dashicons-move"></span></button>';
+            echo '<button class="vsp-delete-video" data-video-name="' . esc_attr($file['name']) . '" title="Delete video"><span class="dashicons dashicons-trash"></span></button>';
             echo '</td>';
             echo '</tr>';
         }
@@ -430,12 +430,17 @@ function vsp_enqueue_scripts() {
     wp_enqueue_style('videojs-css', 'https://vjs.zencdn.net/7.11.4/video-js.min.css');
     wp_enqueue_style('custom-style', plugin_dir_url(__FILE__) . 'custom-style.css');
     wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+    wp_enqueue_style('dashicons');
 
     // Enqueue custom script for handling delete and rename
     wp_enqueue_script('vsp-custom-script', plugin_dir_url(__FILE__) . 'custom-script.js', array('jquery'), null, true);
     
     // Localize script to make ajaxurl available
     wp_localize_script('vsp-custom-script', 'ajaxurl', admin_url('admin-ajax.php'));
+    wp_localize_script('vsp-custom-script', 'vspAjax', array(
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('vsp_nonce')
+    ));
 }
 
 // Add admin styles
