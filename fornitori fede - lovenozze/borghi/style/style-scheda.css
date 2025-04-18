@@ -330,3 +330,12 @@ width: 100%!important;
 .blog-posts-section .card-title a:hover {
     color: #8b7780;
 }
+
+/* Menu hover override */
+#menu-lovenozze-main a:hover {
+    text-decoration: line-through !important;
+    text-decoration-line: line-through !important;
+    text-decoration-style: solid !important;
+    text-decoration-color: currentColor !important;
+    text-decoration-thickness: auto !important;
+}

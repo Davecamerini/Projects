@@ -352,3 +352,12 @@ width: 100%!important;
     background-color: #f8f9fa;
     border-color: #8b7780;
 }
+
+/* Menu hover override */
+#menu-lovenozze-main a:hover {
+    text-decoration: line-through !important;
+    text-decoration-line: line-through !important;
+    text-decoration-style: solid !important;
+    text-decoration-color: currentColor !important;
+    text-decoration-thickness: auto !important;
+}

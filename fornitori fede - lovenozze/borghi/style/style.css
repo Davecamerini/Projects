@@ -25,13 +25,11 @@ div.card.category-card a:hover{
 
 /* Menu hover override */
 #menu-lovenozze-main a:hover {
-    text-decoration: line-through !important;
-    text-decoration-line: line-through !important;
-    text-decoration-style: solid !important;
-    text-decoration-color: currentColor !important;
-    text-decoration-thickness: auto !important;
-    text-underline-offset: unset !important;
-    text-underline-position: unset !important;
+  text-decoration: line-through !important;
+  text-decoration-line: line-through !important;
+  text-decoration-style: solid !important;
+  text-decoration-color: currentColor !important;
+  text-decoration-thickness: auto !important;
 }
 
 /* Fix for the grid clear issue affecting footer */

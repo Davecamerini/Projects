@@ -110,16 +110,26 @@ jQuery(document).ready(function($) {
         const newName = prompt('Enter new name for the file:', oldName);
         
         if (newName && newName !== oldName) {
-            $.post(ajaxurl, {
-                action: 'rename_video',
-                old_name: oldName,
-                new_name: newName,
-                folder: currentFolder
-            }, function(response) {
-                if (response.success) {
-                    showNotification('File renamed successfully');
-                } else {
-                    showNotification('Error: ' + response.data);
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'rename_video',
+                    old_name: encodeURIComponent(oldName),
+                    new_name: encodeURIComponent(newName),
+                    folder: encodeURIComponent(currentFolder)
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('File renamed successfully');
+                        // Reload the page to show the new name
+                        window.location.reload();
+                    } else {
+                        showNotification('Error: ' + response.data);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showNotification('Error: ' + error);
                 }
             });
         }
