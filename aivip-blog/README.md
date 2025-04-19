@@ -326,10 +326,12 @@ Response:
         "website": "string",
         "email": "string",
         "privacy": "boolean",
+        "url_invio": "string",
         "timestamp": "string"
     }
 }
 ```
+Note: The `url_invio` field is automatically populated from the request's referrer header.
 
 #### Update Analysis Status
 ```

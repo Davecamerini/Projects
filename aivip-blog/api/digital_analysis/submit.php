@@ -34,6 +34,9 @@ try {
     $email = isset($data['email']) ? trim($data['email']) : '';
     $privacy = isset($data['privacy']) ? (bool)$data['privacy'] : false;
 
+    // Get the referrer URL
+    $url_invio = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+
     // Validate input
     if (empty($website)) {
         throw new Exception('Website URL is required');
@@ -56,12 +59,12 @@ try {
     $conn = $db->getConnection();
 
     // Prepare the query
-    $query = "INSERT INTO digital_analysis (website, email, privacy) VALUES (?, ?, ?)";
+    $query = "INSERT INTO digital_analysis (website, email, privacy, url_invio) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param('ssi', $website, $email, $privacy);
+    $stmt->bind_param('ssis', $website, $email, $privacy, $url_invio);
     
     if (!$stmt->execute()) {
-        throw new Exception('Failed to save analysis request');
+        throw new Exception('Failed to save analysis request: ' . $stmt->error);
     }
 
     // Get the inserted record
@@ -81,6 +84,7 @@ try {
         'website' => $analysis['website'],
         'email' => $analysis['email'],
         'privacy' => (bool)$analysis['privacy'],
+        'url_invio' => $analysis['url_invio'],
         'timestamp' => $analysis['timestamp']
     ];
 
