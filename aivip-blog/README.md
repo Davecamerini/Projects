@@ -8,43 +8,41 @@ A modern blog platform built with PHP and MySQL.
 aivip-blog/
 ├── admin/                    # Admin panel
 │   ├── assets/              # Admin assets (CSS, JS, images)
-│   ├── includes/            # Admin includes (header, footer, sidebar)
-│   └── pages/               # Admin pages
-│       ├── categories.php   # Category management
-│       ├── dashboard.php    # Admin dashboard
-│       ├── media.php        # Media library
-│       ├── newsletter.php   # Newsletter management
-│       ├── posts.php        # Post management
-│       ├── settings.php     # Site settings
-│       └── users.php        # User management
+│   ├── js/                  # Admin JavaScript files
+│   ├── pages/               # Admin pages
+│   ├── index.php            # Admin dashboard
+│   ├── login.php            # Admin login
+│   ├── logout.php           # Admin logout
+│   ├── forgot-password.php  # Password recovery
+│   └── reset-password.php   # Password reset
 ├── api/                     # API endpoints
 │   ├── auth/               # Authentication endpoints
 │   ├── categories/         # Category endpoints
 │   ├── contact/            # Contact form endpoints
+│   ├── digital_analysis/   # Digital analysis endpoints
 │   ├── media/              # Media endpoints
 │   ├── newsletter/         # Newsletter endpoints
 │   ├── posts/              # Post endpoints
 │   └── users/              # User endpoints
-├── assets/                  # Frontend assets
-│   ├── css/                # Frontend styles
-│   ├── js/                 # Frontend scripts
-│   └── images/             # Frontend images
 ├── config/                  # Configuration files
 │   ├── database.php        # Database configuration
-│   └── mail.php            # Mail configuration
+│   ├── mail.php            # Mail configuration
+│   └── schema.sql          # Database schema
 ├── includes/                # Core includes
-│   ├── Database.php        # Database class
-│   ├── Mail.php            # Mail class
-│   └── functions.php       # Helper functions
-├── uploads/                 # Uploaded files
-│   └── images/             # Uploaded images
-└── index.php               # Frontend entry point
+│   └── Mail.php            # Mail class
+├── lib/                    # Third-party libraries
+│   └── PHPMailer/         # PHPMailer library
+├── uploads/                # Uploaded files
+│   ├── images/            # Uploaded images
+│   └── temp/              # Temporary uploads
+└── README.md              # Project documentation
 ```
 
 ## Features
 
 ### Admin Panel
 - User authentication and authorization
+- Password recovery and reset
 - Post management (CRUD)
 - Category management
 - Media library with image upload
@@ -53,20 +51,12 @@ aivip-blog/
 - User management
 - Site settings
 
-### Frontend
-- Responsive design
-- Blog post listing
-- Category filtering
-- Search functionality
-- Newsletter subscription
-- Contact form
-- Post preview
-
 ### API Endpoints
 - Authentication
   - Login
   - Logout
   - Password reset
+  - Password recovery
 - Posts
   - List posts
   - Create post
@@ -94,6 +84,8 @@ aivip-blog/
 - Contact
   - Submit contact form
   - List submissions
+- Digital Analysis
+  - Various analysis endpoints
 
 ## API Documentation
 
@@ -110,10 +102,52 @@ Request body:
     "password": "string"
 }
 ```
+Response:
+```json
+{
+    "success": true,
+    "message": "Login successful",
+    "data": {
+        "user_id": "integer",
+        "username": "string",
+        "role": "string"
+    }
+}
+```
 
 #### Logout
 ```
 POST /api/auth/logout.php
+```
+Response:
+```json
+{
+    "success": true,
+    "message": "Logged out successfully"
+}
+```
+
+#### Password Recovery
+```
+POST /api/auth/forgot-password.php
+```
+Request body:
+```json
+{
+    "email": "string"
+}
+```
+
+#### Password Reset
+```
+POST /api/auth/reset-password.php
+```
+Request body:
+```json
+{
+    "token": "string",
+    "password": "string"
+}
 ```
 
 ### Posts
@@ -176,47 +210,32 @@ Request body:
 }
 ```
 
-### Categories
+### Media
 
-#### List Categories
+#### Upload Media
 ```
-GET /api/categories/list.php
+POST /api/media/upload.php
+```
+- Method: POST
+- Content-Type: multipart/form-data
+- Field name: "image"
+- Supported types: JPG, PNG, GIF
+- Max size: 5MB
+
+#### List Media
+```
+GET /api/media/list.php
 ```
 Query Parameters:
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10, max: 50)
-- `search` (optional): Search in name
-- `sort` (optional): Sort field (name)
+- `search` (optional): Search in filename
+- `sort` (optional): Sort field (created_at/filename)
 - `order` (optional): Sort order (ASC/DESC)
 
-#### Create Category
+#### Delete Media
 ```
-POST /api/categories/create.php
-```
-Request body:
-```json
-{
-    "name": "string (required)",
-    "description": "string (optional)"
-}
-```
-
-#### Update Category
-```
-POST /api/categories/update.php
-```
-Request body:
-```json
-{
-    "id": "integer (required)",
-    "name": "string (required)",
-    "description": "string (optional)"
-}
-```
-
-#### Delete Category
-```
-POST /api/categories/delete.php
+POST /api/media/delete.php
 ```
 Request body:
 ```json
@@ -283,106 +302,167 @@ Query Parameters:
 - `sort` (optional): Sort field (created_at/email/nome_cognome/ragione_sociale)
 - `order` (optional): Sort order (ASC/DESC)
 
-### Media
+### Digital Analysis
 
-#### Upload Media
+#### Submit Analysis Request
 ```
-POST /api/media/upload.php
-```
-- Method: POST
-- Content-Type: multipart/form-data
-- Field name: "image"
-- Supported types: JPG, PNG, GIF
-- Max size: 5MB
-
-#### List Media
-```
-GET /api/media/list.php
-```
-Query Parameters:
-- `page` (optional): Page number (default: 1)
-- `limit` (optional): Items per page (default: 10, max: 50)
-- `search` (optional): Search in filename
-- `sort` (optional): Sort field (created_at/filename)
-- `order` (optional): Sort order (ASC/DESC)
-
-#### Delete Media
-```
-POST /api/media/delete.php
+POST /api/digital_analysis/submit.php
 ```
 Request body:
 ```json
 {
-    "id": "integer (required)"
-}
-```
-
-### Users
-
-#### Create User
-```
-POST /api/users/create.php
-```
-Request body:
-```json
-{
-    "username": "string (required)",
+    "website": "string (required)",
     "email": "string (required)",
-    "password": "string (required)",
-    "first_name": "string (required)",
-    "last_name": "string (required)",
-    "role": "string (required: admin|author)"
+    "privacy": "boolean (required)"
+}
+```
+Response:
+```json
+{
+    "success": true,
+    "message": "Analysis request submitted successfully",
+    "data": {
+        "id": "integer",
+        "website": "string",
+        "email": "string",
+        "privacy": "boolean",
+        "timestamp": "string"
+    }
 }
 ```
 
-#### Update User
+#### Update Analysis Status
 ```
-POST /api/users/update.php
+POST /api/digital_analysis/update.php
 ```
 Request body:
 ```json
 {
     "id": "integer (required)",
-    "username": "string (required)",
-    "email": "string (required)",
-    "first_name": "string (required)",
-    "last_name": "string (required)",
-    "role": "string (required)",
-    "status": "string (required)"
+    "action": "string (required: check|reset)"
+}
+```
+Response:
+```json
+{
+    "success": true,
+    "message": "Status updated successfully"
 }
 ```
 
-#### Delete User
-```
-POST /api/users/delete.php
-```
-Request body:
-```json
-{
-    "id": "integer (required)"
-}
-```
+## User Guide
 
-#### Reset Password
-```
-POST /api/users/reset-password.php
-```
-Request body:
-```json
-{
-    "id": "integer (required)"
-}
-```
+### Admin Access
+1. Visit `/admin` in your browser
+2. Login with your admin credentials
+3. If you've forgotten your password:
+   - Click "Forgot Password"
+   - Enter your email address
+   - Check your email for password reset instructions
+   - Follow the link to reset your password
+
+### Dashboard
+The dashboard provides an overview of:
+- Total posts count (published, draft, archived)
+- Recent posts with quick actions
+- Post statistics by status
+- Quick access to main features
+
+### Post Management
+1. Creating a New Post:
+   - Click "New Post" in the sidebar
+   - Enter post title and content
+   - Add categories
+   - Upload a featured image
+   - Set post status (draft/published/archived)
+   - Click "Save"
+
+2. Managing Posts:
+   - View all posts in a paginated list
+   - Search posts by title or content
+   - Filter by status or category
+   - Sort by various columns
+   - Edit existing posts
+   - Delete posts
+   - View post details
+
+### Media Library
+1. Uploading Media:
+   - Click "Upload Media" button
+   - Select files or drag and drop
+   - Supported formats: JPG, PNG, GIF
+   - Maximum file size: 5MB
+
+2. Managing Media:
+   - View all uploaded files
+   - Search by filename
+   - Sort by date or name
+   - Delete files
+   - Copy file URLs
+
+### Newsletter Management
+1. Viewing Subscribers:
+   - Access the Newsletter section
+   - View subscriber list
+   - Search and filter subscribers
+   - Export subscriber data
+
+2. Managing Subscriptions:
+   - Add new subscribers
+   - Remove subscribers
+   - Update subscriber preferences
+
+### User Management
+1. Creating Users:
+   - Click "New User"
+   - Enter user details
+   - Set user role (admin/author)
+   - Set initial password
+
+2. Managing Users:
+   - View user list
+   - Edit user details
+   - Reset passwords
+   - Deactivate/activate accounts
+
+### Contact Form Management
+1. Viewing Submissions:
+   - Access the Contact section
+   - View all submissions
+   - Filter by date or status
+   - Export submission data
+
+2. Managing Submissions:
+   - Mark as read/unread
+   - Delete submissions
+   - Export data
+
+### Digital Analysis
+1. Viewing Analysis Requests:
+   - Access the Digital Analysis section
+   - View all analysis requests
+   - Filter by status
+   - View request details
+
+2. Managing Analysis:
+   - Mark requests as checked
+   - Reset analysis status
+   - View website and contact details
 
 ## Installation
 
 1. Clone the repository
 2. Create a MySQL database
-3. Import the database schema from `database.sql`
-4. Copy `config/database.example.php` to `config/database.php` and update the credentials
-5. Copy `config/mail.example.php` to `config/mail.php` and update the mail settings
+3. Import the database schema from `config/schema.sql`
+4. Copy `config/database.php` and update the credentials
+5. Copy `config/mail.php` and update the mail settings
 6. Set up your web server to point to the project directory
-7. Make sure the `uploads` directory is writable
+7. Make sure the `uploads` directory and its subdirectories are writable:
+   ```bash
+   chmod -R 755 uploads
+   chmod -R 777 uploads/images
+   chmod -R 777 uploads/temp
+   ```
 
 ## Configuration
 
@@ -406,35 +486,6 @@ define('MAIL_FROM', 'your_from_email');
 define('MAIL_FROM_NAME', 'Your Name');
 ```
 
-## Usage
-
-### Admin Access
-1. Visit `/admin` in your browser
-2. Login with your admin credentials
-3. Default admin credentials:
-   - Username: admin
-   - Password: admin123
-
-### Creating Posts
-1. Navigate to Posts in the admin panel
-2. Click "New Post"
-3. Fill in the post details
-4. Add categories and featured image
-5. Set the post status
-6. Click "Save"
-
-### Managing Media
-1. Navigate to Media in the admin panel
-2. Click "Upload" to add new media
-3. Use the media library to manage uploaded files
-4. Delete unwanted media files
-
-### Newsletter Management
-1. Navigate to Newsletter in the admin panel
-2. View and manage subscribers
-3. Export subscriber list
-4. Send newsletter emails
-
 ## Security
 
 - Password hashing using PHP's password_hash()
@@ -443,6 +494,9 @@ define('MAIL_FROM_NAME', 'Your Name');
 - CSRF protection
 - Session management
 - Role-based access control
+- Secure file upload handling
+- XSS prevention
+- SQL injection prevention
 
 ## Contributing
 
