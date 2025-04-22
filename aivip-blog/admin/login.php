@@ -262,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         
         <div class="text-center mt-3">
-            <a href="../" class="text-muted text-decoration-none">
+            <a href="../../" class="text-muted text-decoration-none">
                 <i class="bi bi-arrow-left me-1"></i>Back to Blog
             </a>
         </div>
