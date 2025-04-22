@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 header('Content-Type: application/json');
 require_once '../../config/database.php';
+require_once '../../includes/Mail.php';
 
 // Initialize response array
 $response = [
@@ -75,6 +76,46 @@ try {
     $stmt->execute();
     $result = $stmt->get_result();
     $analysis = $result->fetch_assoc();
+
+    // Send email notification
+    $mail = new Mail();
+    $subject = "New Digital Analysis Request - AIVIP Blog";
+    
+    $body = "
+    <html>
+    <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+        <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
+            <h2 style='color: #007bff;'>New Digital Analysis Request</h2>
+            <p>A new digital analysis has been requested with the following details:</p>
+            
+            <table style='width: 100%; border-collapse: collapse; margin: 20px 0;'>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; background: #f8f9fa; width: 30%;'><strong>Website:</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{$website}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; background: #f8f9fa;'><strong>Email:</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{$email}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; background: #f8f9fa;'><strong>Privacy Accepted:</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>" . ($privacy ? 'Yes' : 'No') . "</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; background: #f8f9fa;'><strong>Submitted from:</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{$url_invio}</td>
+                </tr>
+            </table>
+            
+            <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'>
+            <p style='color: #666; font-size: 12px;'>
+                This is an automated email from AIVIP Blog. Please do not reply.
+            </p>
+        </div>
+    </body>
+    </html>";
+
+    $mail->send('seo@aivippro.it', $subject, $body);
 
     // Format the response
     $response['success'] = true;

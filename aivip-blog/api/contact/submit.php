@@ -105,7 +105,7 @@ try {
     </body>
     </html>";
 
-    $mail->send('supportotecnico@aivippro.it', $subject, $body);
+    $mail->send('lead@aivippro.it', $subject, $body);
 
     // Prepare response
     $response['success'] = true;

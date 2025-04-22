@@ -65,7 +65,7 @@ try {
         throw new Exception('Failed to save subscription');
     }
 
-    // Send welcome email
+    // Send welcome email to subscriber
     $mail = new Mail();
     $subject = "Benvenuto nella Newsletter di AIVIP Blog";
     
@@ -97,6 +97,48 @@ try {
     </html>";
 
     $mail->send($email, $subject, $body);
+
+    // Send notification email to lead@aivippro.it
+    $notificationSubject = "New Newsletter Subscription - AIVIP Blog";
+    $notificationBody = "
+    <html>
+    <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+        <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
+            <h2 style='color: #007bff;'>New Newsletter Subscription</h2>
+            <p>A new subscriber has joined the newsletter with the following details:</p>
+            
+            <table style='width: 100%; border-collapse: collapse; margin: 20px 0;'>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; background: #f8f9fa; width: 30%;'><strong>Name:</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{$nome_cognome}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; background: #f8f9fa;'><strong>Email:</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{$email}</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; background: #f8f9fa;'><strong>Privacy Accepted:</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>" . ($privacy ? 'Yes' : 'No') . "</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; background: #f8f9fa;'><strong>Marketing Preference:</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>" . ($preferenza_invio ? 'Yes' : 'No') . "</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border: 1px solid #ddd; background: #f8f9fa;'><strong>Submitted from:</strong></td>
+                    <td style='padding: 8px; border: 1px solid #ddd;'>{$url_invio}</td>
+                </tr>
+            </table>
+            
+            <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'>
+            <p style='color: #666; font-size: 12px;'>
+                This is an automated email from AIVIP Blog. Please do not reply.
+            </p>
+        </div>
+    </body>
+    </html>";
+
+    $mail->send('lead@aivippro.it', $notificationSubject, $notificationBody);
 
     // Prepare response
     $response['success'] = true;

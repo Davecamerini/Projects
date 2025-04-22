@@ -31,6 +31,29 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
             z-index: 1030;
             width: 250px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .sidebar-top {
+            flex: 0 0 auto;
+        }
+        .sidebar-middle {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .sidebar-bottom {
+            flex: 0 0 auto;
+            padding: 1rem;
+            background: #343a40;
+            position: sticky;
+            bottom: 0;
+            z-index: 1031;
         }
         .nav-link {
             color: rgba(255,255,255,.75);
@@ -73,80 +96,90 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 px-0 sidebar">
-                <div class="d-flex flex-column p-3">
-                    <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                        <img src="assets/images/logo sidebar.svg" alt="AIVIP Blog" style="height: 100px;">
-                    </a>
-                    <hr class="text-white">
-                    <ul class="nav nav-pills flex-column mb-auto">
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page === 'dashboard' ? 'active' : ''; ?>" href="?page=dashboard">
-                                <i class="bi bi-speedometer2 me-2"></i>
-                                Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page === 'posts' ? 'active' : ''; ?>" href="?page=posts">
-                                <i class="bi bi-file-earmark-text me-2"></i>
-                                Posts
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page === 'new-post' ? 'active' : ''; ?>" href="?page=new-post">
-                                <i class="bi bi-plus-circle me-2"></i>
-                                New Post
-                            </a>
-                        </li>
-                        <?php if ($_SESSION['role'] === 'admin'): ?>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page === 'users' ? 'active' : ''; ?>" href="?page=users">
-                                <i class="bi bi-people me-2"></i>
-                                Users
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page === 'categories' ? 'active' : ''; ?>" href="?page=categories">
-                                <i class="bi bi-tags me-2"></i>
-                                Categories
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page === 'newsletter' ? 'active' : ''; ?>" href="?page=newsletter">
-                                <i class="bi bi-envelope me-2"></i>
-                                Newsletter
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page === 'contact-form' ? 'active' : ''; ?>" href="?page=contact-form">
-                                <i class="bi bi-chat-dots me-2"></i>
-                                Contact Form
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page === 'digital_analysis' ? 'active' : ''; ?>" href="?page=digital_analysis">
-                                <i class="bi bi-graph-up me-2"></i>
-                                Digital Analysis
-                            </a>
-                        </li>
-                        <?php endif; ?>
-                        <li class="nav-item">
-                            <a class="nav-link <?php echo $current_page === 'media' ? 'active' : ''; ?>" href="?page=media">
-                                <i class="bi bi-image me-2"></i>
-                                Media
-                            </a>
-                        </li>
-                    </ul>
-                    <hr class="text-white">
-                    <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle me-2"></i>
-                            <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>
+                <div class="sidebar-content">
+                    <div class="sidebar-top p-3">
+                        <a href="index.php" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                            <img src="assets/images/logo sidebar.svg" alt="AIVIP Blog" style="height: 100px;">
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                            <li><a class="dropdown-item" href="?page=profile">Profile</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="logout.php">Sign out</a></li>
+                        <hr class="text-white">
+                    </div>
+                    <div class="sidebar-middle">
+                        <ul class="nav nav-pills flex-column mb-auto px-3">
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page === 'dashboard' ? 'active' : ''; ?>" href="?page=dashboard">
+                                    <i class="bi bi-speedometer2 me-2"></i>
+                                    Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page === 'posts' ? 'active' : ''; ?>" href="?page=posts">
+                                    <i class="bi bi-file-earmark-text me-2"></i>
+                                    Posts
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page === 'new-post' ? 'active' : ''; ?>" href="?page=new-post">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    New Post
+                                </a>
+                            </li>
+                            <?php if ($_SESSION['role'] === 'admin'): ?>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page === 'users' ? 'active' : ''; ?>" href="?page=users">
+                                    <i class="bi bi-people me-2"></i>
+                                    Users
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page === 'categories' ? 'active' : ''; ?>" href="?page=categories">
+                                    <i class="bi bi-tags me-2"></i>
+                                    Categories
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page === 'newsletter' ? 'active' : ''; ?>" href="?page=newsletter">
+                                    <i class="bi bi-envelope me-2"></i>
+                                    Newsletter
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page === 'contact-form' ? 'active' : ''; ?>" href="?page=contact-form">
+                                    <i class="bi bi-chat-dots me-2"></i>
+                                    Contact Form
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page === 'digital_analysis' ? 'active' : ''; ?>" href="?page=digital_analysis">
+                                    <i class="bi bi-graph-up me-2"></i>
+                                    Digital Analysis
+                                </a>
+                            </li>
+                            <?php endif; ?>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page === 'media' ? 'active' : ''; ?>" href="?page=media">
+                                    <i class="bi bi-image me-2"></i>
+                                    Media
+                                </a>
+                            </li>
                         </ul>
+                        <hr class="text-white mx-3">
+                        <div class="dropdown px-3">
+                            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle me-2"></i>
+                                <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                                <li><a class="dropdown-item" href="?page=profile">Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="logout.php">Sign out</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="sidebar-bottom">
+                        <a href="https://aivippro.it" class="btn btn-outline-light w-100" target="_blank">
+                            <i class="bi bi-arrow-left-circle me-2"></i>
+                            Back to AIVIP
+                        </a>
                     </div>
                 </div>
             </div>
