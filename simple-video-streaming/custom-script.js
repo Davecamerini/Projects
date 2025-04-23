@@ -21,7 +21,7 @@ jQuery(document).ready(function($) {
             setTimeout(() => {
                 location.reload();
             }, 300);
-        }, 3000);
+        }, 2000);
     }
 
     // Store original z-index values

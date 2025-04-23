@@ -1025,8 +1025,8 @@ function vsp_settings_page() {
                 $notification.removeClass('show');
                 setTimeout(function() {
                     $notification.remove();
-                }, 300);
-            }, 3000);
+                }, 2000);
+            }, 2000);
         }
 
         // Duration calculation
