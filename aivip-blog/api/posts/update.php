@@ -87,6 +87,23 @@ try {
             $featuredImage = isset($data['featured_image']) ? htmlspecialchars(strip_tags($data['featured_image'])) : null;
             $status = isset($data['status']) ? $data['status'] : $post['status'];
             
+            // Check if slug is unique (excluding current post)
+            $originalSlug = $slug;
+            $counter = 1;
+            while (true) {
+                $stmt = $conn->prepare("SELECT id FROM posts WHERE slug = ? AND id != ?");
+                $stmt->bind_param("si", $slug, $id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                
+                if ($result->num_rows === 0) {
+                    break;
+                }
+                
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
+            
             // Update published_at if status changes to published
             $publishedAt = $post['published_at'];
             if ($status === 'published' && $post['status'] !== 'published') {

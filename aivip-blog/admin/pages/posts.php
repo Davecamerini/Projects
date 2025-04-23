@@ -391,21 +391,39 @@ $db->closeConnection();
     }
     
     /* Column widths */
-    .table th:nth-child(1), .table td:nth-child(1) { width: 25%; } /* Title */
+    .table th:nth-child(1), .table td:nth-child(1) { width: 35%; } /* Title */
     .table th:nth-child(2), .table td:nth-child(2) { width: 10%; } /* Author */
-    .table th:nth-child(3), .table td:nth-child(3) { width: 25%; } /* Categories */
+    .table th:nth-child(3), .table td:nth-child(3) { width: 15%; } /* Categories */
     .table th:nth-child(4), .table td:nth-child(4) { width: 10%; } /* Status */
     .table th:nth-child(5), .table td:nth-child(5) { width: 10%; } /* Featured Image */
     .table th:nth-child(6), .table td:nth-child(6) { width: 10%; } /* Created */
-    .table th:nth-child(7), .table td:nth-child(7) { width: 10%; } /* Actions */
+    .table th:nth-child(7), .table td:nth-child(7) { width: 10%; min-width: 100px; } /* Actions */
     
     /* Text overflow handling */
-    .table td:nth-child(1),
+    .table td:nth-child(1) { 
+        white-space: normal;
+        word-break: break-word;
+    }
+    
     .table td:nth-child(2),
     .table td:nth-child(3) { 
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    
+    /* Action buttons container */
+    .table td:nth-child(7) {
+        white-space: nowrap;
+    }
+    
+    /* Action buttons spacing */
+    .table td:nth-child(7) .btn {
+        margin-right: 5px;
+    }
+    
+    .table td:nth-child(7) .btn:last-child {
+        margin-right: 0;
     }
     
     /* Dropdown specific styles */

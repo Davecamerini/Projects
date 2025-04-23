@@ -42,6 +42,23 @@ try {
     $db = new Database();
     $conn = $db->getConnection();
 
+    // Check if slug is unique, if not append a number
+    $originalSlug = $slug;
+    $counter = 1;
+    while (true) {
+        $stmt = $conn->prepare("SELECT id FROM posts WHERE slug = ?");
+        $stmt->bind_param("s", $slug);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            break;
+        }
+        
+        $slug = $originalSlug . '-' . $counter;
+        $counter++;
+    }
+
     // Start transaction
     $conn->begin_transaction();
 

@@ -144,6 +144,13 @@ if ($isEditing) {
                 </div>
 
                 <div class="mb-3">
+                    <label for="slug" class="form-label">Slug</label>
+                    <input type="text" class="form-control" id="slug" name="slug"
+                           value="<?php echo $isEditing ? htmlspecialchars($post['slug']) : ''; ?>">
+                    <div class="form-text">The URL-friendly version of the title. Will be auto-generated from the title if left empty.</div>
+                </div>
+
+                <div class="mb-3">
                     <label for="meta_title" class="form-label">Meta Title</label>
                     <input type="text" class="form-control" id="meta_title" name="meta_title"
                            value="<?php echo $isEditing ? htmlspecialchars($post['meta_title']) : ''; ?>">
@@ -248,57 +255,99 @@ function showNotification(message, redirect) {
             notification.classList.remove('fade-out');
             // Redirect to posts page after notification disappears
             window.location.replace(redirect);
-        }, 500); // Wait for fade out animation to complete
+        }, 500);
     }, 2000);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('post-form');
+// Function to generate slug from title
+function generateSlug(title) {
+    // Split the title into words, take first 4, and join with hyphens
+    const words = title
+        .toLowerCase()
+        .trim()
+        .split(/\s+/)
+        .slice(0, 4);
     
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Get form data
-        const formData = new FormData(form);
-        const content = tinymce.get('content').getContent();
-        
-        // Convert FormData to object
-        const data = {};
-        for (let [key, value] of formData.entries()) {
-            if (key === 'categories[]') {
-                // Handle multiple categories
-                if (!data.categories) {
-                    data.categories = [];
-                }
-                data.categories.push(value);
-            } else {
-                data[key] = value;
-            }
-        }
-        
-        // Add content from TinyMCE
-        data.content = content;
-        
-        try {
-            const response = await fetch('../api/posts/<?php echo $isEditing ? 'update' : 'create'; ?>.php', {
-                method: 'POST',
-                body: JSON.stringify(data),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+    // Join words with hyphens and clean up
+    return words
+        .join('-')
+        .replace(/[^a-z0-9-]/g, '') // Remove non-alphanumeric characters
+        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+        .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+}
 
-            const result = await response.json();
-            
-            if (result.success) {
-                showNotification('Post <?php echo $isEditing ? 'updated' : 'created'; ?> successfully', '?page=posts');
-            } else {
-                showNotification('Error: ' + result.message);
+// Initialize slug field on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('title');
+    const slugInput = document.getElementById('slug');
+    
+    // Set initial slug value if title exists and slug is empty
+    if (titleInput.value && !slugInput.value) {
+        slugInput.value = generateSlug(titleInput.value);
+    }
+    
+    // Add event listener for title input
+    titleInput.addEventListener('input', function(e) {
+        console.log('Input event triggered');
+        console.log('Current title value:', this.value);
+        const newSlug = generateSlug(this.value);
+        console.log('Generated slug:', newSlug);
+        slugInput.value = newSlug;
+    });
+
+    // Add event listener for title change
+    titleInput.addEventListener('change', function(e) {
+        console.log('Change event triggered');
+        console.log('Current title value:', this.value);
+        const newSlug = generateSlug(this.value);
+        console.log('Generated slug:', newSlug);
+        slugInput.value = newSlug;
+    });
+});
+
+// Add event listener for form submission
+document.getElementById('post-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Get form data
+    const formData = new FormData(this);
+    const data = {};
+    
+    // Convert FormData to object
+    for (let [key, value] of formData.entries()) {
+        if (key === 'categories[]') {
+            // Handle multiple categories
+            if (!data.categories) {
+                data.categories = [];
             }
-        } catch (error) {
-            console.error('Error:', error);
-            showNotification('Error saving post: ' + error.message);
+            data.categories.push(value);
+        } else {
+            data[key] = value;
         }
+    }
+    
+    // Add content from TinyMCE
+    data.content = tinymce.get('content').getContent();
+    
+    // Send data to API
+    fetch('../api/posts/<?php echo $isEditing ? 'update.php' : 'create.php'; ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, '?page=posts');
+        } else {
+            alert(data.message || 'An error occurred');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while saving the post');
     });
 });
 </script>
