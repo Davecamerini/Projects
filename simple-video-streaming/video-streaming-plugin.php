@@ -344,12 +344,20 @@ function vsp_delete_video() {
         return;
     }
 
-    $video_name = sanitize_text_field($_POST['video_name']);
-    $folder = isset($_POST['folder']) ? sanitize_text_field($_POST['folder']) : '';
+    // Get raw input and decode it, then strip any slashes that might have been added
+    $video_name = stripslashes(rawurldecode($_POST['video_name']));
+    $folder = isset($_POST['folder']) ? stripslashes(rawurldecode($_POST['folder'])) : '';
     
     // Construct the full path including the folder
     $video_path = $folder ? $folder . '/' . $video_name : $video_name;
     $full_path = VIDEO_UPLOAD_DIR . '/' . $video_path;
+
+    // Debug information
+    error_log("Attempting to delete video:");
+    error_log("Video name: " . $video_name);
+    error_log("Folder: " . $folder);
+    error_log("Full path: " . $full_path);
+    error_log("File exists: " . (file_exists($full_path) ? 'yes' : 'no'));
 
     if (file_exists($full_path)) {
         // Delete the main file
@@ -370,10 +378,10 @@ function vsp_delete_video() {
 
             wp_send_json_success('Video and associated files deleted successfully.');
         } else {
-            wp_send_json_error('Error deleting video.');
+            wp_send_json_error('Error deleting video. Please check file permissions.');
         }
     } else {
-        wp_send_json_error('Video not found.');
+        wp_send_json_error('Video not found at path: ' . $full_path);
     }
 }
 add_action('wp_ajax_delete_video', 'vsp_delete_video');
@@ -385,15 +393,25 @@ function vsp_rename_video() {
         return;
     }
 
-    $old_name = sanitize_text_field($_POST['old_name']);
-    $new_name = sanitize_text_field($_POST['new_name']);
-    $folder = isset($_POST['folder']) ? sanitize_text_field($_POST['folder']) : '';
+    // Get raw input and decode it, then strip any slashes that might have been added
+    $old_name = stripslashes(rawurldecode($_POST['old_name']));
+    $new_name = stripslashes(rawurldecode($_POST['new_name']));
+    $folder = isset($_POST['folder']) ? stripslashes(rawurldecode($_POST['folder'])) : '';
     
     // Construct the full paths including the folder
     $old_path = $folder ? $folder . '/' . $old_name : $old_name;
     $new_path = $folder ? $folder . '/' . $new_name : $new_name;
     $old_full_path = VIDEO_UPLOAD_DIR . '/' . $old_path;
     $new_full_path = VIDEO_UPLOAD_DIR . '/' . $new_path;
+
+    // Debug information
+    error_log("Attempting to rename video:");
+    error_log("Old name: " . $old_name);
+    error_log("New name: " . $new_name);
+    error_log("Folder: " . $folder);
+    error_log("Old path: " . $old_full_path);
+    error_log("New path: " . $new_full_path);
+    error_log("File exists: " . (file_exists($old_full_path) ? 'yes' : 'no'));
 
     if (file_exists($old_full_path)) {
         if (rename($old_full_path, $new_full_path)) {
@@ -416,10 +434,10 @@ function vsp_rename_video() {
             
             wp_send_json_success('Video renamed successfully.');
         } else {
-            wp_send_json_error('Error renaming video.');
+            wp_send_json_error('Error renaming video. Please check file permissions.');
         }
     } else {
-        wp_send_json_error('Video not found.');
+        wp_send_json_error('Video not found at path: ' . $old_full_path);
     }
 }
 add_action('wp_ajax_rename_video', 'vsp_rename_video');
@@ -1647,9 +1665,10 @@ function vsp_move_video() {
         return;
     }
 
-    $video_name = sanitize_text_field($_POST['video_name']);
-    $current_folder = isset($_POST['current_folder']) ? sanitize_text_field($_POST['current_folder']) : '';
-    $destination_folder = isset($_POST['destination_folder']) ? sanitize_text_field($_POST['destination_folder']) : '';
+    // Get raw input and decode it, then strip any slashes that might have been added
+    $video_name = stripslashes(rawurldecode($_POST['video_name']));
+    $current_folder = isset($_POST['current_folder']) ? stripslashes(rawurldecode($_POST['current_folder'])) : '';
+    $destination_folder = isset($_POST['destination_folder']) ? stripslashes(rawurldecode($_POST['destination_folder'])) : '';
     
     // Construct the full paths
     $current_path = $current_folder ? $current_folder . '/' . $video_name : $video_name;
@@ -1658,8 +1677,17 @@ function vsp_move_video() {
     $current_full_path = VIDEO_UPLOAD_DIR . '/' . $current_path;
     $destination_full_path = VIDEO_UPLOAD_DIR . '/' . $destination_path;
 
+    // Debug information
+    error_log("Attempting to move video:");
+    error_log("Video name: " . $video_name);
+    error_log("Current folder: " . $current_folder);
+    error_log("Destination folder: " . $destination_folder);
+    error_log("Current path: " . $current_full_path);
+    error_log("Destination path: " . $destination_full_path);
+    error_log("File exists: " . (file_exists($current_full_path) ? 'yes' : 'no'));
+
     if (!file_exists($current_full_path)) {
-        wp_send_json_error('File not found.');
+        wp_send_json_error('File not found at path: ' . $current_full_path);
         return;
     }
 
@@ -1699,7 +1727,7 @@ function vsp_move_video() {
 
         wp_send_json_success('File moved successfully.');
     } else {
-        wp_send_json_error('Error moving file.');
+        wp_send_json_error('Error moving file. Please check file permissions.');
     }
 }
 add_action('wp_ajax_move_video', 'vsp_move_video');
