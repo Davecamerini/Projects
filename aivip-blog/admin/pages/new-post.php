@@ -167,7 +167,7 @@ if ($isEditing) {
                     <div class="input-group">
                         <input type="text" class="form-control" id="featured_image" name="featured_image"
                                value="<?php echo $isEditing ? htmlspecialchars($post['featured_image']) : ''; ?>">
-                        <button type="button" class="btn btn-outline-secondary" onclick="window.open('?page=media', '_blank')">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#mediaSelectionModal">
                             Browse Media
                         </button>
                     </div>
@@ -237,6 +237,102 @@ if ($isEditing) {
         </div>
     </div>
 </div>
+
+<!-- Media Selection Modal -->
+<div class="modal fade" id="mediaSelectionModal" tabindex="-1" aria-labelledby="mediaSelectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaSelectionModalLabel">Select Media</h5>
+                <button type="button" class="btn btn-primary ms-3" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                    <i class="bi bi-cloud-upload me-2"></i>Upload Media
+                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="mediaGrid">
+                    <!-- Media items will be loaded here -->
+                </div>
+                <div class="d-flex justify-content-center mt-3">
+                    <nav>
+                        <ul class="pagination" id="mediaPagination">
+                            <!-- Pagination will be loaded here -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Media</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="media-upload-form">
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Choose Image</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                        <div class="form-text">
+                            Supported formats: JPG, JPEG, PNG, GIF<br>
+                            Maximum size: 5MB
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-cloud-upload me-2"></i>Upload
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Add to existing styles */
+#notification {
+    min-width: 300px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Add animation for fade out */
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+}
+
+.media-grid-item {
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-bottom: 1rem;
+}
+
+.media-grid-item:hover {
+    transform: scale(1.05);
+}
+
+.media-grid-item.selected {
+    border: 3px solid #0d6efd;
+}
+
+.media-grid-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+</style>
 
 <script>
 function showNotification(message, redirect) {
@@ -350,23 +446,184 @@ document.getElementById('post-form').addEventListener('submit', function(e) {
         alert('An error occurred while saving the post');
     });
 });
-</script>
 
-<style>
-/* Add to existing styles */
-#notification {
-    min-width: 300px;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+// Function to load media items
+function loadMediaItems(page = 1) {
+    console.log('Loading media items, page:', page);
+    fetch(`../api/media/list.php?page=${page}&limit=12`)
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Media data:', data);
+            if (data.success) {
+                const mediaGrid = document.getElementById('mediaGrid');
+                mediaGrid.innerHTML = '';
+                
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(item => {
+                        console.log('Processing media item:', item);
+                        const col = document.createElement('div');
+                        col.className = 'col-md-3';
+                        col.innerHTML = `
+                            <div class="media-grid-item" data-path="${item.filepath}">
+                                <img src="${item.filepath}" alt="${item.filename}" class="img-fluid">
+                                <div class="text-center mt-2">
+                                    <small class="text-muted">${item.filename}</small>
+                                </div>
+                            </div>
+                        `;
+                        mediaGrid.appendChild(col);
+                    });
+
+                    // Add click handlers
+                    document.querySelectorAll('.media-grid-item').forEach(item => {
+                        item.addEventListener('click', function() {
+                            const path = this.dataset.path;
+                            document.getElementById('featured_image').value = path;
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('mediaSelectionModal'));
+                            modal.hide();
+                        });
+                    });
+
+                    // Update pagination
+                    updatePagination(data.total, page);
+                } else {
+                    console.log('No media items found');
+                    mediaGrid.innerHTML = '<div class="col-12 text-center"><p>No media items found</p></div>';
+                }
+            } else {
+                console.error('API returned error:', data.message);
+                mediaGrid.innerHTML = `<div class="col-12 text-center"><p class="text-danger">Error: ${data.message}</p></div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading media:', error);
+            const mediaGrid = document.getElementById('mediaGrid');
+            mediaGrid.innerHTML = `<div class="col-12 text-center"><p class="text-danger">Error loading media: ${error.message}</p></div>`;
+        });
 }
 
-/* Add animation for fade out */
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
+// Function to update pagination
+function updatePagination(total, currentPage) {
+    const pagination = document.getElementById('mediaPagination');
+    pagination.innerHTML = '';
+    
+    const totalPages = Math.ceil(total / 12);
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+
+    // Previous button
+    if (currentPage > 1) {
+        const li = document.createElement('li');
+        li.className = 'page-item';
+        li.innerHTML = `<a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>`;
+        pagination.appendChild(li);
+    }
+
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+        pagination.appendChild(li);
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+        const li = document.createElement('li');
+        li.className = 'page-item';
+        li.innerHTML = `<a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>`;
+        pagination.appendChild(li);
+    }
+
+    // Add click handlers
+    pagination.querySelectorAll('.page-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const page = parseInt(this.dataset.page);
+            loadMediaItems(page);
+        });
+    });
 }
 
-.fade-out {
-    animation: fadeOut 0.5s ease-out forwards;
+// Load media items when modal is shown
+document.getElementById('mediaSelectionModal').addEventListener('shown.bs.modal', function () {
+    loadMediaItems();
+});
+
+// Handle media upload
+document.getElementById('media-upload-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch('../api/media/upload.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        console.log('Upload response:', data); // Debug log
+        
+        if (data.success) {
+            // Get the filepath from the response data
+            let filepath = data.data?.filepath;
+            console.log('Original filepath:', filepath); // Debug log
+            
+            if (!filepath) {
+                throw new Error('No filepath returned from server');
+            }
+            
+            // Get current protocol (http or https)
+            const currentProtocol = window.location.protocol;
+            console.log('Current protocol:', currentProtocol); // Debug log
+            
+            // Update the filepath to use the current protocol
+            if (filepath.startsWith('http://') || filepath.startsWith('https://')) {
+                filepath = filepath.replace(/^https?:\/\//, currentProtocol + '//');
+            }
+            console.log('Updated filepath:', filepath); // Debug log
+            
+            // Close the upload modal
+            const uploadModal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
+            uploadModal.hide();
+            
+            // Set the featured image field with the new image path
+            const featuredImageInput = document.getElementById('featured_image');
+            featuredImageInput.value = filepath;
+            console.log('Featured image value set to:', featuredImageInput.value); // Debug log
+            
+            // Reload the media grid
+            loadMediaItems();
+            
+            // Show success notification
+            showNotification('Media uploaded successfully!');
+            
+            // Close the media selection modal
+            const mediaModal = bootstrap.Modal.getInstance(document.getElementById('mediaSelectionModal'));
+            mediaModal.hide();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        alert('Error uploading file: ' + error.message);
+    }
+});
+
+// Function to show notification
+function showNotification(message) {
+    const notification = document.getElementById('notification');
+    const messageSpan = document.getElementById('notification-message');
+    
+    messageSpan.textContent = message;
+    notification.classList.remove('d-none');
+    
+    setTimeout(() => {
+        notification.classList.add('d-none');
+    }, 3000);
 }
-</style> 
+</script> 
