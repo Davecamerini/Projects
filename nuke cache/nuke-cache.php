@@ -72,21 +72,20 @@ function nuke_cache_admin_styles($hook) {
     }
     ?>
     <style>
-        .nuke-cache-container {
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+        .wrap {
+            margin: 20px;
         }
-        .nuke-cache-container h1 {
+        .wrap h1 {
             margin-bottom: 30px;
             color: #1d2327;
             font-size: 24px;
         }
         .nuke-cache-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(2, 600px);
             gap: 24px;
             margin-top: 20px;
+            justify-content: center;
         }
         .nuke-cache-card {
             background: #fff;
@@ -167,16 +166,9 @@ function nuke_cache_admin_styles($hook) {
             height: auto;
             line-height: 1.4;
         }
-        @media screen and (max-width: 782px) {
+        @media screen and (max-width: 1248px) {
             .nuke-cache-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-            .nuke-cache-card {
-                margin-bottom: 0;
-            }
-            .nuke-cache-size {
-                font-size: 28px;
+                grid-template-columns: 600px;
             }
         }
     </style>
@@ -219,70 +211,67 @@ function cache_folder_scanner_page() {
         $et_cache_size = is_dir($et_cache_dir) ? folder_size($et_cache_dir) : 0;
     }
     ?>
-    <div class="wrap nuke-cache-container">
+    <div class="wrap">
         <h1><?php echo esc_html__('Cache Nuker', 'nuke cache'); ?></h1>
-        
-        <div class="nuke-cache-grid">
-            <!-- WordPress Cache Card -->
-            <div class="nuke-cache-card">
-                <div class="nuke-cache-card-header">
-                    <span class="dashicons dashicons-performance"></span>
-                    <h2><?php echo esc_html__('W3TC Cache', 'nuke cache'); ?></h2>
+        <div class="nuke-cache-grid" style="display: grid; grid-template-columns: repeat(2, 600px); gap: 24px; margin-top: 20px; justify-content: center;">
+            <div class="nuke-cache-card" style="background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden; transition: all 0.3s ease; border: 1px solid #e2e4e7; min-height: 300px;">
+                <div class="nuke-card-header" style="background: #f8f9fa; padding: 16px 20px; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; gap: 12px;">
+                    <span class="dashicons dashicons-performance" style="font-size: 24px; width: 24px; height: 24px; color: #2271b1; display: flex; align-items: center; justify-content: center;"></span>
+                    <h2 style="margin: 0; font-size: 16px; font-weight: 600; color: #1d2327;"><?php echo esc_html__('W3TC Cache', 'nuke cache'); ?></h2>
                 </div>
-                <div class="nuke-cache-card-content">
+                <div class="nuke-card-content" style="padding: 24px;">
                     <?php if ($cache_size > 0): ?>
-                        <div class="nuke-cache-size">
+                        <div class="nuke-cache-size" style="font-size: 32px; font-weight: 600; color: #2271b1; line-height: 1.2; margin-bottom: 8px; text-align: center;">
                             <?php echo esc_html(size_format($cache_size)); ?>
                         </div>
-                        <div class="nuke-cache-label">
+                        <div class="nuke-cache-label" style="font-size: 14px; color: #646970; font-weight: 500; text-align: center; margin-bottom: 20px;">
                             <?php echo esc_html__('Total Cache Size', 'nuke cache'); ?>
                         </div>
-                        <div class="nuke-cache-status found">
+                        <div class="nuke-cache-status found" style="padding: 12px; border-radius: 6px; margin: 16px 0; text-align: center; font-size: 14px; font-weight: 500; background: #f0f6fc; color: #2271b1; border: 1px solid #c5d9ed;">
                             <?php echo esc_html__('Cache folder found and ready to be cleared.', 'nuke cache'); ?>
                         </div>
                         <form method="post">
                             <?php wp_nonce_field('empty_cache_action', 'nuke_cache_nonce'); ?>
-                            <input type="submit" name="empty_cache" class="nuke-cache-button primary" value="<?php echo esc_attr__('Empty Cache Folder', 'nuke cache'); ?>" />
+                            <input type="submit" name="empty_cache" class="button button-primary" value="<?php echo esc_attr__('Empty Cache Folder', 'nuke cache'); ?>" style="width: 100%; text-align: center; margin-top: 16px; padding: 8px 16px; height: auto; line-height: 1.4;" />
                         </form>
                     <?php else: ?>
-                        <div class="nuke-cache-size">0 MB</div>
-                        <div class="nuke-cache-label">
+                        <div class="nuke-cache-size" style="font-size: 32px; font-weight: 600; color: #2271b1; line-height: 1.2; margin-bottom: 8px; text-align: center;">0 MB</div>
+                        <div class="nuke-cache-label" style="font-size: 14px; color: #646970; font-weight: 500; text-align: center; margin-bottom: 20px;">
                             <?php echo esc_html__('Total Cache Size', 'nuke cache'); ?>
                         </div>
-                        <div class="nuke-cache-status empty">
+                        <div class="nuke-cache-status empty" style="padding: 12px; border-radius: 6px; margin: 16px 0; text-align: center; font-size: 14px; font-weight: 500; background: #f0f6fc; color: #646970; border: 1px solid #e2e4e7;">
                             <?php echo esc_html__('No Cache folder found.', 'nuke cache'); ?>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
 
-            <!-- Divi Cache Card -->
-            <div class="nuke-cache-card">
-                <div class="nuke-cache-card-header">
-                    <span class="dashicons dashicons-layout"></span>
-                    <h2><?php echo esc_html__('Divi Cache', 'nuke cache'); ?></h2>
+            <div class="nuke-cache-card" style="background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden; transition: all 0.3s ease; border: 1px solid #e2e4e7; min-height: 300px;">
+                <div class="nuke-card-header" style="background: #f8f9fa; padding: 16px 20px; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; gap: 12px;">
+                    <span class="dashicons dashicons-layout" style="font-size: 24px; width: 24px; height: 24px; color: #2271b1; display: flex; align-items: center; justify-content: center;"></span>
+                    <h2 style="margin: 0; font-size: 16px; font-weight: 600; color: #1d2327;"><?php echo esc_html__('Divi Cache', 'nuke cache'); ?></h2>
                 </div>
-                <div class="nuke-cache-card-content">
+                <div class="nuke-card-content" style="padding: 24px;">
                     <?php if ($et_cache_size > 0): ?>
-                        <div class="nuke-cache-size">
+                        <div class="nuke-cache-size" style="font-size: 32px; font-weight: 600; color: #2271b1; line-height: 1.2; margin-bottom: 8px; text-align: center;">
                             <?php echo esc_html(size_format($et_cache_size)); ?>
                         </div>
-                        <div class="nuke-cache-label">
+                        <div class="nuke-cache-label" style="font-size: 14px; color: #646970; font-weight: 500; text-align: center; margin-bottom: 20px;">
                             <?php echo esc_html__('Total Cache Size', 'nuke cache'); ?>
                         </div>
-                        <div class="nuke-cache-status found">
+                        <div class="nuke-cache-status found" style="padding: 12px; border-radius: 6px; margin: 16px 0; text-align: center; font-size: 14px; font-weight: 500; background: #f0f6fc; color: #2271b1; border: 1px solid #c5d9ed;">
                             <?php echo esc_html__('Divi cache folder found and ready to be cleared.', 'nuke cache'); ?>
                         </div>
                         <form method="post">
                             <?php wp_nonce_field('empty_et_cache_action', 'nuke_cache_nonce'); ?>
-                            <input type="submit" name="empty_et_cache" class="nuke-cache-button primary" value="<?php echo esc_attr__('Empty Et-cache Folder', 'nuke cache'); ?>" />
+                            <input type="submit" name="empty_et_cache" class="button button-primary" value="<?php echo esc_attr__('Empty Et-cache Folder', 'nuke cache'); ?>" style="width: 100%; text-align: center; margin-top: 16px; padding: 8px 16px; height: auto; line-height: 1.4;" />
                         </form>
                     <?php else: ?>
-                        <div class="nuke-cache-size">0 MB</div>
-                        <div class="nuke-cache-label">
+                        <div class="nuke-cache-size" style="font-size: 32px; font-weight: 600; color: #2271b1; line-height: 1.2; margin-bottom: 8px; text-align: center;">0 MB</div>
+                        <div class="nuke-cache-label" style="font-size: 14px; color: #646970; font-weight: 500; text-align: center; margin-bottom: 20px;">
                             <?php echo esc_html__('Total Cache Size', 'nuke cache'); ?>
                         </div>
-                        <div class="nuke-cache-status empty">
+                        <div class="nuke-cache-status empty" style="padding: 12px; border-radius: 6px; margin: 16px 0; text-align: center; font-size: 14px; font-weight: 500; background: #f0f6fc; color: #646970; border: 1px solid #e2e4e7;">
                             <?php echo esc_html__('No Divi cache folder found.', 'nuke cache'); ?>
                         </div>
                     <?php endif; ?>

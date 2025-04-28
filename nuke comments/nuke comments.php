@@ -23,6 +23,20 @@ function nuke_comments_admin_styles($hook) {
     }
     ?>
     <style>
+        .wrap {
+            margin: 20px;
+        }
+        .wrap h1 {
+            margin-bottom: 30px;
+            color: #1d2327;
+            font-size: 24px;
+        }
+        .nuke-comments-grid {
+            display: grid;
+            grid-template-columns: 600px;
+            gap: 24px;
+            margin-top: 20px;
+        }
         .nuke-comments-container {
             padding: 20px;
             max-width: 1200px;
@@ -32,12 +46,6 @@ function nuke_comments_admin_styles($hook) {
             margin-bottom: 30px;
             color: #1d2327;
             font-size: 24px;
-        }
-        .nuke-comments-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin-top: 20px;
         }
         .nuke-comments-card {
             background: #fff;
