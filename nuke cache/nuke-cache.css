@@ -12,7 +12,7 @@
 
 .nuke-cache-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: 600px;
     gap: 24px;
     margin-top: 20px;
 }
@@ -24,6 +24,7 @@
     overflow: hidden;
     transition: all 0.3s ease;
     border: 1px solid #e2e4e7;
+    min-height: 300px;
 }
 
 .nuke-cache-card:hover {
@@ -32,9 +33,9 @@
 }
 
 .nuke-cache-card-header {
-    padding: 16px 20px;
     background: #f8f9fa;
-    border-bottom: 1px solid #e2e4e7;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e9ecef;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -45,6 +46,9 @@
     width: 24px;
     height: 24px;
     color: #2271b1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .nuke-cache-card-header h2 {
@@ -56,6 +60,18 @@
 
 .nuke-cache-card-content {
     padding: 24px;
+}
+
+.nuke-cache-card-content p {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #1d2327;
+}
+
+.nuke-cache-card-content p:last-child {
+    margin: 0;
+    font-size: 13px;
+    color: #646970;
 }
 
 .nuke-cache-size {
@@ -103,11 +119,6 @@
     padding: 8px 16px;
     height: auto;
     line-height: 1.4;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
 }
 
 .nuke-cache-button.primary {
@@ -124,10 +135,21 @@
     cursor: not-allowed;
 }
 
+.nuke-cache-card-footer {
+    background: #f8f9fa;
+    padding: 12px 20px;
+    border-top: 1px solid #e9ecef;
+    font-size: 13px;
+    color: #646970;
+}
+
+.nuke-cache-card-footer p {
+    margin: 0;
+}
+
 @media screen and (max-width: 782px) {
     .nuke-cache-grid {
         grid-template-columns: 1fr;
-        gap: 16px;
     }
     
     .nuke-cache-card {

@@ -85,7 +85,6 @@ function nuke_cache_admin_styles($hook) {
             grid-template-columns: repeat(2, 600px);
             gap: 24px;
             margin-top: 20px;
-            justify-content: center;
         }
         .nuke-cache-card {
             background: #fff;
@@ -213,7 +212,7 @@ function cache_folder_scanner_page() {
     ?>
     <div class="wrap">
         <h1><?php echo esc_html__('Cache Nuker', 'nuke cache'); ?></h1>
-        <div class="nuke-cache-grid" style="display: grid; grid-template-columns: repeat(2, 600px); gap: 24px; margin-top: 20px; justify-content: center;">
+        <div class="nuke-cache-grid" style="display: grid; grid-template-columns: repeat(2, 600px); gap: 24px; margin-top: 20px;">
             <div class="nuke-cache-card" style="background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden; transition: all 0.3s ease; border: 1px solid #e2e4e7; min-height: 300px;">
                 <div class="nuke-card-header" style="background: #f8f9fa; padding: 16px 20px; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; gap: 12px;">
                     <span class="dashicons dashicons-performance" style="font-size: 24px; width: 24px; height: 24px; color: #2271b1; display: flex; align-items: center; justify-content: center;"></span>
