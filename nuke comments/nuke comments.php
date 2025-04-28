@@ -38,7 +38,6 @@ function nuke_comments_admin_styles($hook) {
             margin-top: 20px;
         }
         .nuke-comments-container {
-            padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
         }

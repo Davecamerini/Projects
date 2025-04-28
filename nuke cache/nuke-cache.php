@@ -35,15 +35,6 @@ function nuke_cache_admin_scripts($hook) {
         return;
     }
 
-    // Register and enqueue CSS
-    wp_register_style(
-        'nuke-cache-style',
-        plugins_url('nuke-cache.css', __FILE__),
-        array(),
-        '1.0.0'
-    );
-    wp_enqueue_style('nuke-cache-style');
-
     // Register and enqueue JavaScript
     wp_register_script(
         'nuke-cache-script',
@@ -73,7 +64,6 @@ function nuke_cache_admin_styles($hook) {
     ?>
     <style>
         .wrap {
-            margin: 20px;
         }
         .wrap h1 {
             margin-bottom: 30px;
