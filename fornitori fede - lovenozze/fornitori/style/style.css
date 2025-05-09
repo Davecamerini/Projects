@@ -24,10 +24,12 @@ div.card.category-card a:hover{
 }
 
 /* Menu hover override */
-#menu-lovenozze-main a:hover {
+#menu-lovenozze-main a:hover,
+#menu-lovenozze-main a:focus,
+#menu-lovenozze-main a:active {
   text-decoration: line-through !important;
   text-decoration-line: line-through !important;
   text-decoration-style: solid !important;
   text-decoration-color: currentColor !important;
-  text-decoration-thickness: auto !important;
+  text-decoration-thickness: 1px !important;
 }

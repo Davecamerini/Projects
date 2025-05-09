@@ -144,8 +144,8 @@ $places = "";
                       <a href="<?php echo "https://www.lovenozze.it/fornitori/" . urlencode($fornitore['slug']); ?>">
                           <img src="<?php echo "/fornitori/admin/process/uploads/". $fornitore['img_copertina']; ?>" class="card-img-top" alt="<?php echo esc_attr($fornitore['ragione_sociale']); ?>">
                           <div class="card-body">
-                              <h2 class="card-title"><?php echo esc_html($fornitore['ragione_sociale']); ?></h2>
-                              <p class="card-text"><?php echo esc_html($fornitore['descrizione']); ?></p>
+                              <h2 class="card-title"><?php echo esc_html(stripslashes($fornitore['ragione_sociale'])); ?></h2>
+                              <p class="card-text"><?php echo wp_strip_all_tags(stripslashes($fornitore['descrizione'])); ?></p>
                           </div>
                       </a>
                   </div>

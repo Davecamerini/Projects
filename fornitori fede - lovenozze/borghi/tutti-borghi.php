@@ -95,10 +95,10 @@ $places = "";
 <?php get_header(); ?>
 
 <div class="content-page-borghi">
-    <h1 class="text-center mb-3 pb-3 borghi-title">I Borghi più belli d’Italia in evidenza 
+    <h1 class="text-center mb-3 pb-3 borghi-title">I Borghi più belli d'Italia in evidenza 
     </h1>
-    <p style="max-width:850px; margin:auto;" class="text-center mb-5">Un viaggio alla scoperta dei Borghi più belli d’Italia, quelli perfetti per un matrimonio intimo ed autentico, tra paesaggi da sogno, tradizioni da scoprire, residenze storiche e luoghi d’altri tempi. <br>
-    Scopri la nostra selezione dei Borghi più belli: racconti, tradizione e innovazione si fondono per regalarvi un matrimonio unico, di quelli che non hanno eguali.</p>
+    <p style="max-width:850px; margin:auto;" class="text-center mb-5">Un viaggio alla scoperta dei Borghi più belli d'Italia, quelli perfetti per un matrimonio intimo ed autentico, tra paesaggi da sogno, tradizioni da scoprire, residenze storiche e luoghi d'altri tempi. <br>
+    Scopri la nostra selezione dei Borghi più belli: racconti, tradizione e innovazione si fondono per regalarvi un matrimonio unico, di quelli che non hanno eguali.</p>
 
     <!-- Bottone per aprire i filtri -->
   <div class="text-right mb-5">
@@ -164,7 +164,7 @@ $places = "";
                           <img src="<?php echo "/fornitori/admin/process/uploads/". $borgo['img_copertina']; ?>" class="card-img-top" alt="<?php echo esc_attr($borgo['ragione_sociale']); ?>">
                           <div class="card-body">
                               <h2 class="card-title"><?php echo esc_html(stripslashes($borgo['ragione_sociale'])); ?></h2>
-                              <p class="card-text"><?php echo esc_html(stripslashes($borgo['descrizione'])); ?></p>
+                              <p class="card-text"><?php echo wp_strip_all_tags(stripslashes($borgo['descrizione'])); ?></p>
                           </div>
                       </a>
                   </div>

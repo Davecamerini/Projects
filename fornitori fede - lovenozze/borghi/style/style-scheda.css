@@ -67,7 +67,7 @@ body, #qodef-page-wrapper {
 }
 
 .right-column h1 {
-    font-size: 3rem;
+    font-size: 4rem;
     margin-bottom: 10px;
 }
 
@@ -164,7 +164,7 @@ font-size: 1.5em; /* Dimensione leggermente maggiore per le icone */
 /* Impostazioni specifiche per la tabella dei contatti */
 #contact-table {
 width: 100%;
-margin-top: 20px;
+margin-top: 50px;
 margin-left: -10px;
 }
 

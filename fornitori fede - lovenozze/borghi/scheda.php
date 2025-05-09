@@ -117,13 +117,13 @@ $video_files = $borgo['video_files'] ?? '';
 
           <!-- Colonna destra: Informazioni borgo -->
           <div class="right-column" style="width: 60%;">
-              <h1><?php echo esc_html(stripslashes($ragione_sociale)); ?></h1>
+              <h1><?php echo html_entity_decode(stripslashes($ragione_sociale)); ?></h1>
 
               <?php if (!empty($tag)): ?>
                   <!-- Tag -->
                   <div class="tags mt-2 mb-3">
                       <?php foreach ($tag as $single_tag): ?>
-                          <span class="tag"><?php echo esc_html(trim($single_tag)); ?></span>
+                          <span class="tag"><?php echo html_entity_decode(stripslashes(trim($single_tag))); ?></span>
                       <?php endforeach; ?>
                   </div>
               <?php endif; ?>
@@ -131,19 +131,19 @@ $video_files = $borgo['video_files'] ?? '';
 
               <!-- Descrizione -->
               <div class="description mb-4">
-                  <p><?php echo wp_kses_post($descrizione); ?></p>
+                  <p><?php echo wp_kses_post(stripslashes($descrizione)); ?></p>
               </div>
 
               <!-- Citazione -->
               <?php if (!empty($citazione)): ?>
                   <blockquote class="blockquote">
-                      <p class="mb-4">"<?php echo wp_kses_post($citazione); ?>"</p>
+                      <p class="mb-4"><?php echo wp_kses_post(stripslashes($citazione)); ?></p>
                   </blockquote>
               <?php endif; ?>
 
               <!-- Descrizione ripetuta -->
               <div class="description mb-4">
-                  <p><?php echo wp_kses_post($descrizione_due); ?></p>
+                  <p><?php echo wp_kses_post(stripslashes($descrizione_due)); ?></p>
               </div>
 
               <!-- Tabella per le icone di contatto con ID univoco (mantenuta) -->
